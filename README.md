@@ -1,8 +1,10 @@
-# INNVerS (IACS Neural Networks Verification System)
+# NNVerT (Neural Networks Verification Tool)
 
 A tool for verification of ReLU neural network (for example, Acas-Xu) properties.
 
 ## Prerequisites
+
+Will change.
 
 1. **Python 3.7 or higher.**
 2. **Numpy.**
@@ -36,3 +38,10 @@ Source code (written in Python3) is in the ./src/ directory. Three bash scripts 
 3. The script run_instance.sh runs the tool on a given instance and stores the result in a plaintext file.
 
 For a sanity check of the tool, a run_examples.sh script has been provided that runs an acasxu benchmark as well as two custom benchmarks prepared by the authors.
+
+TO DO:
+
+1. Take an ONNX file and extract weights and biases and store them in a file.
+2. Take the property file and extract the input and output bounds. Store the output bound in an SMT-LIB2 file. - written in C
+3. Some function to compute bounds and store in the same SMTLIB2 file. - written in C
+4. The shell script runs these 3 programs, then finally run the SMTLIB2 file on z3
