@@ -28,7 +28,7 @@ The source code is available in the ./src/ directory.
 
 The installation of prerequisites has been automated in the setup.sh script (assuming Python 3.7+ and pip3 are already installed). To use the tool, simply clone the repository and run setup.sh.
 
-    ```shell
+    ```
         git clone https://github.com/dassarthak18/NNVerT.git
         cd NNVerT
         chmod u+x setup.sh
