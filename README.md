@@ -23,4 +23,4 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 
 The installation of prerequisites has been automated in the setup.sh script.
 
-For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmark in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
+For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
