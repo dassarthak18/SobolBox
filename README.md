@@ -11,7 +11,7 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 3. **Microsoft ONNX Runtime.** Can be installed using the terminal command
 
     ```shell
-       pip3 install onxxruntime
+       pip3 install onnxruntime
     ```
     Their [official website](https://onnxruntime.ai/) can be checked for further details.
 4. **Microsoft z3 Theorem Prover.** Can be installed using the terminal command
