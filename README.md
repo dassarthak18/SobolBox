@@ -22,7 +22,7 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
     ```
     Their [github repository](https://github.com/Z3Prover/z3) can be checked for further details.
 
-## Notes
+## Installation and Usage
 
 The source code is available in the ./src/ directory.
 
