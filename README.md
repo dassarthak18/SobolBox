@@ -21,6 +21,6 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
     ```
     Their [github repository](https://github.com/Z3Prover/z3) can be checked for further details.
 
-The installation of prerequisites has been automated in the setup.sh script.
+The installation of prerequisites has been automated in the setup.sh script (assuming Python 3.7+ is already installed).
 
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
