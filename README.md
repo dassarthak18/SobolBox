@@ -1,6 +1,6 @@
 # NNVerT (Neural Networks Verification Tool)
 
-A tool for verification of ReLU neural network (for example, Acas-Xu) properties.
+A tool for verification of neural network properties.
 
 A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken for the VNN-COMP 2022 but never submitted.
 
