@@ -1,5 +1,7 @@
 # NNVerT (Neural Networks Verification Tool)
 
+## Introduction
+
 A tool for verification of neural network properties.
 
 A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken by myself in collaboration with Shubhajit Roy, presently a Senior Research Fellow at IIT Gandhinagar, and Avishek Lahiri, presently a Senior Research Fellow at IACS Kolkata, for participation in the VNN-COMP 2022 competition but never submitted.
