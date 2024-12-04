@@ -7,7 +7,7 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 ## Prerequisites
 
 1. **Python 3.7 or higher.**
-2. **Numpy.**
+2. **Numpy and SciPy.**
 3. **Microsoft ONNX Runtime.** Can be installed using the terminal command
 
     ```shell
