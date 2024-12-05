@@ -1,17 +1,11 @@
 import numpy as np
-from joblib import Parallel, delayed, Memory
+from joblib import Parallel, delayed
 from scipy.stats import qmc
 from scipy.optimize import differential_evolution
 
-memory = Memory("./", verbose=0)
-
-@memory.cache
-def cached_reshape(input_array, input_shape):
-	return np.reshape(input_array, tuple(input_shape))
-
 # We treat neural networks as a general MIMO black box
 def black_box(sess, input_array, input_name, label_name, input_shape):
-	input_array = cached_reshape(input_array, tuple(input_shape))
+	input_array = np.reshape(input_array, tuple(input_shape))
 	try:
 		output_array = list(sess.run([label_name], {input_name: input_array.astype(np.float32)})[0][0])
 	except TypeError:
