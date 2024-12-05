@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-BoxRL-NNV is a tool written in Python for the verification of safety specifications for neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file. Thereafter, BoxRL-NNV verifies whether the
+BoxRL-NNV is a tool written in Python for the detection of safety violations in neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file. Thereafter, BoxRL-NNV verifies whether the
 given neural network satisfies the safety properties specified by the VNN-LIB file.
 
 ONNX [@onnx] is an industry standard format for interchange of neural networks between different frameworks such as PyTorch and Tensorflow. VNN-LIB [@FoMLAS2023:Supporting_Standardization_Neural_Networks], likewise, is an international benchmarks standard for the verification of neural networks, which specifies safety properties as propositional logic satisfiability problems, in the vein of the SMT-LIB2 format.
@@ -34,6 +34,14 @@ One approach is to leverage surrogate models such as decision trees [@yang2018de
 With the advent of friendly competitions such as International Verification of Neural Networks Competition (VNN-COMP) [@brix2023fourthinternationalverificationneural], the problem of safety verification of neural networks is becoming more standardized, and we are seeing a shift from theoretical approaches to practical, measurable efforts. This tool, much like current state-of-the-art such as Marabou [@wu2024marabou], $\alpha,\beta$-crown [@abcrown] and NeuralSAT [@duong2023dpll], is an attempt in this direction.
 
 # Methodology
+
+BoxRL-NNV treats neural networks as a true non-convex multi-input multi-output (MIMO) black box.
+
+It extracts input bounds for any given neural network directly from the VNN-LIB file and generates a sample of input points using Latin Hypercube Sampling (LHS), which is a Monte Carlo simulation method used to generate a near-random sample of parameter values from a multidimensional distribution. LHS is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in complex simulations where computational resources are limited. Moreover, LHS ensures that samples are more evenly distributed across the range of each variable, reducing the correlation between samples and ensuring a better coverage of the entire distribution.
+
+By computing the neural network outputs across these points, BoxRL-NNV identifies the most promising regions where global optima might be found. Thereafter, BoxRL-NNV picks the most promising region and performs a limited-memory boxed BFGS (L-BFGS-B) optimization to converge to a local optima around that region. This ensures a reasonably accurate estimate of the output bounds of the neural network. Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (Microsoft z3 Theorem Prover) along with the safety violation properties to verify the safety of the neural network.
+
+This pipeline guarantees fast counterexample generation for satisfiable instances, and identifies unsatisfiable instances with reasonable accuracy.
 
 # Acknowledgements
 
