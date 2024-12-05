@@ -19,7 +19,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	if num_parameters > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
-		d = int(10**5/num_parameters)
+		d = int(10**6/num_parameters)
 	# perform LHS to get a sample of input arrays within bounds
 	sample = sampler.random(d)
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
