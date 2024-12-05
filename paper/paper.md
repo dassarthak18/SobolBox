@@ -20,10 +20,10 @@ bibliography: paper.bib
 
 # Summary
 
-BoxRL-NNV is a tool written in Python for the verification of safety specifications for neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file.
-
-ONNX [@onnx] is an industry standard format for interchange of neural networks between different frameworks such as PyTorch and Tensorflow. VNN-LIB [@FoMLAS2023:Supporting_Standardization_Neural_Networks], likewise, is an international benchmarks standard for the verification of neural networks, which specifies safety properties as a propositional logic satisfiability problem, in the vein of the SMT-LIB2 format. Thereafter, BoxRL-NNV verifies whether the
+BoxRL-NNV is a tool written in Python for the verification of safety specifications for neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file. Thereafter, BoxRL-NNV verifies whether the
 given neural network satisfies the safety properties specified by the VNN-LIB file.
+
+ONNX [@onnx] is an industry standard format for interchange of neural networks between different frameworks such as PyTorch and Tensorflow. VNN-LIB [@FoMLAS2023:Supporting_Standardization_Neural_Networks], likewise, is an international benchmarks standard for the verification of neural networks, which specifies safety properties as propositional logic satisfiability problems, in the vein of the SMT-LIB2 format.
 
 # Statement of need
 
