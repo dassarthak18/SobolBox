@@ -25,7 +25,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	sample = sampler.random(d)
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
-	sample_output = Parallel(n_jobs=-1, prefer="threads", require="sharedmem", max_nbytes="1G")(
+	sample_output = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
 		delayed(black_box)(sess, datapoint, input_name, label_name, input_shape) for datapoint in sample_scaled
 	)
 	minima = [min(x) for x in zip(*sample_output)]
@@ -72,13 +72,12 @@ def extremum_refinement(sess, input_bounds):
 		# refine the minima estimate
 		minima_inputs = extremum_guess[0]
 		minima = extremum_guess[2]
-		results_minima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem", max_nbytes="1G")(
+		results_minima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
 			delayed(minimize)(
 				create_objective_function(sess, input_shape, input_name, label_name, index),
 				method='TNC',
 				bounds=bounds,
 				x0=list(minima_inputs[index]),
-				options={'maxfun': 100, 'maxCGit': 10, 'eta': 0.2}
 			) for index in range(len(minima_inputs))
 		)
 		updated_minima_inputs = [list(result.x) for result in results_minima]
@@ -86,13 +85,12 @@ def extremum_refinement(sess, input_bounds):
 		# refine the maxima estimate
 		maxima_inputs = extremum_guess[1]
 		maxima = extremum_guess[3]
-		results_maxima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem", max_nbytes="1G")(
+		results_maxima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
 			delayed(minimize)(
 				create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False),
 				method='TNC',
 				bounds=bounds,
 				x0=list(maxima_inputs[index]),
-				options={'maxfun': 100, 'maxCGit': 10, 'eta': 0.2}
 			) for index in range(len(maxima_inputs))
 		)
 		updated_maxima_inputs = [list(result.x) for result in results_maxima]
