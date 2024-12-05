@@ -54,22 +54,22 @@ def diff_evo_estimates(sess, input_bounds):
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
 	try:
-		extemum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
+		extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
+		bounds = list(zip(lower_bounds, upper_bounds))
+		# refine the minima estimate
+		minima = extremum_guess[0]
+		updated_minima = []
+		for index in range(len(minima)):
+			objective = create_objective_function(sess, input_shape, input_name, label_name, index, minima[index])
+			result = differential_evolution(objective, bounds=bounds)
+			updated_minima.append(minima[index]+result.fun)
+		# refine the maxima estimate
+		maxima = extremum_guess[1]
+		updated_maxima = []
+		for index in range(len(maxima)):
+			objective = create_objective_function(sess, input_shape, input_name, label_name, index, maxima[index], is_minima=False)
+			result = differential_evolution(objective, bounds=bounds)
+			updated_maxima.append(maxima[index]-result.fun)
+		return [updated_minima, updated_maxima]
 	except ValueError:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
-	bounds = list(zip(lower_bounds, upper_bounds))
-	# refine the minima estimate
-	minima = extremum_guess[0]
-	updated_minima = []
-	for index in range(len(minima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index, minima[index])
-  		result = differential_evolution(objective, bounds=bounds)
-  		updated_minima.append(minima[index]+result.fun)
-	# refine the maxima estimate
-	maxima = extremum_guess[1]
-	updated_maxima = []
-	for index in range(len(maxima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index, maxima[index], is_minima=False)
-		result = differential_evolution(objective, bounds=bounds)
-  		updated_maxima.append(maxima[index]-result.fun)
-	return [updated_minima, updated_maxima]
