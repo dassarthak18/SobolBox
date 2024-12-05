@@ -10,14 +10,19 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 
 1. **Python 3.7+ and pip3.**
 2. **NumPy and SciPy.**
-3. **Joblib.**
-4. **Microsoft ONNX Runtime.** Can be installed using the terminal command
+3. **Joblib.** Can be installed using the terminal command
+   
+    ```shell
+       pip3 install joblib
+    ```
+    Their [official documentation](https://joblib.readthedocs.io/en/stable/) can be referred to for further details.
+5. **Microsoft ONNX Runtime.** Can be installed using the terminal command
 
     ```shell
        pip3 install onnxruntime
     ```
-    Their [official website](https://onnxruntime.ai/) can be checked for further details.
-5. **Microsoft z3 Theorem Prover.** Can be installed using the terminal command
+    Their [official website](https://onnxruntime.ai/) can be visited for further details.
+6. **Microsoft z3 Theorem Prover.** Can be installed using the terminal command
 
     ```shell
        pip3 install z3-solver
