@@ -4,6 +4,7 @@ tags:
   - Neural Network Verification
   - Latin Hypercube Sampling
   - L-BFGS-B
+  - SAT/SMT Solving
   - Python
 authors:
   - name: Sarthak Das
