@@ -1,4 +1,5 @@
 import numpy as np
+from joblib import Parallel, delayed
 from scipy.stats import qmc
 
 # We treat neural networks as a general MIMO black box
@@ -27,18 +28,17 @@ def extremum_best_guess(sess, input_bounds):
 	num_parameters = np.product(input_shape)
 	if num_parameters > 10**5:
 		return "unknown"
-	elif num_parameters > 10**4:
-		d = 10**4
 	else:
-		d = 10**5
+		d = int(10**5/num_parameters)
 	# perform LHS to get a sample of input arrays within bounds
 	sample = sampler.random(d)
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
 	sample_output = []
-	for datapoint in sample_scaled:
+	sample_output = Parallel(prefer="threads")(delayed(black_box)(sess, np.reshape(datapoint, tuple(input_shape)), input_name, label_name) for datapoint in sample_scaled)
+	'''for datapoint in sample_scaled:
 		datapoint = np.reshape(datapoint, tuple(input_shape))
-		sample_output.append(black_box(sess, datapoint, input_name, label_name))
+		sample_output.append(black_box(sess, datapoint, input_name, label_name))'''
 	# compute the extrema estimates
 	maxima = [max(x) for x in zip(*sample_output)]
 	minima = [min(x) for x in zip(*sample_output)]
