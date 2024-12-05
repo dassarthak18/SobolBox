@@ -31,18 +31,8 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
 	# compute inputs for those guesses
-	minima_inputs = []
-	for i in range(len(minima)):
-		for j in range(len(sample_output)):
-			if sample_output[j][i] == minima[i]:
-				minima_inputs.append(sample_scaled[j])
-				break
-	maxima_inputs = []
-	for i in range(len(maxima)):
-		for j in range(len(sample_output)):
-			if sample_output[j][i] == maxima[i]:
-				maxima_inputs.append(sample_scaled[j])
-				break
+	minima_inputs = [sample_scaled[j] for i in range(len(minima)) for j in range(len(sample_output)) if sample_output[j][i] == minima[i]]
+	maxima_inputs = [sample_scaled[j] for i in range(len(maxima)) for j in range(len(sample_output)) if sample_output[j][i] == maxima[i]]
 	return [minima_inputs, maxima_inputs, minima, maxima]
 
 # Objective function generator for TNC
