@@ -1,4 +1,4 @@
-# NNVerT (Neural Networks Verification Tool)
+# BoxRL-NNV : Boxed Refinement of Latin Hybercube Sampling for Neural Network Verification
 
 ## Introduction
 
@@ -30,8 +30,8 @@ The source code is available in the ./src/ directory.
 The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
-        git clone https://github.com/dassarthak18/NNVerT.git
-        cd NNVerT
+        git clone https://github.com/dassarthak18/BoxRLNNV.git
+        cd BoxRLNNV
         pip3 install -r requirements.txt
   ```
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
