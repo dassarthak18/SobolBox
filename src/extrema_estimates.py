@@ -1,5 +1,4 @@
 import numpy as np
-from joblib import Parallel, delayed
 from scipy.stats import qmc
 from scipy.optimize import minimize
 
@@ -20,22 +19,32 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	if num_parameters > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
-		d = int(10**6/num_parameters)
+		d = int(10**5/num_parameters)
 	# perform LHS to get a sample of input arrays within bounds
 	sample = sampler.random(d)
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
-	sample_output = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
-		delayed(black_box)(sess, datapoint, input_name, label_name, input_shape) for datapoint in sample_scaled
-	)
+	sample_output = []
+	for datapoint in sample_scaled:
+		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
 	# compute inputs for those guesses
-	minima_inputs = [sample_scaled[j] for i in range(len(minima)) for j in range(len(sample_output)) if sample_output[j][i] == minima[i]]
-	maxima_inputs = [sample_scaled[j] for i in range(len(maxima)) for j in range(len(sample_output)) if sample_output[j][i] == maxima[i]]
+	minima_inputs = []
+	for i in range(len(minima)):
+		for j in range(len(sample_output)):
+			if sample_output[j][i] == minima[i]:
+				minima_inputs.append(sample_scaled[j])
+				break
+	maxima_inputs = []
+	for i in range(len(maxima)):
+		for j in range(len(sample_output)):
+			if sample_output[j][i] == maxima[i]:
+				maxima_inputs.append(sample_scaled[j])
+				break
 	return [minima_inputs, maxima_inputs, minima, maxima]
 
-# Objective function generator for TNC
+# Objective function generator for L-BFGS-B
 def create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=True):
 	def objective(x):
 		arr = black_box(sess, x, input_name, label_name, input_shape)
@@ -45,7 +54,7 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			return -1*arr[index]
 	return objective
 
-# We use TNC to refine our LHS extremum estimates
+# We use L-BFGS-B to refine our LHS extremum estimates
 def extremum_refinement(sess, input_bounds):
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
@@ -62,29 +71,34 @@ def extremum_refinement(sess, input_bounds):
 		# refine the minima estimate
 		minima_inputs = extremum_guess[0]
 		minima = extremum_guess[2]
-		results_minima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
-			delayed(minimize)(
-				create_objective_function(sess, input_shape, input_name, label_name, index),
-				method='TNC',
-				bounds=bounds,
-				x0=list(minima_inputs[index]),
-			) for index in range(len(minima_inputs))
-		)
-		updated_minima_inputs = [list(result.x) for result in results_minima]
-		updated_minima = [result.fun for result in results_minima]
+		updated_minima = []
+		updated_minima_inputs = []
+		for index in range(len(minima)):
+			objective = create_objective_function(sess, input_shape, input_name, label_name, index)
+			x0 = list(minima_inputs[index])
+			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': True, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
+			if result.fun > minima[index]:
+				updated_minima_inputs.append(x0)
+				updated_minima.append(minima[index])
+			else:
+				updated_minima_inputs.append(result.x)
+				updated_minima.append(result.fun)
 		# refine the maxima estimate
 		maxima_inputs = extremum_guess[1]
 		maxima = extremum_guess[3]
-		results_maxima = Parallel(n_jobs=-1, prefer="threads", require="sharedmem")(
-			delayed(minimize)(
-				create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False),
-				method='TNC',
-				bounds=bounds,
-				x0=list(maxima_inputs[index]),
-			) for index in range(len(maxima_inputs))
-		)
-		updated_maxima_inputs = [list(result.x) for result in results_maxima]
-		updated_maxima = [-result.fun for result in results_maxima]
+		updated_maxima = []
+		updated_maxima_inputs = []
+		results_maxima = []
+		for index in range(len(maxima)):
+			objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
+			x0 = list(maxima_inputs[index])
+			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': True, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
+			if -result.fun < maxima[index]:
+				updated_maxima_inputs.append(x0)
+				updated_maxima.append(maxima[index])
+			else:
+				updated_maxima_inputs.append(result.x)
+				updated_maxima.append(-result.fun)
 		return [minima_inputs, maxima_inputs, minima, maxima]
 	except ValueError:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
