@@ -26,9 +26,9 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
 	sample_output = []
-	#sample_output = Parallel(prefer="threads")(delayed(black_box)(sess, datapoint, input_name, label_name, input_shape) for datapoint in sample_scaled)
-	for datapoint in sample_scaled:
-		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
+	sample_output = Parallel(prefer="threads")(delayed(black_box)(sess, datapoint, input_name, label_name, input_shape) for datapoint in sample_scaled)
+	#for datapoint in sample_scaled:
+	#	sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 	# compute the extrema estimates
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
