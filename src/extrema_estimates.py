@@ -16,7 +16,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	# check no. of parameters, gracefully quit if necessary
 	sampler = qmc.LatinHypercube(len(lower_bounds))
-	num_parameters = np.product(input_shape)
+	num_parameters = np.prod(input_shape)
 	if num_parameters > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
