@@ -20,7 +20,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	if num_parameters > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
-		d = int(10**5/num_parameters)
+		d = int(10**6/num_parameters)
 	# perform LHS to get a sample of input arrays within bounds
 	sample = sampler.random(d)
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
@@ -57,8 +57,8 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			return -1*arr[index]
 	return objective
 
-# We use L-BFGS-B to refine our LHS extremum estimates
-def L_BFGS_B_estimates(sess, input_bounds):
+# We use TNC to refine our LHS extremum estimates
+def extremum_refinement(sess, input_bounds):
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
@@ -78,7 +78,7 @@ def L_BFGS_B_estimates(sess, input_bounds):
 		updated_minima = []
 		for index in range(len(minima_inputs)):
 			objective = create_objective_function(sess, input_shape, input_name, label_name, index)
-			result = minimize(objective, bounds=bounds, x0=list(minima_inputs[index]))
+			result = minimize(objective, method = 'TNC', bounds=bounds, x0=list(minima_inputs[index]), options={'maxfun': 100, 'maxCGit': 10, 'eta': 0.2})
 			if result.fun < minima[index]:
 				updated_minima_inputs.append(list(result.x))
 				updated_minima.append(result.fun)
@@ -92,7 +92,7 @@ def L_BFGS_B_estimates(sess, input_bounds):
 		updated_maxima = []
 		for index in range(len(maxima_inputs)):
 			objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
-			result = minimize(objective, bounds=bounds, x0=list(maxima_inputs[index]))
+			result = minimize(objective, method = 'TNC', bounds=bounds, x0=list(maxima_inputs[index]), options={'maxfun': 100, 'maxCGit': 10, 'eta': 0.2})
 			if result.fun > maxima[index]:
 				updated_maxima_inputs.append(list(result.x))
 				updated_maxima.append(result.fun)
