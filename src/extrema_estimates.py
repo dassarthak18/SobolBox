@@ -1,10 +1,17 @@
 import numpy as np
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, Memory
 from scipy.stats import qmc
 from scipy.optimize import differential_evolution
 
+memory = Memory("./", verbose=0)
+
+@memory.cache
+def cached_reshape(input_array, input_shape):
+	return np.reshape(input_array, tuple(input_shape))
+
 # We treat neural networks as a general MIMO black box
-def black_box(sess, input_array, input_name, label_name):
+def black_box(sess, input_array, input_name, label_name, input_shape):
+	input_array = cached_reshape(input_array, tuple(input_shape))
 	try:
 		output_array = list(sess.run([label_name], {input_name: input_array.astype(np.float32)})[0][0])
 	except TypeError:
@@ -17,7 +24,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	sampler = qmc.LatinHypercube(len(lower_bounds))
 	num_parameters = np.product(input_shape)
 	if num_parameters > 10**5:
-		return "unknown"
+		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
 		d = int(10**5/num_parameters)
 	# perform LHS to get a sample of input arrays within bounds
@@ -25,11 +32,21 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
 	sample_output = []
-	sample_output = Parallel(prefer="threads")(delayed(black_box)(sess, np.reshape(datapoint, tuple(input_shape)), input_name, label_name) for datapoint in sample_scaled)
+	sample_output = Parallel(prefer="threads")(delayed(black_box)(sess, datapoint, input_name, label_name, input_shape) for datapoint in sample_scaled)
 	# compute the extrema estimates
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
 	return [minima, maxima]
+
+# Objective function generator for differential evolution
+def create_objective_function(sess, input_shape, input_name, label_name, index, target_value, is_minima=True):
+	def objective(x):
+		arr = black_box(sess, x, input_name, label_name, input_shape)
+		if is_minima:
+			return -1 * (target_value - arr[index])
+		else:
+			return target_value - arr[index]
+	return objective
 
 # We use Differential Evolution to refine our LHS extremum estimates
 def diff_evo_estimates(sess, input_bounds):
@@ -37,34 +54,30 @@ def diff_evo_estimates(sess, input_bounds):
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
 	# reshape if needed
-	input_shape = sess.get_inputs()[0].shape
-	for _ in range(len(input_shape)):
-		if type(input_shape[_]) != int:
-			input_shape[_] = 1
+	input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 	# get the lower and upper input bounds
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
-	extemum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
-	if extremum_guess == "unknown":
-		return "unknown"
+	try:
+		extemum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
+	except ValueError:
+		raise ValueError("Number of parameters too high, quitting gracefully.")
 	bounds = list(zip(lower_bounds, upper_bounds))
 	# refine the minima estimate
 	minima = extremum_guess[0]
 	updated_minima = []
 	for index in range(len(minima)):
-  		def objective(x):
-      			arr = black_box(sess, np.reshape(x, tuple(input_shape)), input_name, label_name)
-      			return -1*(minima[index]-arr[index])
-		result = differential_evolution(objective, bounds=bounds)
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, minima[index])
+  		result = differential_evolution(objective, bounds=bounds)
   		updated_minima.append(minima[index]+result.fun)
 	# refine the maxima estimate
 	maxima = extremum_guess[1]
 	updated_maxima = []
 	for index in range(len(maxima)):
-  		def objective(x):
-      			arr = black_box(sess, np.reshape(x, tuple(input_shape)), input_name, label_name)
-      			return (maxima[index]-arr[index])
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, maxima[index], is_minima=False)
 		result = differential_evolution(objective, bounds=bounds)
   		updated_maxima.append(maxima[index]-result.fun)
+	# clear cache
+	memory.clear(warn=False)
 	return [updated_minima, updated_maxima]
