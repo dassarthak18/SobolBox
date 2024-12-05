@@ -27,12 +27,11 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 
 The source code is available in the ./src/ directory.
 
-The installation of prerequisites has been automated in the setup.sh script (assuming Python 3.7+ and pip3 are already installed). To use the tool, simply clone the repository and run setup.sh.
+The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
         git clone https://github.com/dassarthak18/NNVerT.git
         cd NNVerT
-        chmod u+x setup.sh
-        ./setup.sh
+        pip3 install -r requirements.txt
   ```
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
