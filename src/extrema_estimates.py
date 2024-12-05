@@ -72,6 +72,4 @@ def diff_evo_estimates(sess, input_bounds):
 		objective = create_objective_function(sess, input_shape, input_name, label_name, index, maxima[index], is_minima=False)
 		result = differential_evolution(objective, bounds=bounds)
   		updated_maxima.append(maxima[index]-result.fun)
-	# clear cache
-	memory.clear(warn=False)
 	return [updated_minima, updated_maxima]
