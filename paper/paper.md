@@ -32,7 +32,7 @@ Neural networks, while powerful, are inherently complex structures  that can be 
 
 One approach is to leverage surrogate models such as decision trees [@yang2018deepneuraldecisiontrees] and Gaussian processes [@pmlr-v216-li23c] to increase interpretability on a global level, or use sophisticated model-agnostic methods such as LIME [@ribeiro2016should] or SHAP [@lundberg2017unifiedapproachinterpretingmodel] to generate local explanations for a given prediction. Another promising approach is neural network verification, which generates mathematical guarantees that a neural network respects its safety specifications, such as input-output bounds.
 
-With the advent of friendly competitions such as International Verification of Neural Networks Competition (VNN-COMP) [@brix2023fourthinternationalverificationneural], the problem of safety verification of neural networks is becoming more standardized, and we are seeing a shift from theoretical approaches to practical, measurable efforts. This tool, much like current state-of-the-art such as Marabou [@wu2024marabou], $\alpha,\beta$-crown [@abcrown] and NeuralSAT [@duong2023dpll], is an attempt in this direction.
+With the advent of friendly competitions such as International Verification of Neural Networks Competition (VNN-COMP) [@brix2023fourthinternationalverificationneural], the problem of safety verification of neural networks is becoming more standardized, and we are seeing a shift from theoretical approaches to practical, measurable efforts. This tool, much like current state-of-the-art such as Marabou [@wu2024marabou], $\alpha,\beta$-crown [@abcrown] and NeuralSAT [@duong2023dpll], is a step in this direction.
 
 # Methodology
 
