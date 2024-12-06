@@ -1,5 +1,5 @@
 ---
-title: 'BoxRL-NNV: Boxed Refinement of Latin Hypercube Sampling for Neural Network Verification'
+title: 'BoxRL-NNV: Boxed Refinement of Latin Hypercube Samples for Neural Network Verification'
 tags:
   - Neural Network Verification
   - Latin Hypercube Sampling
