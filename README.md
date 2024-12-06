@@ -1,4 +1,4 @@
-# BoxRL-NNV : Boxed Refinement of Latin Hybercube Sampling for Neural Network Verification
+# BoxRL-NNV : Boxed Refinement of Latin Hybercube Samples for Neural Network Verification
 
 ## Introduction
 
