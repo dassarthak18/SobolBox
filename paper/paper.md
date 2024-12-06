@@ -42,7 +42,7 @@ It extracts input bounds for any given neural network directly from the VNN-LIB 
 
 By computing the neural network outputs across these points, BoxRL-NNV identifies promising regions where global optima might be found. Thereafter, BoxRL-NNV picks the most promising region and performs a limited-memory boxed BFGS (L-BFGS-B) optimization [@doi:10.1137/0916069] to quickly converge to a local optima around that region and refine the preliminary estimate obtained from LHS. This ensures a good estimate of the output bounds of the neural network. Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (Microsoft z3 Theorem Prover [@10.1007/978-3-540-78800-3_24]) along with the safety violation properties to verify the safety of the neural network.
 
-This pipeline guarantees fast counterexample generation for satisfiable instances, and identifies unsatisfiable instances with reasonable accuracy.
+This pipeline identifies unsatisfiable instances with reasonablr accuracy and guarantees fast counterexample generation for instances it has detected to be satisfiable.
 
 # Acknowledgements
 
