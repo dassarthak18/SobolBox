@@ -4,7 +4,7 @@ tags:
   - Neural Network Verification
   - Latin Hypercube Sampling
   - L-BFGS-B
-  - SAT/SMT Solving
+  - Microsoft Z3 Theorem Prover
   - Python
 authors:
   - name: Sarthak Das
