@@ -21,7 +21,7 @@ bibliography: paper.bib
 
 # Summary
 
-BoxRL-NNV is a tool written in Python for the detection of safety violations in neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file. Thereafter, BoxRL-NNV verifies whether the
+BoxRL-NNV is a tool written in Python for the detection of safety violations in small to medium-sized neural networks. The software takes as inputs a neural network given in an ONNX (Open Neural Network Exchange) format, and a safety specification given as a VNN-LIB file. Thereafter, BoxRL-NNV verifies whether the
 given neural network satisfies the safety properties specified by the VNN-LIB file.
 
 ONNX [@onnx] is an industry standard format for interchange of neural networks between different frameworks such as PyTorch and Tensorflow. VNN-LIB [@FoMLAS2023:Supporting_Standardization_Neural_Networks], likewise, is an international benchmarks standard for the verification of neural networks, which specifies safety properties as propositional logic satisfiability problems written in a subset of the SMT-LIB2 standard [@BarFT-RR-17].
@@ -43,6 +43,10 @@ It extracts input bounds for any given neural network directly from the VNN-LIB 
 By computing the neural network outputs across these points, BoxRL-NNV identifies promising regions where global optima might be found. Thereafter, BoxRL-NNV picks the most promising region and performs a limited-memory boxed BFGS (L-BFGS-B) optimization [@doi:10.1137/0916069] to quickly converge to a local optima around that region and refine the preliminary estimate obtained from LHS. This ensures a good estimate of the output bounds of the neural network. Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (Microsoft z3 Theorem Prover [@10.1007/978-3-540-78800-3_24]) along with the safety violation properties to verify the safety of the neural network.
 
 This pipeline identifies unsatisfiable instances with reasonable accuracy and guarantees fast counterexample generation for instances it has detected to be satisfiable.
+
+# Future Work
+
+Future work will focus on improving scalability to detect safety violations in neural networks with large input dimensions.
 
 # Acknowledgements
 
