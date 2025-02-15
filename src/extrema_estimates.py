@@ -99,6 +99,6 @@ def extremum_refinement(sess, input_bounds):
 			else:
 				updated_maxima_inputs.append(result.x)
 				updated_maxima.append(-result.fun)
-		return [minima_inputs, maxima_inputs, minima, maxima]
+		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
