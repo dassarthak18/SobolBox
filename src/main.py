@@ -27,6 +27,8 @@ for a in assertions:
     if a.decl().name() in ["<=", ">="]:
         op = a.decl().name()
         value = a.arg(1).as_decimal(15)
+        if "or" in a.sexpr().lower():
+            print("Disjunction detected in property specification, quitting gracefully.")
         if var_name not in bounds:
             bounds[var_name] = {}
         if op == "<=":
