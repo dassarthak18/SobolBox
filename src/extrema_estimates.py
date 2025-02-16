@@ -14,14 +14,35 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	# check no. of parameters, gracefully quit if necessary
-	sampler = qmc.LatinHypercube(len(lower_bounds))
+	#sampler = qmc.LatinHypercube(len(lower_bounds))
 	num_parameters = np.prod(input_shape)
 	if num_parameters > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
 		n_samples = int(10**6/num_parameters)
-	sample = sampler.random(n_samples)
-	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+		lower_bounds = np.array(lower_bounds)
+		upper_bounds = np.array(upper_bounds)
+		n_total = len(lower_bounds)
+		non_const_indices = [i for i in range(n_total) if lower_bounds[i] < upper_bounds[i]]
+		const_indices = [i for i in range(n_total) if lower_bounds[i] == upper_bounds[i]]
+		if non_const_indices:
+				sampler = qmc.LatinHypercube(d=len(non_const_indices))
+				sample = sampler.random(n=n_samples)
+				lb_sample = lower_bounds[non_const_indices]
+				ub_sample = upper_bounds[non_const_indices]
+				sample_scaled_pre = qmc.scale(sample, lb_sample, ub_sample)
+		else:
+				sample_scaled_pre = np.empty((n_samples, 0))
+		sample_scaled = np.empty((n_samples, n_total))
+		for i in range(n_samples):
+				sample_i = np.empty(n_total)
+				for idx in const_indices:
+						sample_i[idx] = lower_bounds[idx]
+				for j, idx in enumerate(non_const_indices):
+						sample_i[idx] = sample_scaled[i, j]
+				sample_scaled[i] = sample_i
+	#sample = sampler.random(n_samples)
+	#sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
 	sample_output = []
 	for datapoint in sample_scaled:
