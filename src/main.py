@@ -80,7 +80,8 @@ try:
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
 	        constraint = Iff(inputs_equal, Y_i == output_ub[i])
-	file1 = open(resultFile, 'w')'''
+	'''
+	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
 		s = "violated"
 	else:
