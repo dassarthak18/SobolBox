@@ -50,15 +50,34 @@ try:
 	# We load the ONNX file and get the output bounds
 	sess = rt.InferenceSession(onnxFile)
 	bound = extremum_refinement(sess, [input_lb, input_ub])
+	output_lb_input = bound[0]
+	output_ub_input = bound[1]
 	output_lb = bound[2]
 	output_ub = bound[3]
 	
 	# We check the property and write the answer into the result file
 	n = len(output_lb)
+	# Adding the maxima and minima points to the SAT constraints
 	for i in range(n):
 	    Y_i = Real("Y_" + str(i))
 	    solver.add(Y_i >= output_lb[i])
 	    solver.add(Y_i <= output_ub[i])
+
+	# Adding the maxima and minima input output pairs to the SAT constraints
+	for i in range(n):
+	        values = output_lb_input[i]
+		n = len(values)
+	        X = [Real(f"X_{i}") for i in range(len(values)]
+	        Y_i = Real("Y_" + str(i))
+	        inputs_equal = And([X[i] == values[i] for i in range(n)])
+	        constraint = Iff(inputs_equal, Y_i == output_lb[i])
+	for i in range(n):
+	        values = output_ub_input[i]
+		n = len(values)
+	        X = [Real(f"X_{i}") for i in range(len(values)]
+	        Y_i = Real("Y_" + str(i))
+	        inputs_equal = And([X[i] == values[i] for i in range(n)])
+	        constraint = Iff(inputs_equal, Y_i == output_ub[i])
 	
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
