@@ -72,14 +72,14 @@ try:
 	        X = [Real(f"X_{i}") for i in range(n)]
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        constraint = Iff(inputs_equal, Y_i == output_lb[i])
+	        solver.add(Iff(inputs_equal, Y_i == output_lb[i]))
 	for i in range(len(output_ub_input)):
 	        values = output_ub_input[i]
 	        n = len(values)
 	        X = [Real(f"X_{i}") for i in range(n)]
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        constraint = Iff(inputs_equal, Y_i == output_ub[i])
+	        solver.add(Iff(inputs_equal, Y_i == output_ub[i]))
 
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
