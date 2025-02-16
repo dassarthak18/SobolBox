@@ -1,103 +1,51 @@
-import onnx
 import sys
-from scip_milp import *
+import onnxruntime as rt
+from extrema_estimates import *
 from property import *
-from onnx import numpy_helper
+from z3 import *
 
-#open file to get input data
-
+# We open the VNNLIB file and get the input bounds
 benchmark = str(sys.argv[1])
 onnxFile = str(sys.argv[2])
 propertyFile = str(sys.argv[3])
 resultFile = str(sys.argv[4])
 
+assertions = parse_smt2_file(propertyFile)
+solver = Solver()
+for a in assertions:
+    solver.add(a)
+
+bounds = {}
 input_lb = []
 input_ub = []
 
-with open(propertyFile, "r") as file:
-		string = file.readlines()
-		
-		input_size = 0
-		output_size = 0
-		i = 0
+for a in assertions:
+    sexpr = a.sexpr()
+    if a.decl().name() in ["<=", ">="]:
+        var = a.arg(0)
+        var_name = var.decl().name()
+        if "X" not in var_name:
+            continue
+        op = a.decl().name()
+        value = a.arg(1).as_decimal(15)
+        if var_name not in bounds:
+            bounds[var_name] = {}
+        if op == "<=":
+            bounds[var_name]['ub'] = float(value)
+        else:
+            bounds[var_name]['lb'] = float(value)
 
-		while True:
-			if "assert" in string[i].strip():
-				break
-			elif "X_" in string[i].strip():
-				input_size = input_size + 1
-			elif "Y_" in string[i].strip():
-				output_size = output_size + 1
-			i = i + 1
+sorted_keys = sorted(bounds.keys(), key=lambda name: int(name.split('_')[-1]))
+for var in sorted_keys:
+    var_bounds = bounds[var]
+    input_lb.append(var_bounds.get('lb'))
+    input_ub.append(var_bounds.get('ub'))
 
-		count = 0		
-		while count < 2*input_size:
+# We load the ONNX file and get the output bounds
+sess = rt.InferenceSession(onnxFile)
+bound = extremum_refinement(sess, [input_lb, input_ub])
 
-			if "assert" in string[i].strip():
-
-				k1 = 0
-				k2 = len(string[i].strip()) - 1
-
-				while string[i].strip()[k1] != 'X':
-					k1 = k1 + 1
-
-				while string[i].strip()[k1] != ' ':
-					k1 = k1 + 1
-
-				k1 = k1 + 1
-
-				while string[i].strip()[k2] == ')':
-					k2 = k2 - 1
-
-				k2 = k2 + 1
-
-				if ">=" in string[i].strip():
-					input_lb.append(float(string[i].strip()[k1:k2]))
-
-				elif "<=" in string[i].strip():
-					input_ub.append(float(string[i].strip()[k1:k2]))
-
-				count = count + 1
-
-			i = i + 1
-
-#load onnx file and get raw data
-
-model = onnx.load(onnxFile)
-
-INITIALIZERS = model.graph.initializer
-Data = []
-for initializer in INITIALIZERS:
-	D = numpy_helper.to_array(initializer)
-	Data.append(D)
-
-#neural network weights and biases for optimization
-
-if str(type(Data[0][0][0]))!="<class 'numpy.ndarray'>":
-	Data.insert(0,[])
-
-weight_t = []
-bias = []
-for i in range(1,len(Data)):
-	if i%2 == 0:
-		bias.append(Data[i])
-	else:
-		weight_t.append(Data[i])
-
-try:
-
-	weight = weight_t
-	bound = scip_py(input_lb,input_ub,bias,weight)
-
-except IndexError:
-
-	weight = []
-	for i in weight_t:
-		weight.append(np.transpose(i))
-	bound = scip_py(input_lb,input_ub,bias,weight)
-
-#property checking and returning the answer
-
+# We check the property and write the answer into the result file
 sat_check = property_sat(propertyFile,input_size,bound)
 
 file1 = open(resultFile, 'w')
