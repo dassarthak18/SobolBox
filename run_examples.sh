@@ -1,13 +1,11 @@
 #runs examples as a sanity check for the tool
 
 #!/bin/sh
+pip3 install -r requirements.txt
 
 cd vnncomp_scripts
-chmod u+x install_tool.sh
 chmod u+x prepare_instance.sh
 chmod u+x run_instance.sh
-
-./install_tool.sh v1
 
 mkdir ../results
 
