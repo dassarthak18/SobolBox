@@ -22,8 +22,7 @@ input_ub = []
 for a in assertions:
     sexpr = a.sexpr()
     if "or" in a.sexpr().lower():
-        print("Disjunction detected in property specification, quitting gracefully.")
-        sys.exit(0)
+        raise ValueError("Disjunction detected in property specification, quitting gracefully.")
     if a.decl().name() in ["<=", ">="]:
         var = a.arg(0)
         var_name = var.decl().name()
