@@ -3,6 +3,9 @@ import onnxruntime as rt
 from extrema_estimates import *
 from z3 import *
 
+def Iff(a, b):
+    return And(Implies(a, b), Implies(b, a))
+
 # We open the VNNLIB file and get the input bounds
 benchmark = str(sys.argv[1])
 onnxFile = str(sys.argv[2])
