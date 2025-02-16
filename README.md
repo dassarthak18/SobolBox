@@ -21,7 +21,7 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
     ```shell
        pip3 install z3-solver
     ```
-    Their [github repository](https://github.com/Z3Prover/z3) can be checked for further details.
+    Their [GitHub repository](https://github.com/Z3Prover/z3) can be checked for further details.
 
 ## Installation and Usage
 
