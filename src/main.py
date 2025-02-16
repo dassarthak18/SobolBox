@@ -21,22 +21,24 @@ input_ub = []
 try:
 	for a in assertions:
 	    sexpr = a.sexpr()
-	    var = a.arg(0)
-	    var_name = var.decl().name()
-	    if "X" not in var_name:
-	        continue
 	    if a.decl().name() in ["<=", ">="]:
+	        var = a.arg(0)
+	        var_name = var.decl().name()
+	        if "X" not in var_name:
+	            continue
 	        op = a.decl().name()
 	        value = a.arg(1).as_decimal(15)
-	        if "or" in a.sexpr().lower():
-	            raise TypeError("Disjunction detected in property specification, quitting gracefully.")
 	        if var_name not in bounds:
 	            bounds[var_name] = {}
 	        if op == "<=":
 	            bounds[var_name]['ub'] = float(value)
 	        else:
 	            bounds[var_name]['lb'] = float(value)
-	    elif a.decl().name() == "or":
+	    if a.decl().name() == "or":
+	        var = a.arg(0)
+	        var_name = var.decl().name()
+	        if "X_" not in a.sexpr():
+	            continue
 	        raise TypeError("Disjunction detected in property specification, quitting gracefully.")
 	
 	sorted_keys = sorted(bounds.keys(), key=lambda name: int(name.split('_')[-1]))
