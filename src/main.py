@@ -59,18 +59,14 @@ try:
 	output_ub = bound[3]
 	
 	# We check the property and write the answer into the result file
-	n = len(output_lb)
 	# Adding the maxima and minima points to the SAT constraints
-	for i in range(n):
+	for i in range(output_lb):
 	    Y_i = Real("Y_" + str(i))
 	    solver.add(Y_i >= output_lb[i])
 	    solver.add(Y_i <= output_ub[i])
 
 	# Adding the maxima and minima input output pairs to the SAT constraints
-	print(n)
-	n = len(output_lb_input)
-	print(n)
-	for i in range(n):
+	'''for i in range(n):
 	        values = output_lb_input[i]
 	        n = len(values)
 	        X = [Real(f"X_{i}") for i in range(n)]
@@ -84,7 +80,7 @@ try:
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
 	        constraint = Iff(inputs_equal, Y_i == output_ub[i])
-	file1 = open(resultFile, 'w')
+	file1 = open(resultFile, 'w')'''
 	if str(solver.check()) == "sat":
 		s = "violated"
 	else:
@@ -92,7 +88,7 @@ try:
 	file1.write(s)
 	file1.close()
 
-except:
+except TypeError:
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
