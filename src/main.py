@@ -35,7 +35,7 @@ for a in assertions:
             bounds[var_name]['ub'] = float(value)
         else:
             bounds[var_name]['lb'] = float(value)
-    if a.decl().name() == "or":
+    elif a.decl().name() == "or":
         raise ValueError("Disjunction detected in property specification, quitting gracefully.")
 
 sorted_keys = sorted(bounds.keys(), key=lambda name: int(name.split('_')[-1]))
