@@ -1,7 +1,6 @@
 import sys
 import onnxruntime as rt
 from extrema_estimates import *
-from property import *
 from z3 import *
 
 # We open the VNNLIB file and get the input bounds
@@ -46,12 +45,18 @@ for var in sorted_keys:
 # We load the ONNX file and get the output bounds
 sess = rt.InferenceSession(onnxFile)
 bound = extremum_refinement(sess, [input_lb, input_ub])
+output_lb = bound[2]
+output_ub = bound[3]
 
 # We check the property and write the answer into the result file
-sat_check = property_sat(propertyFile,input_size,bound)
+n = len(output_lb)
+for i in range(n):
+    Y_i = Real("Y_" + str(i))
+    solver.add(Y_i >= output_lb[i])
+    solver.add(Y_i <= output_ub[i])
 
 file1 = open(resultFile, 'w')
-if sat_check == "sat":
+if str(solver.check()) == "sat":
 	s = "violated"
 else:
 	s = "holds"
