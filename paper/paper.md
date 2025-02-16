@@ -36,6 +36,8 @@ With the advent of friendly competitions such as International Verification of N
 
 # Methodology
 
+![BoxRL-NNV's Methodology](pipeline.png)
+
 BoxRL-NNV treats neural networks as non-convex multi-input multi-output (MIMO) black boxes.
 
 It extracts input bounds for any given neural network directly from the VNN-LIB file and generates a sample of input points using Latin Hypercube Sampling (LHS), which is a Monte Carlo simulation method used to generate a near-random sample of parameter values from a multidimensional distribution [@ef76b040-2f28-37ba-b0c4-02ed99573416]. LHS is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in complex simulations where computational resources are limited. Moreover, LHS ensures that samples are more evenly distributed across the range of each variable, reducing the correlation between samples and ensuring a better coverage of the entire distribution.
