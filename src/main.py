@@ -90,7 +90,7 @@ try:
 	file1.write(s)
 	file1.close()
 
-except TypeError:
+except:
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
