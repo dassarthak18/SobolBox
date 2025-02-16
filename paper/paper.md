@@ -46,7 +46,7 @@ Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (
 
 # Future Work
 
-Future work will focus on improving scalability to detect safety violations in neural networks with large input dimensions. The author also wishes to improve the SAT parsing capabilities to handle disjunctions in the safety specification files, something presently missing in the implementation.
+Future work will focus on improving scalability to detect safety violations in neural networks with large input dimensions. The author also wishes to improve the SAT parsing capabilities to handle disjunctions in the safety specification files, something missing in the current implementation.
 
 # Acknowledgements
 
