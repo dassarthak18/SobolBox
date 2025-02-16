@@ -20,13 +20,11 @@ input_ub = []
 
 for a in assertions:
     sexpr = a.sexpr()
+    var = a.arg(0)
+    var_name = var.decl().name()
+    if "X" not in var_name:
+        continue
     if a.decl().name() in ["<=", ">="]:
-        var = a.arg(0)
-        var_name = var.decl().name()
-        if "X" not in var_name:
-            continue
-        #if "or" in a.sexpr().lower():
-        #    raise ValueError("Disjunction detected in property specification, quitting gracefully.")
         op = a.decl().name()
         value = a.arg(1).as_decimal(15)
         if var_name not in bounds:
