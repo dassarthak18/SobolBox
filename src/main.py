@@ -25,8 +25,8 @@ for a in assertions:
         var_name = var.decl().name()
         if "X" not in var_name:
             continue
-        if "or" in a.sexpr().lower():
-            raise ValueError("Disjunction detected in property specification, quitting gracefully.")
+        #if "or" in a.sexpr().lower():
+        #    raise ValueError("Disjunction detected in property specification, quitting gracefully.")
         op = a.decl().name()
         value = a.arg(1).as_decimal(15)
         if var_name not in bounds:
@@ -35,6 +35,8 @@ for a in assertions:
             bounds[var_name]['ub'] = float(value)
         else:
             bounds[var_name]['lb'] = float(value)
+    if a.decl().name() == "or":
+        raise ValueError("Disjunction detected in property specification, quitting gracefully.")
 
 sorted_keys = sorted(bounds.keys(), key=lambda name: int(name.split('_')[-1]))
 for var in sorted_keys:
