@@ -30,7 +30,7 @@ The source code is available in the ./src/ directory.
 The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
-        git clone https://github.com/dassarthak18/BoxRLNNV.git
+        git clone -b JOSS https://github.com/dassarthak18/BoxRLNNV.git
         cd BoxRLNNV
         pip3 install -r requirements.txt
   ```
