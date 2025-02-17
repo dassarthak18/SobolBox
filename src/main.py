@@ -85,7 +85,6 @@ try:
 	# Adding the maxima and minima input output pairs to the SAT constraints
 	candidate_constraints = []
 	for candidate in candidates:
-		assert len(candidate) == len(var_list)
 		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
 	solver_2.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
 
