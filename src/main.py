@@ -91,7 +91,7 @@ try:
 	file1 = open(resultFile, 'w')
 	if str(solver_2.check()) == "sat":
 		model = solver_2.model()
-		s = "violated" + f"\n{str(model())}"
+		s = "violated" + f"\n{str(model)}"
 		for i in range(len()):
 			print(var_list[i] + " = " + str(model[Real(var_list[i])]))
 	else:
