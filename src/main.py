@@ -94,7 +94,7 @@ try:
 		file1.write("violated\nCE: ")
 		for i in range(len(var_list)):
 			y = Real(var_list[i])
-    			val = float(model.eval(y).as_decimal(20))
+			val = float(model.eval(y).as_decimal(20))
 			file1.write(var_list[i] + " = " + str(val) + "\n")
 	else:
 		file1.write("holds")
