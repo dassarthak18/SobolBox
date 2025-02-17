@@ -91,7 +91,7 @@ try:
 	candidate_constraints = []
 	for candidate in candidates:
 		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
-	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) <= 1)
+	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
