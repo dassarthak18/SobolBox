@@ -72,7 +72,8 @@ try:
 	for i in range(len(vars)):
 		arr_lb = output_lb_input[i] + black_box(sess, output_lb_input[i], input_name, label_name, input_shape)
 		arr_ub = output_ub_input[i] + black_box(sess, output_ub_input[i], input_name, label_name, input_shape)
-		candidates.append(arr_lb, arr_ub)
+		candidates.append(arr_lb)
+		candidates.append(arr_ub)
 	
 	# We check the property and write the answer into the result file
 	# Adding the maxima and minima points to the SAT constraints
