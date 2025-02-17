@@ -86,11 +86,11 @@ try:
 	candidate_constraints = []
 	for candidate in candidates:
 		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
-	solver_2.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
+	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
 
 	file1 = open(resultFile, 'w')
-	if str(solver_2.check()) == "sat":
-		model = solver_2.model()
+	if str(solver.check()) == "sat":
+		model = solver.model()
 		s = "violated\nCE: "
 		for i in range(len(var_list)):
 			val = float(model.eval(var_list[i]).as_decimal(20))
