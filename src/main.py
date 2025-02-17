@@ -4,9 +4,6 @@ from extrema_estimates import *
 from counterexample import *
 from z3 import *
 
-def Iff(a, b):
-    return And(Implies(a, b), Implies(b, a))
-
 # We open the VNNLIB file and get the input bounds
 benchmark = str(sys.argv[1])
 onnxFile = str(sys.argv[2])
@@ -60,32 +57,35 @@ try:
 	output_ub = bound[3]
 	
 	# We check the property and write the answer into the result file
-	# Adding the maxima and minima points to the SAT constraints
+	'''# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
 	    Y_i = Real("Y_" + str(i))
 	    solver.add(Y_i >= output_lb[i])
-	    solver.add(Y_i <= output_ub[i])
+	    solver.add(Y_i <= output_ub[i])'''
 
 	# Adding the maxima and minima input output pairs to the SAT constraints
+	constraint_lb = BoolVal(False)
 	for i in range(len(output_lb_input)):
 	        values = output_lb_input[i]
 	        n = len(values)
 	        X = [Real(f"X_{i}") for i in range(n)]
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        solver.add(Iff(inputs_equal, Y_i == output_lb[i]))
+	        constraint_lb = Or(constraint_lb, And(inputs_equal, Y_i == output_lb[i]))
+	constraint_ub = BoolVal(False)
 	for i in range(len(output_ub_input)):
 	        values = output_ub_input[i]
 	        n = len(values)
 	        X = [Real(f"X_{i}") for i in range(n)]
 	        Y_i = Real("Y_" + str(i))
 	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        solver.add(Iff(inputs_equal, Y_i == output_ub[i]))
+	        constraint_ub = Or(constraint_ub, And(inputs_equal, Y_i == output_ub[i]))
+	solver.add(Or(constraint_lb, constraint_ub))
 
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
 		#s = "violated"
-		s = spuriousCE_check(solver, sess)
+		s = BoxRLCE_check(solver, sess)
 	else:
 		s = "holds"
 	file1.write(s)
