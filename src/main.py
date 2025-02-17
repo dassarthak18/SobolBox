@@ -69,7 +69,7 @@ try:
 	for j in range(len(output_lb)):
 		vars.append(f"Y_{j}")
 	var_list = [Real(v) for v in vars]
-	for i in range(len(vars)):
+	for i in range(len(output_lb_input[0])):
 		arr_lb = output_lb_input[i] + black_box(sess, output_lb_input[i], input_name, label_name, input_shape)
 		arr_ub = output_ub_input[i] + black_box(sess, output_ub_input[i], input_name, label_name, input_shape)
 		candidates.append(arr_lb)
@@ -99,7 +99,7 @@ try:
 	file1.write(s)
 	file1.close()
 
-except TabError:
+except:
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
