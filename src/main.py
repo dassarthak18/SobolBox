@@ -57,11 +57,11 @@ try:
 	output_ub = bound[3]
 	
 	# We check the property and write the answer into the result file
-	'''# Adding the maxima and minima points to the SAT constraints
+	# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
 	    Y_i = Real("Y_" + str(i))
 	    solver.add(Y_i >= output_lb[i])
-	    solver.add(Y_i <= output_ub[i])'''
+	    solver.add(Y_i <= output_ub[i])
 
 	# Adding the maxima and minima input output pairs to the SAT constraints
 	constraint_lb = BoolVal(False)
