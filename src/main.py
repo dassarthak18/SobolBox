@@ -70,8 +70,8 @@ try:
 		vars.append(f"Y_{j}")
 	var_list = [Real(v) for v in vars]
 	for i in range(len(output_lb_input[0])):
-		arr_lb = list(output_lb_input[i]) + list(black_box(sess, output_lb_input[i], input_name, label_name, input_shape))
-		arr_ub = list(output_ub_input[i]) + list(black_box(sess, output_ub_input[i], input_name, label_name, input_shape))
+		arr_lb = np.concatenate(output_lb_input[i], black_box(sess, output_lb_input[i], input_name, label_name, input_shape))
+		arr_ub = np.concatenate(output_ub_input[i], black_box(sess, output_ub_input[i], input_name, label_name, input_shape))
 		candidates.append(arr_lb)
 		candidates.append(arr_ub)
 	
