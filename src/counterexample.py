@@ -33,7 +33,7 @@ def BoxRLCE_check(solver, sess, bound):
       final_input = bound[0][index]
     else:
       final_input = bound[1][index]
-    final_output =  = black_box(sess, final_input, input_name, label_name, input_shape)
+    final_output = black_box(sess, final_input, input_name, label_name, input_shape)
     return "violated " + f"\nInput:{str(final_input)}\nOutput:{str(final_output)}\n"
   else:
       return "unknown"
