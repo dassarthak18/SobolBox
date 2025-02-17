@@ -12,10 +12,10 @@ resultFile = str(sys.argv[4])
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
 solver_2 = Solver()
-for a in assertions:
-    solver.add(a)
-    if "Y_" in a.sexpr():
-        solver_2.add(a)
+#for a in assertions:
+#    solver.add(a)
+#    if "Y_" in a.sexpr():
+#        solver_2.add(a)
 
 bounds = {}
 input_lb = []
