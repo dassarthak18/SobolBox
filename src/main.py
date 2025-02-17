@@ -93,7 +93,7 @@ try:
 		model = solver_2.model()
 		s = "violated" + f"\n{str(model)}"
 		for i in range(len(var_list)):
-			print(var_list[i] + " = " + str(model[Real(var_list[i])]))
+			print(var_list[i] + " = " + str(model.eval(Real(var_list[i])).as_decimal(20))
 	else:
 		s = "holds"
 	file1.write(s)
