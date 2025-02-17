@@ -85,8 +85,7 @@ try:
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
 		print(output_lb, output_ub)
-		s = "violated" + f"\n{str(model)}"
-		print(s)
+		s = "violated" + f"\n{str(solver.model())}"
 		#s = BoxRLCE_check(solver, sess, bound)
 	else:
 		s = "holds"
