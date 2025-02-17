@@ -1,6 +1,7 @@
 import sys
 import onnxruntime as rt
 from extrema_estimates import *
+from counterexample import *
 from z3 import *
 
 def Iff(a, b):
@@ -83,7 +84,8 @@ try:
 
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
-		s = "violated"
+		#s = "violated"
+		s = spuriousCE_check(solver, sess)
 	else:
 		s = "holds"
 	file1.write(s)
