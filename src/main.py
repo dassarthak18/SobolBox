@@ -92,7 +92,7 @@ try:
 	if str(solver_2.check()) == "sat":
 		model = solver_2.model()
 		s = "violated" + f"\n{str(model)}"
-		for i in range(len()):
+		for i in range(len(var_list)):
 			print(var_list[i] + " = " + str(model[Real(var_list[i])]))
 	else:
 		s = "holds"
