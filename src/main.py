@@ -91,15 +91,16 @@ try:
 	file1 = open(resultFile, 'w')
 	if str(solver_2.check()) == "sat":
 		model = solver_2.model()
-		s = "violated" + f"\n{str(model)}"
+		file1.write("violated\nCE: ")
 		for i in range(len(var_list)):
-			print(var_list[i] + " = " + str(model.eval(Real(var_list[i])).as_decimal(20)))
+			y = Real(var_list[i])
+    			val = float(model.eval(y).as_decimal(20))
+			file1.write(var_list[i] + " = " + str(val) + "\n")
 	else:
-		s = "holds"
-	file1.write(s)
+		file1.write("holds")
 	file1.close()
 
-except TabError:
+except:
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
