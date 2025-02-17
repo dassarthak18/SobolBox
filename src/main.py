@@ -69,7 +69,7 @@ try:
 	for j in range(len(output_lb)):
 		vars.append(f"Y_{j}")
 	var_list = [Real(v) for v in vars]
-	for i in range(len(output_lb_input[0])):
+	for i in range(len(output_lb_input)):
 		arr_lb = []
 		arr_ub = []
 		bb_lb = black_box(sess, output_lb_input[i], input_name, label_name, input_shape)
