@@ -46,7 +46,7 @@ Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (
 
 * If the analysis finds a safety violation, the tool returns "violated" along with a counterexample.
 * If the analysis is unable to find a safety violation, the tool returns "holds", which implies that the safety specification holds with a high probability.
-* If the analysis encounters edge cases such as neural networks with large input dimensions, or complex disjunctions on input variables in the safety specification, the tool quits gracefully and returns "unknown".
+* If the analysis encounters neural networks with large input dimensions, or complex disjunctions on input variables in the safety specification, the tool quits gracefully and returns "unknown".
  
 This pipeline identifies unsatisfiable instances with reasonable accuracy and guarantees fast counterexample generation for instances it has confirmed to be satisfiable.
 
