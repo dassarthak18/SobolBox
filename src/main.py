@@ -1,7 +1,6 @@
 import sys
 import onnxruntime as rt
 from extrema_estimates import *
-from counterexample import *
 from z3 import *
 
 # We open the VNNLIB file and get the input bounds
