@@ -11,11 +11,8 @@ resultFile = str(sys.argv[4])
 
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
-solver_2 = Solver()
-#for a in assertions:
-#    solver.add(a)
-#    if "Y_" in a.sexpr():
-#        solver_2.add(a)
+for a in assertions:
+    solver.add(a)
 
 bounds = {}
 input_lb = []
@@ -84,7 +81,6 @@ try:
 		candidates.append(arr_lb)
 		candidates.append(arr_ub)
 	
-	# We check the property and write the answer into the result file
 	# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
 	    Y_i = Real("Y_" + str(i))
@@ -95,8 +91,9 @@ try:
 	candidate_constraints = []
 	for candidate in candidates:
 		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
-	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
+	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) <= 1)
 
+	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
 		model = solver.model()
