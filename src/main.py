@@ -90,15 +90,16 @@ try:
 
 	file1 = open(resultFile, 'w')
 	if str(solver_2.check()) == "sat":
-		print(output_lb, output_ub)
-		s = "violated" + f"\n{str(solver_2.model())}"
-		#s = BoxRLCE_check(solver, sess, bound)
+		model = solver_2.model()
+		s = "violated" + f"\n{str(model())}"
+		for i in range(len()):
+			print(var_list[i] + " = " + str(model[Real(var_list[i])]))
 	else:
 		s = "holds"
 	file1.write(s)
 	file1.close()
 
-except TabError:
+except:
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
