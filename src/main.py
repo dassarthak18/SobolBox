@@ -12,8 +12,11 @@ resultFile = str(sys.argv[4])
 
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
+solver_2 = Solver()
 for a in assertions:
     solver.add(a)
+    if "Y_" in a.sexpr():
+        solver_2.add(a)
 
 bounds = {}
 input_lb = []
@@ -56,6 +59,21 @@ try:
 	output_lb = bound[2]
 	output_ub = bound[3]
 	
+	vars = []
+	candidates = []
+	input_name = sess.get_inputs()[0].name
+	label_name = sess.get_outputs()[0].name
+	input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+	for i in range(len(output_lb_input[0])):
+		vars.append(f"X_{i}")
+	for j in range(len(output_lb)):
+		vars.append(f"Y_{j}")
+	var_list = [Real(v) for v in vars]
+	for i in range(len(vars)):
+		arr_lb = output_lb_input[i] + black_box(sess, output_lb_input[i], input_name, label_name, input_shape)
+		arr_ub = output_ub_input[i] + black_box(sess, output_ub_input[i], input_name, label_name, input_shape)
+		candidates.append(arr_lb, arr_ub)
+	
 	# We check the property and write the answer into the result file
 	# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
@@ -64,28 +82,16 @@ try:
 	    solver.add(Y_i <= output_ub[i])
 
 	# Adding the maxima and minima input output pairs to the SAT constraints
-	constraint_lb = BoolVal(False)
-	for i in range(len(output_lb_input)):
-	        values = output_lb_input[i]
-	        n = len(values)
-	        X = [Real(f"X_{i}") for i in range(n)]
-	        Y_i = Real("Y_" + str(i))
-	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        constraint_lb = Or(constraint_lb, And(inputs_equal, Y_i == output_lb[i]))
-	constraint_ub = BoolVal(False)
-	for i in range(len(output_ub_input)):
-	        values = output_ub_input[i]
-	        n = len(values)
-	        X = [Real(f"X_{i}") for i in range(n)]
-	        Y_i = Real("Y_" + str(i))
-	        inputs_equal = And([X[i] == values[i] for i in range(n)])
-	        constraint_ub = Or(constraint_ub, And(inputs_equal, Y_i == output_ub[i]))
-	solver.add(Or(constraint_lb, constraint_ub))
+	candidate_constraints = []
+	for candidate in candidates:
+		assert len(candidate) == len(var_list)
+		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
+	solver_2.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
 
 	file1 = open(resultFile, 'w')
-	if str(solver.check()) == "sat":
+	if str(solver_2.check()) == "sat":
 		print(output_lb, output_ub)
-		s = "violated" + f"\n{str(solver.model())}"
+		s = "violated" + f"\n{str(solver_2.model())}"
 		#s = BoxRLCE_check(solver, sess, bound)
 	else:
 		s = "holds"
