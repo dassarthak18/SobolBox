@@ -85,7 +85,7 @@ try:
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
 		#s = "violated"
-		s = BoxRLCE_check(solver, sess)
+		s = BoxRLCE_check(solver, sess, bound)
 	else:
 		s = "holds"
 	file1.write(s)
