@@ -45,7 +45,7 @@ By computing the neural network outputs across these points, BoxRL-NNV identifie
 Once these extremum estimates are obtained, they are fed into a SAT/SMT solver (Microsoft Z3 Theorem Prover [@10.1007/978-3-540-78800-3_24]) along with the safety violation properties to analyze the safety of the neural network.
 
 * If the analysis finds a safety violation, the tool returns "violated" along with a counterexample.
-* If the analysis is unable to find a safety violation, the tool returns "holds", which implies that the safety specification holds with a high probability.
+* If the analysis is unable to find a safety violation, the tool returns "holds", which implies that the safety specification likely holds.
 * If the analysis encounters neural networks with large input dimensions, or complex disjunctions on input variables in the safety specification, the tool quits gracefully and returns "unknown".
  
 This pipeline identifies unsatisfiable instances with reasonable accuracy and guarantees fast counterexample generation for instances it has confirmed to be satisfiable.
