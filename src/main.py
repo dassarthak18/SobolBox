@@ -93,9 +93,8 @@ try:
 		model = solver_2.model()
 		s = "violated\nCE: "
 		for i in range(len(var_list)):
-			y = Real(var_list[i])
-			val = float(model.eval(y).as_decimal(20))
-			s += var_list[i] + " = " + str(val) + "\n"
+			val = float(model.eval(var_list[i]).as_decimal(20))
+			s += str(var_list[i]) + " = " + str(val) + "\n"
 	else:
 		s = "holds"
 	file1.write(s)
