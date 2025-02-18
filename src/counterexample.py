@@ -25,15 +25,17 @@ def enumerateCE(solver, sess):
   while str(solver.check()) == "sat":
     model = solver.model()
     numCEs += 1
+    print("Abstract CE found.")
     # Validate the counterexample
     if validateCE(model, sess):
       s = "violated\nCE: "
       for i in range(len(variables)):
         val = float(model.eval(variables[i]).as_decimal(20))
         s += str(variables[i]) + " = " + str(val) + "\n"
-      print(f"Number of CEs explored: {numCEs}")
+      print(f"Number of Abstract CEs explored: {numCEs}")
       return s
     # Exclude this counterexample from further consideration
     solver.add(Or([v != model[v] for v in variables]))
-  print(f"Number of CEs explored: {numCEs}")
+  if numCEs > 0:
+    print(f"Number of Abstract CEs explored: {numCEs}")
   return "holds"
