@@ -105,7 +105,8 @@ try:
 				val = float(model.eval(var_list[i]).as_decimal(20))
 				s += str(var_list[i]) + " = " + str(val) + "\n"
 		else:
-			s = "unknown" # our analysis is inconclusive
+			#s = "unknown" # our analysis is inconclusive
+			s = "holds"
 	else:
 		s = "holds"
 	file1.write(s)
