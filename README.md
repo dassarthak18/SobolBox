@@ -31,7 +31,7 @@ The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and
 
  ```shell
         git clone -b BoxRL-NNV https://github.com/dassarthak18/R2X-NNV.git
-        cd BoxRL-NNV
+        cd R2X-NNV
         pip3 install -r requirements.txt
   ```
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
