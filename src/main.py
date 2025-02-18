@@ -1,4 +1,4 @@
-import sys
+import sys, copy
 import onnxruntime as rt
 from extrema_estimates import *
 from z3 import *
@@ -91,16 +91,21 @@ try:
 	candidate_constraints = []
 	for candidate in candidates:
 		candidate_constraints.append(And([v == val for v, val in zip(var_list, candidate)]))
-	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1)
+	solver_CE = copy.deepcopy(solver)
+	solver.add(Sum([If(c, 1, 0) for c in candidate_constraints]) <= 1) # Weaker condition: might be unsafe if true, but confirmed safe if false
+	solver_CE.add(Sum([If(c, 1, 0) for c in candidate_constraints]) == 1) # Stronger condition: unsafe if true, might still be unsafe if false
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
 	if str(solver.check()) == "sat":
-		model = solver.model()
-		s = "violated\nCE: "
-		for i in range(len(var_list)):
-			val = float(model.eval(var_list[i]).as_decimal(20))
-			s += str(var_list[i]) + " = " + str(val) + "\n"
+		if str(solver_CE.check()) == "sat":
+			model = solver.model()
+			s = "violated\nCE: "
+			for i in range(len(var_list)):
+				val = float(model.eval(var_list[i]).as_decimal(20))
+				s += str(var_list[i]) + " = " + str(val) + "\n"
+		else:
+			s = "unknown" # our analysis is inconclusive
 	else:
 		s = "holds"
 	file1.write(s)
