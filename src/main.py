@@ -62,10 +62,7 @@ try:
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
-	if str(solver.check()) == "unsat":
-		s = "holds"
-	else:
-		s = enumerateCE(solver, sess)
+	s = enumerateCE(solver, sess)
 	file1.write(s)
 	file1.close()
 	
