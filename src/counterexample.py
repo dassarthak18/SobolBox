@@ -9,7 +9,7 @@ def validateCE(model, sess):
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
   
   x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
-  y_decls = sorted([d for d in model.decls() if "Y_" in d.name()])
+  y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
   print(x_decls, y_decls)
   input_array = [float(model.eval(Real(d)).as_decimal(20)) for d in x_decls]
   
