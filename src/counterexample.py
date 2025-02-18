@@ -20,22 +20,21 @@ def validateCE(model, sess):
   return False
 
 def enumerateCE(solver, sess):
-  variables = sorted(list({d for d in solver.assertions() if isinstance(d, ArithRef)}))
+  variables = sorted(str(model.decls()), key=lambda d: d.name())
   numCEs = 0
   while str(solver.check()) == "sat":
     model = solver.model()
     numCEs += 1
-    print("Abstract CE found.")
     # Validate the counterexample
     if validateCE(model, sess):
       s = "violated\nCE: "
       for i in range(len(variables)):
-        val = float(model.eval(variables[i]).as_decimal(20))
-        s += str(variables[i]) + " = " + str(val) + "\n"
+        val = float(model.eval(Real(variables[i])).as_decimal(20))
+        s += variables[i] + " = " + str(val) + "\n"
       print(f"Number of Abstract CEs explored: {numCEs}")
       return s
     # Exclude this counterexample from further consideration
-    solver.add(Or([v != model[v] for v in variables]))
+    solver.add(Or([v != float(model.eval(Real(v)).as_decimal(20)) for v in variables]))
   if numCEs > 0:
     print(f"Number of Abstract CEs explored: {numCEs}")
   return "holds"
