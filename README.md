@@ -30,8 +30,8 @@ The source code is available in the ./src/ directory.
 The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
-        git clone -b JOSS https://github.com/dassarthak18/BoxRLNNV.git
-        cd BoxRLNNV
+        git clone -b BoxRL-NNV https://github.com/dassarthak18/R2X-NNV.git
+        cd BoxRL-NNV
         pip3 install -r requirements.txt
   ```
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
