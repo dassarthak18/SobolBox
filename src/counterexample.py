@@ -25,7 +25,7 @@ def enumerateCE(solver, sess):
   model = solver.model()
   variables = sorted([str(d) for d in model.decls()])
   numCEs = 0
-  while str(solver.check()) == "sat":
+  while str(solver.check()) == "sat" and numCEs < 10**5: # early stopping at 10^5 spurious CEs
     model = solver.model()
     numCEs += 1
     # Validate the counterexample
@@ -38,3 +38,4 @@ def enumerateCE(solver, sess):
       return s
     # Exclude this counterexample from further consideration
     solver.add(Or([Real(v) != float(model.eval(Real(v)).as_decimal(20)) for v in variables]))
+  return "unknown"
