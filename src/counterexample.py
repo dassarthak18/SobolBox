@@ -8,13 +8,12 @@ def validateCE(model, sess):
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
   
-  x_decls = [d for d in model.decls() if "X_" in d.name()]
-  y_decls = [d for d in model.decls() if "Y_" in d.name()]
-  x_decls_sorted = sorted(x_decls, key=lambda d: d.name())
-  y_decls_sorted = sorted(y_decls, key=lambda d: d.name())
-  input_array = [float(model.eval(d).as_decimal(20)) for d in x_decls_sorted]
+  x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
+  y_decls = sorted([d for d in model.decls() if "Y_" in d.name()])
+  print(x_decls, y_decls)
+  input_array = [float(model.eval(Real(d)).as_decimal(20)) for d in x_decls]
   
-  output_array_pred = [float(model.eval(d).as_decimal(20)) for d in y_decls_sorted]
+  output_array_pred = [float(model.eval(Real(d)).as_decimal(20)) for d in y_decls]
   output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
 
   if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
