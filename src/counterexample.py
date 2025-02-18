@@ -10,7 +10,6 @@ def validateCE(model, sess):
   
   x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
-  print(x_decls, y_decls)
   input_array = [float(model.eval(Real(d)).as_decimal(20)) for d in x_decls]
   
   output_array_pred = [float(model.eval(Real(d)).as_decimal(20)) for d in y_decls]
@@ -22,15 +21,19 @@ def validateCE(model, sess):
 
 def enumerateCE(solver, sess):
   variables = sorted(list({d for d in solver.assertions() if isinstance(d, ArithRef)}))
+  numCEs = 0
   while str(solver.check()) == "sat":
     model = solver.model()
+    numCEs += 1
     # Validate the counterexample
     if validateCE(model, sess):
       s = "violated\nCE: "
       for i in range(len(variables)):
         val = float(model.eval(variables[i]).as_decimal(20))
         s += str(variables[i]) + " = " + str(val) + "\n"
+      print(f"Number of CEs explored: {numCEs}")
       return s
     # Exclude this counterexample from further consideration
     solver.add(Or([v != model[v] for v in variables]))
+  print(f"Number of CEs explored: {numCEs}")
   return "holds"
