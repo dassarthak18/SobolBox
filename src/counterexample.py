@@ -20,7 +20,10 @@ def validateCE(model, sess):
   return False
 
 def enumerateCE(solver, sess):
-  variables = sorted(list({str(d) for d in solver.assertions() if isinstance(d, ArithRef)}))
+  if str(solver.check()) == "unsat":
+    return "holds"
+  model = solver.model()
+  variables = sorted([str(d) for d in model.decls()])
   print(variables)
   numCEs = 0
   while str(solver.check()) == "sat":
@@ -39,6 +42,3 @@ def enumerateCE(solver, sess):
       print(v, Real(v))
       print(float(model.eval(Real(v)).as_decimal(20)))
     solver.add(Or([Real(v) != float(model.eval(Real(v)).as_decimal(20)) for v in variables]))
-  if numCEs > 0:
-    print(f"Number of Abstract CEs explored: {numCEs}")
-  return "holds"
