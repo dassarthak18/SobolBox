@@ -20,7 +20,7 @@ def validateCE(model, sess):
   return False
 
 def enumerateCE(solver, sess):
-  variables = sorted(str(model.decls()), key=lambda d: d.name())
+  variables = sorted(list({str(d) for d in solver.assertions() if isinstance(d, ArithRef)}))
   numCEs = 0
   while str(solver.check()) == "sat":
     model = solver.model()
