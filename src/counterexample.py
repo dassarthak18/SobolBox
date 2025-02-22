@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from extrema_estimates import black_box
 from z3 import *
 
@@ -19,23 +20,45 @@ def validateCE(model, sess):
     return True
   return False
 
-def enumerateCE(solver, sess):
+def SAT_check(solver, sess, output_lb_inputs, output_ub_inputs):
   if str(solver.check()) == "unsat":
     return "holds"
+    
   model = solver.model()
   variables = sorted([str(d) for d in model.decls()])
-  numCEs = 0
-  while str(solver.check()) == "sat" and numCEs < 10**3: # early stopping at 10^3 spurious CEs
-    model = solver.model()
-    numCEs += 1
-    # Validate the counterexample
-    if validateCE(model, sess):
+  input_name = sess.get_inputs()[0].name
+  label_name = sess.get_outputs()[0].name
+  # reshape if needed
+  input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+  
+  for i in range(len(output_lb_inputs)):
+    input_lb = output_lb_inputs[i]
+    output_lb = black_box(sess, input_lb, input_name, label_name, input_shape)
+    vals_lb = np.concatenate((input_lb, output_lb))
+    solver_2 = copy.deepcopy(solver)
+    for j in range(len(variables)):
+      solver_2.add(Real(variables[j]) == vals_lb[j])
+    if str(solver_2.check()) == "sat":
+      model = solver_2.model()
       s = "violated\nCE: "
       for i in range(len(variables)):
         val = float(model.eval(Real(variables[i])).as_decimal(20))
         s += variables[i] + " = " + str(val) + "\n"
-      print(f"Number of Abstract CEs explored: {numCEs}")
       return s
-    # Exclude this counterexample from further consideration
-    solver.add(Or([Real(v) != float(model.eval(Real(v)).as_decimal(20)) for v in variables]))
+    
+  for i in range(len(output_ub_inputs)):
+    input_ub = output_ub_inputs[i]
+    output_ub = black_box(sess, input_ub, input_name, label_name, input_shape)
+    vals_ub = np.concatenate((input_ub, output_ub))
+    solver_3 = copy.deepcopy(solver)
+    for j in range(len(variables)):
+      solver_3.add(Real(variables[j]) == vals_ub[j])
+    if str(solver_2.check()) == "sat":
+      model = solver_3.model()
+      s = "violated\nCE: "
+      for i in range(len(variables)):
+        val = float(model.eval(Real(variables[i])).as_decimal(20))
+        s += variables[i] + " = " + str(val) + "\n"
+      return s
+      
   return "unknown"
