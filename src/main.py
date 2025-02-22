@@ -1,7 +1,7 @@
 import sys, copy
 import onnxruntime as rt
 from extrema_estimates import extremum_refinement
-from counterexample import enumerateCE
+from counterexample import SAT_check
 from z3 import *
 
 # We open the VNNLIB file and get the input bounds
@@ -51,6 +51,8 @@ try:
 	# We load the ONNX file and get the output bounds
 	sess = rt.InferenceSession(onnxFile)
 	bound = extremum_refinement(sess, [input_lb, input_ub])
+	output_lb_inputs = bound[0]
+	output_ub_inputs = bound[1]
 	output_lb = bound[2]
 	output_ub = bound[3]
 
@@ -62,7 +64,7 @@ try:
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
-	s = enumerateCE(solver, sess)
+	s = SAT_check(solver, sess, output_lb_inputs, output_ub_inputs)
 	file1.write(s)
 	file1.close()
 	
