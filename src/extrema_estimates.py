@@ -15,11 +15,11 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	# check no. of parameters, gracefully quit if necessary
 	#sampler = qmc.LatinHypercube(len(lower_bounds))
-	num_parameters = np.prod(input_shape)
-	if num_parameters > 10**5:
+	inputsize = len(lower_bounds)
+	if inputsize > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
-		n_samples = int(10**6/num_parameters)
+		n_samples = 15*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
 		n_total = len(lower_bounds)
@@ -92,27 +92,33 @@ def extremum_refinement(sess, input_bounds):
 		minima_inputs = extremum_guess[0]
 		minima = extremum_guess[2]
 		updated_minima = []
+		updated_minima_inputs = []
 		for index in range(len(minima)):
 			objective = create_objective_function(sess, input_shape, input_name, label_name, index)
 			x0 = list(minima_inputs[index])
 			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
 			if result.fun > minima[index]:
+				updated_minima_inputs.append(x0)
 				updated_minima.append(minima[index])
 			else:
+				updated_minima_inputs.append(result.x)
 				updated_minima.append(result.fun)
 		# refine the maxima estimate
 		maxima_inputs = extremum_guess[1]
 		maxima = extremum_guess[3]
 		updated_maxima = []
+		updated_maxima_inputs = []
 		results_maxima = []
 		for index in range(len(maxima)):
 			objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
 			x0 = list(maxima_inputs[index])
 			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
 			if -result.fun < maxima[index]:
+				updated_maxima_inputs.append(x0)
 				updated_maxima.append(maxima[index])
 			else:
+				updated_maxima_inputs.append(result.x)
 				updated_maxima.append(-result.fun)
-		return [updated_minima, updated_maxima]
+		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
