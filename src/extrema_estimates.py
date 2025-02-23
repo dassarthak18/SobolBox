@@ -57,7 +57,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	except ValueError:
-		raise TypeError("Invalid input bounds for LHS.)
+		raise TypeError("Invalid input bounds for LHS.")
 		
 	# compute the outputs
 	sample_output = []
