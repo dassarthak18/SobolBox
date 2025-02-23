@@ -32,7 +32,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		n_samples = 20*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
-		sampler = qmc.LatinHypercube(input_size, scramble=False, optimization="lloyd", seed=np.random.default_rng())
+		sampler = qmc.LatinHypercube(d=np.sum(non_degenerate), scramble=False, optimization="lloyd", seed=np.random.default_rng())
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
