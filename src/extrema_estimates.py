@@ -38,7 +38,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample = sampler.random(10*len(new_lower_bounds))
 		sample_scaled_pre = qmc.scale(sample, new_lower_bounds, new_upper_bounds)
 		sample_scaled = np.empty(inputsize)
-		for i in sample_scaled_pre:
+		for i in range(len(sample_scaled_pre)):
 			for j in degenerate_dict:
 				sample_scaled[i] = np.insert(sample_scaled_pre[i], j, degenerate_dict[j])
 		
