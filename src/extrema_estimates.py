@@ -57,7 +57,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
         		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
-		writer.writerow([str(lower_bounds), str(upper_bounds), str(sample_scaled.tolist()), str(sample_output)])
+		writer.writerow([str(lower_bounds.tolist()), str(upper_bounds.tolist()), str(sample_scaled.tolist()), str(sample_output)])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
