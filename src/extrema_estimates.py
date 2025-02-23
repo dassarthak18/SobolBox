@@ -24,7 +24,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	# check no. of parameters, gracefully quit if necessary
-	#sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd", seed=np.random.default_rng())
+	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd", seed=np.random.default_rng())
 	inputsize = len(lower_bounds)
 	if inputsize > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
@@ -32,21 +32,32 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		n_samples = 20*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
-	#try:
-	#	sample = sampler.random(n_samples)
-	#	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
-	#except ValueError:
-	#	raise TypeError("Invalid input bounds for LHS.")
-		non_degenerate = lower_bounds < upper_bounds
-		if np.sum(non_degenerate) > 0: # Proceed with Latin Hypercube Sampling for non-degenerate dimensions.
-			sampler = qmc.LatinHypercube(d=np.sum(non_degenerate), scramble=False, optimization="lloyd", seed=np.random.default_rng())
-			sample = sampler.random(n_samples)
-			scaled_sample = qmc.scale(sample, lower_bounds[non_degenerate], upper_bounds[non_degenerate])
-			sample_scaled = np.empty((n_samples, lower.shape[0]))
-			sample_scaled[:, non_degenerate] = scaled_sample
-			sample_scaled[:, ~non_degenerate] = lower[~non_degenerate]  # Insert constant values
-		else: # All dimensions are degenerate; simply replicate the constant bounds.
-			sample_scaled = np.tile(lower, (n_samples, 1))
+		'''
+		n_total = len(lower_bounds)
+  		non_const_indices = [i for i in range(n_total) if lower_bounds[i] < upper_bounds[i]]
+		const_indices = [i for i in range(n_total) if lower_bounds[i] == upper_bounds[i]]
+		if non_const_indices:
+				sampler = qmc.LatinHypercube(d=len(non_const_indices))
+				sample = sampler.random(n=n_samples)
+				lb_sample = lower_bounds[non_const_indices]
+				ub_sample = upper_bounds[non_const_indices]
+				sample_scaled_pre = qmc.scale(sample, lb_sample, ub_sample)
+		else:
+				sample_scaled_pre = np.empty((n_samples, 0))
+		sample_scaled = np.empty((n_samples, n_total))
+		for i in range(n_samples):
+				sample_i = np.empty(n_total)
+				for idx in const_indices:
+						sample_i[idx] = lower_bounds[idx]
+				for j, idx in enumerate(non_const_indices):
+						sample_i[idx] = sample_scaled[i, j]
+				sample_scaled[i] = sample_i
+    		'''
+	try:
+		sample = sampler.random(n_samples)
+		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+	except ValueError:
+		raise TypeError("Invalid input bounds for LHS.")
 		
 	# compute the outputs
 	sample_output = []
