@@ -8,9 +8,9 @@ from scipy.optimize import minimize
 def black_box(sess, input_array, input_name, label_name, input_shape):
 	input_array = np.reshape(input_array, tuple(input_shape))
 	try:
-		output_array = list(sess.run([label_name], {input_name: input_array.astype(np.float32)})[0][0])
+		output_array = sess.run([label_name], {input_name: input_array.astype(np.float32)})[0][0].tolist()
 	except TypeError:
-		output_array = list(sess.run([label_name], {input_name: input_array.astype(np.float32)})[0])
+		output_array = sess.run([label_name], {input_name: input_array.astype(np.float32)})[0].tolist()
 	return output_array
 
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
@@ -57,7 +57,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
         		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
-		writer.writerow([str(lower_bounds), str(upper_bounds), str(sample_scaled), str(sample_output)])
+		writer.writerow([str(lower_bounds), str(upper_bounds), str(sample_scaled.tolist()), str(sample_output)])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
