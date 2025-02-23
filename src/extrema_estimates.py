@@ -32,8 +32,8 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		n_samples = 10*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
-		n_total = len(lower_bounds)
 		'''
+		n_total = len(lower_bounds)
   		non_const_indices = [i for i in range(n_total) if lower_bounds[i] < upper_bounds[i]]
 		const_indices = [i for i in range(n_total) if lower_bounds[i] == upper_bounds[i]]
 		if non_const_indices:
