@@ -55,18 +55,19 @@ try:
 	filename = file_path.name
 	boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
 	cacheFound = False
-	with open(boundsCacheFile, mode='r', newline='') as cacheFile:
-		reader = csv.DictReader(csvfile, delimiter='|')
-		for row in reader:
-			fetched_input_lb = ast.literal_eval(row['input_lb'])
-			fetched_input_ub = ast.literal_eval(row['input_ub'])
-			if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-				output_lb_inputs = ast.literal_eval(row['minima_inputs'])
-				output_ub_inputs = ast.literal_eval(row['maxima_inputs'])
-				output_lb = ast.literal_eval(row['output_lb'])
-				output_ub = ast.literal_eval(row['output_ub'])
-				cacheFound = True
-				break
+	if Path(boundsCacheFile).exists():
+		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
+			reader = csv.DictReader(csvfile, delimiter='|')
+			for row in reader:
+				fetched_input_lb = ast.literal_eval(row['input_lb'])
+				fetched_input_ub = ast.literal_eval(row['input_ub'])
+				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
+					output_lb_inputs = ast.literal_eval(row['minima_inputs'])
+					output_ub_inputs = ast.literal_eval(row['maxima_inputs'])
+					output_lb = ast.literal_eval(row['output_lb'])
+					output_ub = ast.literal_eval(row['output_ub'])
+					cacheFound = True
+					break
 	if not cacheFound:
 		bound = extremum_refinement(sess, [input_lb, input_ub], filename)
 		output_lb_inputs = bound[0]
