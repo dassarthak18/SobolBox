@@ -59,8 +59,7 @@ try:
 		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.DictReader(cacheFile, delimiter='|')
 			for row in reader:
-				for i in row:
-					print(i)
+				print(row)
 				fetched_input_lb = ast.literal_eval(row['input_lb'])
 				fetched_input_ub = ast.literal_eval(row['input_ub'])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
