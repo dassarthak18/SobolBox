@@ -9,11 +9,11 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 	input_array = np.reshape(input_array, tuple(input_shape))
 	try:
 		value = sess.run([label_name], {input_name: input_array.astype(np.float32)})[0][0]
-		print(value)
+		#print(value)
 		output_array = value.tolist()
 	except TypeError:
 		value = sess.run([label_name], {input_name: input_array.astype(np.float32)})[0]
-		print(value)
+		#print(value)
 		output_array = value.tolist()
 	return output_array
 
