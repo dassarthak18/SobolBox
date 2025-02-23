@@ -18,36 +18,16 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	# check no. of parameters, gracefully quit if necessary
-	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
+	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd", seed=np.random.default_rng(12345))
 	inputsize = len(lower_bounds)
-	n_samples = 10*inputsize
+	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 	try:
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	except ValueError:
-		#raise ValueError("Degenerate input bounds for LHS.")
-		degenerate_dict = {}
-		for i in range(len(lower_bounds)):
-			if lower_bounds[i] == upper_bounds[i]:
-				degenerate_dict[i] = lower_bounds[i]
-				new_lower_bounds = np.delete(lower_bounds, i)
-				new_upper_bounds = np.delete(upper_bounds, i)
-		sampler = qmc.LatinHypercube(len(new_lower_bounds), scramble=False, optimization="lloyd")
-		sample = sampler.random(10*len(new_lower_bounds))
-		sample_scaled_pre = qmc.scale(sample, new_lower_bounds, new_upper_bounds)
-		sample_scaled = []
-		for i in sample_scaled_pre:
-			temp = np.zeros(10*len(lower_bounds))
-			for j in range(len(lower_bounds)):
-				count = 0
-				if j in degenerate_dict:
-					temp[j] = degenerate_dict[j]
-				else:
-					temp[j] = i[count]
-					count += 1
-			sample_scaled.append(temp)
+		raise ValueError("Degenerate input bounds for LHS.")
 		
 	# compute the outputs
 	sample_output = []
