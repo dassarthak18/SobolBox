@@ -5,6 +5,15 @@ from extrema_estimates import extremum_refinement
 from counterexample import SAT_check
 from z3 import *
 
+maxInt = sys.maxsize
+while True:
+	try:
+		csv.field_size_limit(maxInt)
+		break
+	except OverflowError:
+		maxInt = int(maxInt/10)
+csv.field_size_limit(sys.maxsize)
+
 # We open the VNNLIB file and get the input bounds
 benchmark = str(sys.argv[1])
 onnxFile = str(sys.argv[2])
