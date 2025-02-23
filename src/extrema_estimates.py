@@ -123,7 +123,7 @@ def extremum_refinement(sess, input_bounds, filename):
 				updated_minima_inputs.append(x0)
 				updated_minima.append(minima[index])
 			else:
-				updated_minima_inputs.append(result.x)
+				updated_minima_inputs.append(result.x.tolist())
 				updated_minima.append(result.fun)
 		# refine the maxima estimate
 		maxima_inputs = extremum_guess[1]
@@ -139,7 +139,7 @@ def extremum_refinement(sess, input_bounds, filename):
 				updated_maxima_inputs.append(x0)
 				updated_maxima.append(maxima[index])
 			else:
-				updated_maxima_inputs.append(result.x)
+				updated_maxima_inputs.append(result.x.tolist())
 				updated_maxima.append(-result.fun)
 		# cache the computer bounds for future use
 		boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
@@ -148,7 +148,7 @@ def extremum_refinement(sess, input_bounds, filename):
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(boundsCacheFile).exists():
 	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
-			writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs.tolist()), str(updated_maxima_inputs.tolist())])
+			writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
 			
 		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
