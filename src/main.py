@@ -71,7 +71,6 @@ try:
 				fetched_input_lb = ast.literal_eval(row[0])
 				fetched_input_ub = ast.literal_eval(row[1])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-					print(row[4])
 					output_lb_inputs = ast.literal_eval(row[4])
 					output_ub_inputs = ast.literal_eval(row[5])
 					output_lb = ast.literal_eval(row[2])
