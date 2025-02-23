@@ -83,7 +83,7 @@ try:
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
-	s = SAT_check(solver, sess, output_lb_inputs, output_ub_inputs)
+	s = SAT_check(solver, sess, filename, input_lb, input_ub)
 	file1.write(s)
 	file1.close()
 	
