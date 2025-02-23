@@ -94,3 +94,4 @@ cat ../results/result_traffic_5.txt
 echo " "
 
 rm -rf ../results
+rm -rf ../cache
