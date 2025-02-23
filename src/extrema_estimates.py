@@ -9,15 +9,15 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 	reshaped_input_array = np.reshape(input_array, tuple(input_shape))
 	try:
 		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0][0]
-		if np.isnan(value).any():
-			print(input_array)
-			print(value)
+		#if np.isnan(value).any():
+		#	print(input_array)
+		#	print(value)
 		output_array = value.tolist()
 	except TypeError:
 		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0]
-		if np.isnan(value).any():
-			print(input_array)
-			print(value)
+		#if np.isnan(value).any():
+		#	print(input_array)
+		#	print(value)
 		output_array = value.tolist()
 	return output_array
 
