@@ -50,7 +50,7 @@ try:
 	
 	# We load the ONNX file and get the output bounds
 	sess = rt.InferenceSession(onnxFile)
-	bound = extremum_refinement(sess, [input_lb, input_ub])
+	bound = extremum_refinement(sess, [input_lb, input_ub], onnxFile)
 	output_lb_inputs = bound[0]
 	output_ub_inputs = bound[1]
 	output_lb = bound[2]
