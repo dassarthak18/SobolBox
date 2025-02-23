@@ -8,6 +8,7 @@ chmod u+x prepare_instance.sh
 chmod u+x run_instance.sh
 
 mkdir ../results
+mkdir ../cache
 
 ./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_1.vnnlib
 ./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_1.vnnlib ../results/result_acasxu_1.txt 600
