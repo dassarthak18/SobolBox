@@ -57,7 +57,7 @@ try:
 	cacheFound = False
 	if Path(boundsCacheFile).exists():
 		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
-			reader = csv.DictReader(csvfile, delimiter='|')
+			reader = csv.DictReader(cacheFile, delimiter='|')
 			for row in reader:
 				fetched_input_lb = ast.literal_eval(row['input_lb'])
 				fetched_input_ub = ast.literal_eval(row['input_ub'])
