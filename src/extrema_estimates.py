@@ -32,11 +32,6 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		n_samples = 20*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
-	#try:
-	#	sample = sampler.random(n_samples)
-	#	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
-	#except ValueError:
-	#	raise TypeError("Invalid input bounds for LHS.")
 		non_degenerate = lower_bounds < upper_bounds
 		if np.sum(non_degenerate) > 0: # Proceed with Latin Hypercube Sampling for non-degenerate dimensions.
 			sampler = qmc.LatinHypercube(d=np.sum(non_degenerate), scramble=False, optimization="lloyd", seed=np.random.default_rng())
