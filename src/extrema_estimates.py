@@ -32,17 +32,9 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		n_samples = 20*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
-		non_degenerate = lower_bounds < upper_bounds
-		if np.sum(non_degenerate) > 0: # Proceed with Latin Hypercube Sampling for non-degenerate dimensions.
-			sampler = qmc.LatinHypercube(d=np.sum(non_degenerate), scramble=False, optimization="lloyd", seed=np.random.default_rng())
-			sample = sampler.random(n_samples)
-			scaled_sample = qmc.scale(sample, lower_bounds[non_degenerate], upper_bounds[non_degenerate])
-			sample_scaled = np.empty((n_samples, lower.shape[0]))
-			sample_scaled[:, non_degenerate] = scaled_sample
-			sample_scaled[:, ~non_degenerate] = lower[~non_degenerate]  # Insert constant values
-		else: # All dimensions are degenerate; simply replicate the constant bounds.
-			sample_scaled = np.tile(lower, (n_samples, 1))
-		
+		sampler = qmc.LatinHypercube(d=np.sum(non_degenerate), scramble=False, optimization="lloyd", seed=np.random.default_rng())
+		sample = sampler.random(n_samples)
+		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	# compute the outputs
 	sample_output = []
 	for datapoint in sample_scaled:
