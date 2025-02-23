@@ -9,15 +9,9 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 	reshaped_input_array = np.reshape(input_array, tuple(input_shape))
 	try:
 		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0][0]
-		#if np.isnan(value).any():
-		#	print(input_array)
-		#	print(value)
 		output_array = value.tolist()
 	except TypeError:
 		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0]
-		#if np.isnan(value).any():
-		#	print(input_array)
-		#	print(value)
 		output_array = value.tolist()
 	return output_array
 
@@ -26,38 +20,14 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	# check no. of parameters, gracefully quit if necessary
 	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd", seed=np.random.default_rng())
 	inputsize = len(lower_bounds)
-	if inputsize > 10**5:
-		raise ValueError("Number of parameters too high, quitting gracefully.")
-	else:
-		n_samples = 10*inputsize
-		lower_bounds = np.array(lower_bounds)
-		upper_bounds = np.array(upper_bounds)
-		'''
-		n_total = len(lower_bounds)
-  		non_const_indices = [i for i in range(n_total) if lower_bounds[i] < upper_bounds[i]]
-		const_indices = [i for i in range(n_total) if lower_bounds[i] == upper_bounds[i]]
-		if non_const_indices:
-				sampler = qmc.LatinHypercube(d=len(non_const_indices))
-				sample = sampler.random(n=n_samples)
-				lb_sample = lower_bounds[non_const_indices]
-				ub_sample = upper_bounds[non_const_indices]
-				sample_scaled_pre = qmc.scale(sample, lb_sample, ub_sample)
-		else:
-				sample_scaled_pre = np.empty((n_samples, 0))
-		sample_scaled = np.empty((n_samples, n_total))
-		for i in range(n_samples):
-				sample_i = np.empty(n_total)
-				for idx in const_indices:
-						sample_i[idx] = lower_bounds[idx]
-				for j, idx in enumerate(non_const_indices):
-						sample_i[idx] = sample_scaled[i, j]
-				sample_scaled[i] = sample_i
-    		'''
+	n_samples = 20*inputsize
+	lower_bounds = np.array(lower_bounds)
+	upper_bounds = np.array(upper_bounds)
 	try:
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	except ValueError:
-		raise TypeError("Invalid input bounds for LHS.")
+		raise ValueError("Degenerate input bounds for LHS.")
 		
 	# compute the outputs
 	sample_output = []
@@ -66,7 +36,6 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 
 	# cache the LHS inputs and outputs for future use
 	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
-	#LHSCacheFile.parent.mkdir(parents=True, exist_ok=True)
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
@@ -147,7 +116,6 @@ def extremum_refinement(sess, input_bounds, filename):
 				updated_maxima.append(-result.fun)
 		# cache the computer bounds for future use
 		boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
-		#boundsCacheFile.parent.mkdir(parents=True, exist_ok=True)
 		with open(boundsCacheFile, mode='a', newline='') as cacheFile:
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(boundsCacheFile).exists():
@@ -156,4 +124,4 @@ def extremum_refinement(sess, input_bounds, filename):
 			
 		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
-		raise ValueError("Number of parameters too high, quitting gracefully.")
+		raise ValueError("Degenerate input bounds for LHS.")
