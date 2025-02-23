@@ -57,16 +57,16 @@ try:
 	cacheFound = False
 	if Path(boundsCacheFile).exists():
 		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
-			reader = csv.DictReader(cacheFile, delimiter='|')
+			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
 				print(row)
-				fetched_input_lb = ast.literal_eval(row['input_lb'])
-				fetched_input_ub = ast.literal_eval(row['input_ub'])
+				fetched_input_lb = ast.literal_eval(row[0])
+				fetched_input_ub = ast.literal_eval(row[1])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-					output_lb_inputs = ast.literal_eval(row['minima_inputs'])
-					output_ub_inputs = ast.literal_eval(row['maxima_inputs'])
-					output_lb = ast.literal_eval(row['output_lb'])
-					output_ub = ast.literal_eval(row['output_ub'])
+					output_lb_inputs = ast.literal_eval(row[4])
+					output_ub_inputs = ast.literal_eval(row[5])
+					output_lb = ast.literal_eval(row[2])
+					output_ub = ast.literal_eval(row[3])
 					cacheFound = True
 					break
 	if not cacheFound:
