@@ -29,7 +29,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	if inputsize > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
 	else:
-		n_samples = 10*inputsize
+		n_samples = 20*inputsize
 		lower_bounds = np.array(lower_bounds)
 		upper_bounds = np.array(upper_bounds)
 		'''
