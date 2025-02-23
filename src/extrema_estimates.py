@@ -148,7 +148,7 @@ def extremum_refinement(sess, input_bounds, filename):
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(boundsCacheFile).exists():
 	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
-			writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
+			writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs.tolist()), str(updated_maxima_inputs.tolist())])
 			
 		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
