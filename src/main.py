@@ -59,7 +59,6 @@ try:
 		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
-				print(row)
 				fetched_input_lb = ast.literal_eval(row[0])
 				fetched_input_ub = ast.literal_eval(row[1])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
