@@ -57,7 +57,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
         		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
-		writer.writerow([json.dumps(lower_bounds.to_list()), json.dumps(upper_bounds.to_list()), json.dumps(sample_scaled.to_list()), json.dumps(sample_output.to_list())])
+		writer.writerow([json.dumps(lower_bounds.tolist()), json.dumps(upper_bounds.tolist()), json.dumps(sample_scaled.tolist()), json.dumps(sample_output.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
@@ -140,7 +140,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(boundsCacheFile).exists():
 	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
-			writer.writerow([json.dumps(lower_bounds.to_list()), json.dumps(upper_bounds.to_list()), json.dumps(updated_minima.to_list()), json.dumps(updated_maxima.to_list()), json.dumps(updated_minima_inputs.to_list()), json.dumps(updated_maxima_inputs.to_list())])
+			writer.writerow([json.dumps(lower_bounds.tolist()), json.dumps(upper_bounds.tolist()), json.dumps(updated_minima.tolist()), json.dumps(updated_maxima.tolist()), json.dumps(updated_minima_inputs.tolist()), json.dumps(updated_maxima_inputs.tolist())])
 			
 		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
