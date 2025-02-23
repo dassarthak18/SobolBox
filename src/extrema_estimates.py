@@ -54,7 +54,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	LHSCacheFile = "../cache/" + filename[:-4] + "_lhs.csv"
 	#LHSCacheFile.parent.mkdir(parents=True, exist_ok=True)
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
-		writer = csv.writer(csvfile, delimiter='|')
+		writer = csv.writer(cacheFile, delimiter='|')
 		if not cacheFile.exists():
         		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
 		writer.writerow([json.dumps(lower_bounds), json.dumps(upper_bounds), json.dumps(sample_scaled), json.dumps(sample_output)])
@@ -137,7 +137,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
 		boundsCacheFile = "../cache/" + filename[:-4] + "_bounds.csv"
 		#boundsCacheFile.parent.mkdir(parents=True, exist_ok=True)
 		with open(boundsCacheFile, mode='a', newline='') as cacheFile:
-			writer = csv.writer(csvfile, delimiter='|')
+			writer = csv.writer(cacheFile, delimiter='|')
 			if not cacheFile.exists():
 	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
 			writer.writerow([json.dumps(lower_bounds), json.dumps(upper_bounds), json.dumps(updated_minima), json.dumps(updated_maxima), json.dumps(updated_minima_inputs), json.dumps(updated_maxima_inputs)])
