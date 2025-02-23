@@ -23,10 +23,10 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
-	try:
+	if 0 not in upper_bounds - lower_bounds:
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
-	except ValueError:
+	else:
 		#raise ValueError("Degenerate input bounds for LHS.")
 		degenerate_dict = {}
 		for i in len(lower_bounds):
