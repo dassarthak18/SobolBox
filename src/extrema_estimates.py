@@ -51,7 +51,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
 	# cache the LHS inputs and outputs for future use
-	LHSCacheFile = "../cache/" + filename[:-4] + "_lhs.csv"
+	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
 	#LHSCacheFile.parent.mkdir(parents=True, exist_ok=True)
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
@@ -134,7 +134,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
 				updated_maxima_inputs.append(result.x)
 				updated_maxima.append(-result.fun)
 		# cache the computer bounds for future use
-		boundsCacheFile = "../cache/" + filename[:-4] + "_bounds.csv"
+		boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
 		#boundsCacheFile.parent.mkdir(parents=True, exist_ok=True)
 		with open(boundsCacheFile, mode='a', newline='') as cacheFile:
 			writer = csv.writer(cacheFile, delimiter='|')
