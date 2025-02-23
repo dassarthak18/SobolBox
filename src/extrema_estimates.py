@@ -20,7 +20,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	# check no. of parameters, gracefully quit if necessary
 	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
 	inputsize = len(lower_bounds)
-	n_samples = 10*inputsize
+	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 	try:
@@ -93,48 +93,45 @@ def extremum_refinement(sess, input_bounds, filename):
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
-	try:
-		extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename)
-		bounds = list(zip(lower_bounds, upper_bounds))
-		# refine the minima estimate
-		minima_inputs = extremum_guess[0]
-		minima = extremum_guess[2]
-		updated_minima = []
-		updated_minima_inputs = []
-		for index in range(len(minima)):
-			objective = create_objective_function(sess, input_shape, input_name, label_name, index)
-			x0 = list(minima_inputs[index])
-			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
-			if result.fun > minima[index]:
-				updated_minima_inputs.append(x0)
-				updated_minima.append(minima[index])
-			else:
-				updated_minima_inputs.append(result.x.tolist())
-				updated_minima.append(result.fun)
-		# refine the maxima estimate
-		maxima_inputs = extremum_guess[1]
-		maxima = extremum_guess[3]
-		updated_maxima = []
-		updated_maxima_inputs = []
-		results_maxima = []
-		for index in range(len(maxima)):
-			objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
-			x0 = list(maxima_inputs[index])
-			result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
-			if -result.fun < maxima[index]:
-				updated_maxima_inputs.append(x0)
-				updated_maxima.append(maxima[index])
-			else:
-				updated_maxima_inputs.append(result.x.tolist())
-				updated_maxima.append(-result.fun)
-		# cache the computer bounds for future use
-		boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
-		with open(boundsCacheFile, mode='a', newline='') as cacheFile:
-			writer = csv.writer(cacheFile, delimiter='|')
-			if not Path(boundsCacheFile).exists():
-	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
-			writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
-			
-		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
-	except ValueError:
-		raise ValueError("Degenerate input bounds for LHS.")
+	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename)
+	bounds = list(zip(lower_bounds, upper_bounds))
+	# refine the minima estimate
+	minima_inputs = extremum_guess[0]
+	minima = extremum_guess[2]
+	updated_minima = []
+	updated_minima_inputs = []
+	for index in range(len(minima)):
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index)
+		x0 = list(minima_inputs[index])
+		result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
+		if result.fun > minima[index]:
+			updated_minima_inputs.append(x0)
+			updated_minima.append(minima[index])
+		else:
+			updated_minima_inputs.append(result.x.tolist())
+			updated_minima.append(result.fun)
+	# refine the maxima estimate
+	maxima_inputs = extremum_guess[1]
+	maxima = extremum_guess[3]
+	updated_maxima = []
+	updated_maxima_inputs = []
+	results_maxima = []
+	for index in range(len(maxima)):
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
+		x0 = list(maxima_inputs[index])
+		result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-4, 'maxiter': 100, 'eps': 1e-12})
+		if -result.fun < maxima[index]:
+			updated_maxima_inputs.append(x0)
+			updated_maxima.append(maxima[index])
+		else:
+			updated_maxima_inputs.append(result.x.tolist())
+			updated_maxima.append(-result.fun)
+	# cache the computer bounds for future use
+	boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
+	with open(boundsCacheFile, mode='a', newline='') as cacheFile:
+		writer = csv.writer(cacheFile, delimiter='|')
+		if not Path(boundsCacheFile).exists():
+			writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
+		writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
+		
+	return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
