@@ -1,4 +1,6 @@
 import numpy as np
+import csv, json
+from pathlib import Path
 from scipy.stats import qmc
 from scipy.optimize import minimize
 
@@ -12,7 +14,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 	return output_array
 
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
-def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
+def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	# check no. of parameters, gracefully quit if necessary
 	#sampler = qmc.LatinHypercube(len(lower_bounds))
 	inputsize = len(lower_bounds)
@@ -47,6 +49,16 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	sample_output = []
 	for datapoint in sample_scaled:
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
+
+	# cache the LHS inputs and outputs for future use
+	LHSCacheFile = "../cache/" + filename[:-4] + "_lhs.csv"
+	LHSCacheFile.parent.mkdir(parents=True, exist_ok=True)
+	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
+		writer = csv.writer(csvfile, delimiter='|')
+		if not cacheFile.exists():
+        		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
+		writer.writerow([json.dumps(lower_bounds), json.dumps(upper_bounds), json.dumps(sample_scaled), json.dumps(sample_output)])
+	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
 	# compute inputs for those guesses
@@ -75,7 +87,7 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 	return objective
 
 # We use L-BFGS-B to refine our LHS extremum estimates
-def extremum_refinement(sess, input_bounds):
+def extremum_refinement(sess, input_bounds, onnxFile):
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
@@ -84,9 +96,11 @@ def extremum_refinement(sess, input_bounds):
 	# get the lower and upper input bounds
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
+	file_path = Path(onnxFile)
+	filename = file_path.name
 	# get the preliminary estimates
 	try:
-		extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
+		extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename)
 		bounds = list(zip(lower_bounds, upper_bounds))
 		# refine the minima estimate
 		minima_inputs = extremum_guess[0]
@@ -119,6 +133,15 @@ def extremum_refinement(sess, input_bounds):
 			else:
 				updated_maxima_inputs.append(result.x)
 				updated_maxima.append(-result.fun)
+		# cache the computer bounds for future use
+		boundsCacheFile = "../cache/" + filename[:-4] + "_bounds.csv"
+		boundsCacheFile.parent.mkdir(parents=True, exist_ok=True)
+		with open(boundsCacheFile, mode='a', newline='') as cacheFile:
+			writer = csv.writer(csvfile, delimiter='|')
+			if not cacheFile.exists():
+	        		writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
+			writer.writerow([json.dumps(lower_bounds), json.dumps(upper_bounds), json.dumps(updated_minima), json.dumps(updated_maxima), json.dumps(updated_minima_inputs), json.dumps(updated_maxima_inputs)])
+			
 		return [updated_minima_inputs, updated_maxima_inputs, updated_minima, updated_maxima]
 	except ValueError:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
