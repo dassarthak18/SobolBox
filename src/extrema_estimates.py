@@ -24,7 +24,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	# check no. of parameters, gracefully quit if necessary
-	sampler = qmc.LatinHypercube(len(lower_bounds))
+	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="random-cd", rng=np.random.default_rng())
 	inputsize = len(lower_bounds)
 	if inputsize > 10**5:
 		raise ValueError("Number of parameters too high, quitting gracefully.")
@@ -53,8 +53,12 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 						sample_i[idx] = sample_scaled[i, j]
 				sample_scaled[i] = sample_i
     		'''
-	sample = sampler.random(n_samples)
-	sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+	try:
+		sample = sampler.random(n_samples)
+		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+	except ValueError:
+		raise ValueError("Invalid bounds for LHS.")
+		
 	# compute the outputs
 	sample_output = []
 	for datapoint in sample_scaled:
