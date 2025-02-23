@@ -87,7 +87,7 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 	return objective
 
 # We use L-BFGS-B to refine our LHS extremum estimates
-def extremum_refinement(sess, input_bounds, onnxFile):
+def extremum_refinement(sess, input_bounds, filename):
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
@@ -96,8 +96,6 @@ def extremum_refinement(sess, input_bounds, onnxFile):
 	# get the lower and upper input bounds
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
-	file_path = Path(onnxFile)
-	filename = file_path.name
 	# get the preliminary estimates
 	try:
 		extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename)
