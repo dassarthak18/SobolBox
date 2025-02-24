@@ -71,18 +71,14 @@ try:
 				fetched_input_lb = ast.literal_eval(row[0])
 				fetched_input_ub = ast.literal_eval(row[1])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-					output_lb_inputs = ast.literal_eval(row[4])
-					output_ub_inputs = ast.literal_eval(row[5])
 					output_lb = ast.literal_eval(row[2])
 					output_ub = ast.literal_eval(row[3])
 					cacheFound = True
 					break
 	if not cacheFound:
 		bound = extremum_refinement(sess, [input_lb, input_ub], filename)
-		output_lb_inputs = bound[0]
-		output_ub_inputs = bound[1]
-		output_lb = bound[2]
-		output_ub = bound[3]
+		output_lb = bound[0]
+		output_ub = bound[1]
 
 	# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
