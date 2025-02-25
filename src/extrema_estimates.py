@@ -19,9 +19,9 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	print("Computing LHS samples.")
 	# check no. of parameters, gracefully quit if necessary
-	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd", seed=np.random.default_rng())
+	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="random-cd", seed=np.random.default_rng())
 	inputsize = len(lower_bounds)
-	n_samples = 25*inputsize
+	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 	try:
