@@ -1,5 +1,6 @@
 numpy
 scipy
 onnxruntime
-z3-solver
+cupy-cuda12x
 pyDOE3
+z3-solver
