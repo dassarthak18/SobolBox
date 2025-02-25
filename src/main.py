@@ -20,6 +20,7 @@ onnxFile = str(sys.argv[2])
 propertyFile = str(sys.argv[3])
 resultFile = str(sys.argv[4])
 
+print("Extracting input bouns.")
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
 for a in assertions:
@@ -57,8 +58,11 @@ try:
 	    var_bounds = bounds[var]
 	    input_lb.append(var_bounds.get('lb'))
 	    input_ub.append(var_bounds.get('ub'))
+
+	print("Input bounds extracted.")
 	
 	# We load the ONNX file and get the output bounds
+	print("Extracting output bounds.")
 	sess = rt.InferenceSession(onnxFile)
 	file_path = Path(onnxFile)
 	filename = file_path.name
@@ -74,7 +78,9 @@ try:
 					output_lb = ast.literal_eval(row[2])
 					output_ub = ast.literal_eval(row[3])
 					cacheFound = True
+					print("Extractd output bounds from cache.")
 					break
+
 	if not cacheFound:
 		bound = extremum_refinement(sess, [input_lb, input_ub], filename)
 		output_lb = bound[0]
