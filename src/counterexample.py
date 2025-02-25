@@ -62,7 +62,7 @@ def SAT_check_old(solver, sess, filename, input_lb, input_ub):
   print("Inconclusive analysis.")
   return "unknown"
 
-def SAT_check(solver, sess, filename, input_lb, input_ub):
+def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
   print("Checking for violations in LHS samples.")
         
   if str(solver.check()) == "unsat":
@@ -88,11 +88,11 @@ def SAT_check(solver, sess, filename, input_lb, input_ub):
         break
 
   for i in range(len(input_array)):
-    solver_2 = copy.deepcopy(solver)
+    solver_3 = copy.deepcopy(solver_2)
     for j in range(len(variables)):
-      solver_2.add(Real(variables[j]) == output_array[i][j])
-    if str(solver_2.check()) == "sat":
-      model = solver_2.model()
+      solver_3.add(Real(variables[j]) == output_array[i][j])
+    if str(solver_3.check()) == "sat":
+      model = solver_3.model()
       s = "violated\nCE: "
       for k in range(len(input_array[i])):
         s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
