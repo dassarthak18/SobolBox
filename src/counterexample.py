@@ -62,7 +62,7 @@ def SAT_check_old(solver, sess, filename, input_lb, input_ub):
   print("Inconclusive analysis.")
   return "unknown"
 
-def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
+def SAT_check(solver, solver_2, sess, input_lb, input_ub):
   print("Checking for violations in LHS samples.")
         
   if str(solver.check()) == "unsat":
@@ -85,12 +85,13 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
         output_array = ast.literal_eval(row[3])
         break'''
 
-  LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
+  LHSCacheFile = "../cache/lhs.csv"
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
     for row in reader:
-      sample = ast.literal_eval(row[0])
-      break
+      if row[0] == str(inputsize):
+        sample = ast.literal_eval(row[1])
+        break
   input_lb = np.array(input_lb)
   input_ub = np.array(input_ub)
   input_array = input_lb + sample * (input_ub - input_lb)
