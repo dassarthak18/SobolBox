@@ -20,7 +20,7 @@ onnxFile = str(sys.argv[2])
 propertyFile = str(sys.argv[3])
 resultFile = str(sys.argv[4])
 
-print("Extracting input bouns.")
+print("Extracting input bounds.")
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
 for a in assertions:
@@ -99,6 +99,7 @@ try:
 	file1.close()
 	
 except:
+	print("Unhandled exception occured.")
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
 	file1.close()
