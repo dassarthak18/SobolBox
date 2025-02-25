@@ -17,6 +17,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
+	print("Computing LHS samples.")
 	# check no. of parameters, gracefully quit if necessary
 	sampler = qmc.LatinHypercube(len(lower_bounds))
 	inputsize = len(lower_bounds)
@@ -71,6 +72,7 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 
 # We use L-BFGS-B to refine our LHS extremum estimates
 def extremum_refinement(sess, input_bounds, filename):
+	print("Refining the LHS samples.")
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
@@ -107,6 +109,7 @@ def extremum_refinement(sess, input_bounds, filename):
 			updated_maxima.append(maxima[index])
 		else:
 			updated_maxima.append(-result.fun)
+	print("Output bounds extracted.")
 	# cache the computer bounds for future use
 	boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
 	with open(boundsCacheFile, mode='a', newline='') as cacheFile:
