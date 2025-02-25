@@ -23,6 +23,7 @@ resultFile = str(sys.argv[4])
 print("Extracting input bounds.")
 assertions = parse_smt2_file(propertyFile)
 solver = Solver()
+solver_2 = Solver()
 for a in assertions:
     solver.add(a)
 
@@ -37,6 +38,7 @@ try:
 	        var = a.arg(0)
 	        var_name = var.decl().name()
 	        if "X" not in var_name:
+		    solver_2.add(a)
 	            continue
 	        op = a.decl().name()
 	        value = a.arg(1).as_decimal(15)
@@ -50,6 +52,7 @@ try:
 	        var = a.arg(0)
 	        var_name = var.decl().name()
 	        if "X_" not in a.sexpr():
+		    solver_2.add(a)
 	            continue
 	        raise TypeError("Disjunction detected in property specification, quitting gracefully.")
 	
@@ -94,7 +97,8 @@ try:
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
-	s = SAT_check(solver, sess, filename, input_lb, input_ub)
+	#s = SAT_check_old(solver, sess, filename, input_lb, input_ub)
+	s = SAT_check(solver_2, sess, filename, input_lb, input_ub)
 	file1.write(s)
 	file1.close()
 	
