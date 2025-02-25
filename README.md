@@ -10,7 +10,7 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 
 1. **Python 3.7+ and pip3.**
 2. **NumPy and SciPy.**
-3. **pyDOE3** Can be installed using the terminal command
+3. **pyDOE3.** Can be installed using the terminal command
 
    ```shell
        pip3 install pyDOE3
