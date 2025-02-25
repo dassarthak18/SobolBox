@@ -86,8 +86,6 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
         break
 
   variables = []
-  for i in range(len(input_array[0])):
-    variables.append(f"X_{i}")
   for i in range(len(output_array[0])):
     variables.append(f"Y_{i}")
 
