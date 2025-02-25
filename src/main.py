@@ -78,7 +78,7 @@ try:
 					output_lb = ast.literal_eval(row[2])
 					output_ub = ast.literal_eval(row[3])
 					cacheFound = True
-					print("Extractd output bounds from cache.")
+					print("Extracted output bounds from cache.")
 					break
 
 	if not cacheFound:
