@@ -39,7 +39,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 			for row in reader:
 				sample = ast.literal_eval(row[2])
 				print("Retrieved LHS from cache.")
-      				break
+				break
 
 	if not cacheFound:
 		sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
