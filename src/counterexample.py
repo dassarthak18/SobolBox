@@ -89,7 +89,7 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
     for row in reader:
-      sample = ast.literal_eval(row[2])
+      sample = ast.literal_eval(row[0])
       break
   input_array = input_lb + sample * (input_ub - input_lb)
   output_array = []
