@@ -1,7 +1,7 @@
 import numpy as np
 import csv
 from pathlib import Path
-from pyDOE2 import lhs
+from pyDOE3 import lhs
 from scipy.stats import qmc
 from scipy.optimize import minimize
 
