@@ -90,11 +90,11 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
     variables.append(f"Y_{i}")
 
   for i in range(len(input_array)):
-    solver_3 = copy.deepcopy(solver_2)
+    solver_2.push()
     for j in range(len(variables)):
-      solver_3.add(Real(variables[j]) == output_array[i][j])
-    if str(solver_3.check()) == "sat":
-      model = solver_3.model()
+      solver_2.add(Real(variables[j]) == output_array[i][j])
+    if str(solver_2.check()) == "sat":
+      model = solver_2.model()
       s = "violated\nCE: "
       for k in range(len(input_array[i])):
         s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
@@ -103,6 +103,7 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
         s += variables[k] + " = " + str(val) + "\n"
       print("Safety violation detected.")
       return s
+    solver_2.pop()
 
   print("Inconclusive analysis.")
   return "unknown"
