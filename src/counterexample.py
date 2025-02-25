@@ -100,7 +100,7 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
         s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
       for k in range(len(variables)):
         val = float(model.eval(Real(variables[k])).as_decimal(20))
-        s += variables[i] + " = " + str(val) + "\n"
+        s += variables[k] + " = " + str(val) + "\n"
       print("Safety violation detected.")
       return s
 
