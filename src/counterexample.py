@@ -91,6 +91,8 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
     for row in reader:
       sample = ast.literal_eval(row[0])
       break
+  input_lb = np.array(input_lb)
+  input_ub = np.array(input_ub)
   input_array = input_lb + sample * (input_ub - input_lb)
   output_array = []
   for datapoint in input_array:
