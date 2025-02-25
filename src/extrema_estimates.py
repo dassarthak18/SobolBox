@@ -17,7 +17,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 	return output_array
 
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
-def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
+def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	print("Computing LHS samples.")
 	# check no. of parameters, gracefully quit if necessary
 	#sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
@@ -31,15 +31,16 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	except ValueError:
 		raise ValueError("Degenerate input bounds for LHS.")'''
 
-	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
+	LHSCacheFile = "../cache/lhs.csv"
 	cacheFound = False
 	if Path(LHSCacheFile).exists():
 		with open(LHSCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
-				sample = ast.literal_eval(row[0])
-				print("Retrieved LHS from cache.")
-				break
+				if row[0] == str(inputsize):
+					sample = ast.literal_eval(row[1])
+					print("Retrieved LHS from cache.")
+					break
 
 	if not cacheFound:
 		sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
@@ -62,8 +63,8 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
-        		writer.writerow(["unscaled_sample"])
-		writer.writerow([str(sample.tolist())])
+        		writer.writerow(["input_size", "unscaled_sample"])
+		writer.writerow([str(inputsize), str(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
@@ -103,7 +104,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
-	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename)
+	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
 	bounds = list(zip(lower_bounds, upper_bounds))
 	print("Refining the LHS samples.")
 	# refine the minima estimate
