@@ -102,7 +102,7 @@ try:
 	file1.write(s)
 	file1.close()
 	
-except:
+except TabError:
 	print("Unhandled exception occured.")
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
