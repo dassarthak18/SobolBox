@@ -38,8 +38,8 @@ try:
 	        var = a.arg(0)
 	        var_name = var.decl().name()
 	        if "X" not in var_name:
-		    solver_2.add(a)
-	            continue
+			solver_2.add(a)
+			continue
 	        op = a.decl().name()
 	        value = a.arg(1).as_decimal(15)
 	        if var_name not in bounds:
@@ -52,8 +52,8 @@ try:
 	        var = a.arg(0)
 	        var_name = var.decl().name()
 	        if "X_" not in a.sexpr():
-		    solver_2.add(a)
-	            continue
+			solver_2.add(a)
+			continue
 	        raise TypeError("Disjunction detected in property specification, quitting gracefully.")
 	
 	sorted_keys = sorted(bounds.keys(), key=lambda name: int(name.split('_')[-1]))
