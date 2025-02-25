@@ -2,3 +2,4 @@ numpy
 scipy
 onnxruntime
 z3-solver
+pyDOE2
