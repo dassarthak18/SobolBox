@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 from pathlib import Path
+from pyDOE2 import lhs
 from scipy.stats import qmc
 from scipy.optimize import minimize
 
@@ -19,16 +20,18 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape, filename):
 	print("Computing LHS samples.")
 	# check no. of parameters, gracefully quit if necessary
-	sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
+	#sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
 	inputsize = len(lower_bounds)
 	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
-	try:
+	'''try:
 		sample = sampler.random(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	except ValueError:
-		raise ValueError("Degenerate input bounds for LHS.")
+		raise ValueError("Degenerate input bounds for LHS.")'''
+	sample = lhs(inputsize, samples=n_samples, criterion='maximin')
+	sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
 		
 	# compute the outputs
 	sample_output = []
