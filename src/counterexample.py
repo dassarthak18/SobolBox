@@ -93,8 +93,8 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
       break
   input_array = input_lb + sample * (input_ub - input_lb)
   output_array = []
-	for datapoint in input_array:
-		output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
+  for datapoint in input_array:
+    output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
   variables = []
   for i in range(len(output_array[0])):
