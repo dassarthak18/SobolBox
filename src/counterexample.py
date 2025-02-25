@@ -69,8 +69,6 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
     print("No safety violations found.")
     return "holds"
     
-  model = solver.model()
-  variables = sorted([str(d) for d in model.decls()])
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
@@ -86,6 +84,12 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
         input_array = ast.literal_eval(row[2])
         output_array = ast.literal_eval(row[3])
         break
+
+  variables = []
+  for i in range(len(input_array[0])):
+    variables.append(f"X_{i}")
+  for i in range(len(output_array[0])):
+    variables.append(f"Y_{i}")
 
   for i in range(len(input_array)):
     solver_3 = copy.deepcopy(solver_2)
