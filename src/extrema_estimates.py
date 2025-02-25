@@ -30,21 +30,40 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	except ValueError:
 		raise ValueError("Degenerate input bounds for LHS.")'''
-	sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
-	sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
-		
+
+	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
+	cacheFound = False
+	if Path(LHSCacheFile).exists():
+		with open(LHSCacheFile, mode='r', newline='') as cacheFile:
+			reader = csv.reader(cacheFile, delimiter='|')
+			for row in reader:
+				sample = ast.literal_eval(row[2])
+				print("Retrieved LHS from cache.")
+      				break
+
+	if not cacheFound:
+		sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
+		sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
+	
 	# compute the outputs
 	sample_output = []
 	for datapoint in sample_scaled:
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
 	# cache the LHS inputs and outputs for future use
+	'''
 	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
         		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
 		writer.writerow([str(lower_bounds.tolist()), str(upper_bounds.tolist()), str(sample_scaled.tolist()), str(sample_output)])
+  	'''
+	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
+		writer = csv.writer(cacheFile, delimiter='|')
+		if not Path(LHSCacheFile).exists():
+        		writer.writerow(["unscaled_sample"])
+		writer.writerow([str(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
