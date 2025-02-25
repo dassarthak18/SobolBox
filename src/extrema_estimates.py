@@ -22,7 +22,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	# check no. of parameters, gracefully quit if necessary
 	#sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
 	inputsize = len(lower_bounds)
-	n_samples = 10*inputsize
+	n_samples = 15*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 	'''try:
