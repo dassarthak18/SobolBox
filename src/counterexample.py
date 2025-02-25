@@ -21,7 +21,10 @@ def validateCE(model, sess):
   return False
 
 def SAT_check(solver, sess, filename, input_lb, input_ub):
+  print("Checking for violations in LHS samples.")
+        
   if str(solver.check()) == "unsat":
+    print("No safety violations found.")
     return "holds"
     
   model = solver.model()
@@ -53,6 +56,8 @@ def SAT_check(solver, sess, filename, input_lb, input_ub):
       for i in range(len(variables)):
         val = float(model.eval(Real(variables[i])).as_decimal(20))
         s += variables[i] + " = " + str(val) + "\n"
+      print("Safety violation detected.")
       return s
-      
+
+  print("Inconclusive analysis.")
   return "unknown"
