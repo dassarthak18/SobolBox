@@ -74,7 +74,7 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 
-  LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
+  '''LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
     for row in reader:
@@ -83,7 +83,18 @@ def SAT_check(solver, solver_2, sess, filename, input_lb, input_ub):
       if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
         input_array = ast.literal_eval(row[2])
         output_array = ast.literal_eval(row[3])
-        break
+        break'''
+
+  LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
+  with open(LHSCacheFile, mode='r', newline='') as cacheFile:
+    reader = csv.reader(cacheFile, delimiter='|')
+    for row in reader:
+      sample = ast.literal_eval(row[2])
+      break
+  input_array = input_lb + sample * (input_ub - input_lb)
+  output_array = []
+	for datapoint in input_array:
+		output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
   variables = []
   for i in range(len(output_array[0])):
