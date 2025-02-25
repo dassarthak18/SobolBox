@@ -37,7 +37,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		with open(LHSCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
-				sample = ast.literal_eval(row[2])
+				sample = ast.literal_eval(row[0])
 				print("Retrieved LHS from cache.")
 				break
 
