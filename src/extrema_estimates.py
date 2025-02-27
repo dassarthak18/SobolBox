@@ -1,5 +1,5 @@
 import numpy as np
-import csv, ast
+import csv, ast, json
 from pathlib import Path
 #from pyDOE3 import lhs
 from scipy.stats import qmc
@@ -38,7 +38,8 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
 				if row[0] == str(inputsize):
-					sample = ast.literal_eval(row[1])
+					#sample = ast.literal_eval(row[1])
+					sample = json.loads(row[1])
 					cacheFound = True
 					print("Retrieved Sobol sequence from cache.")
 					break
@@ -65,7 +66,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(LHSCacheFile).exists():
 	        		writer.writerow(["input_size", "unscaled_sample"])
-			writer.writerow([str(inputsize), str(sample.tolist())])
+			writer.writerow([str(inputsize), json.dumps(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
