@@ -21,7 +21,7 @@ def validateCE(model, sess):
   return False
 
 def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs):
-  print("Checking for violations in LHS samples.")
+  print("Checking for violations in Sobol sequence samples.")
         
   if str(solver.check()) == "unsat":
     print("No safety violations found.")
@@ -60,7 +60,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       return s
     solver_2.pop()
   
-  LHSCacheFile = "../cache/lhs.csv"
+  LHSCacheFile = "../cache/sobol.csv"
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
     for row in reader:
@@ -86,7 +86,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       for k in range(len(variables)):
         val = float(model.eval(Real(variables[k])).as_decimal(20))
         s += variables[k] + " = " + str(val) + "\n"
-      print("Safety violation detected in LHS.")
+      print("Safety violation detected in Sobol sequence.")
       return s
     solver_2.pop()
 
