@@ -23,7 +23,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
 	exp_index = 10+np.max([0,np.ceil((inputsize-3)/3)])
-	n_samples = 2**exp_index
+	n_samples = int(2**exp_index)
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 
