@@ -14,7 +14,7 @@ if [ "$1" != v1 ]; then
 	exit 1
 fi
 
-echo "Running BoxRL-NNV on benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
+echo "Running SobolBox on benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
 echo "Storing result in plaintext file '$resultpath', given timeout in seconds is '$timeout'."
 
 #property verification
