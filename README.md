@@ -1,4 +1,4 @@
-# BoxRL-NNV : Boxed Refinement of Latin Hybercube Samples for Neural Network Verification
+# SobolBox : Boxed Refinement of Sobol Sequence Samples for Neural Network Verification
 
 ## Introduction
 
@@ -10,19 +10,13 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
 
 1. **Python 3.7+ and pip3.**
 2. **NumPy and SciPy.**
-3. **pyDOE3.** Can be installed using the terminal command
-
-   ```shell
-       pip3 install pyDOE3
-   ```
-   Their [official documentation](https://pydoe3.readthedocs.io/en/latest/index.html) can be checked for further details.
-4. **Microsoft ONNX Runtime.** Can be installed using the terminal command
+3. **Microsoft ONNX Runtime.** Can be installed using the terminal command
 
     ```shell
        pip3 install onnxruntime
     ```
     Their [official website](https://onnxruntime.ai/) can be visited for further details.
-5. **Microsoft Z3 Theorem Prover.** Can be installed using the terminal command
+4. **Microsoft Z3 Theorem Prover.** Can be installed using the terminal command
 
     ```shell
        pip3 install z3-solver
@@ -36,8 +30,8 @@ The source code is available in the ./src/ directory.
 The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
-        git clone -b BoxRL-NNV https://github.com/dassarthak18/R2X-NNV.git
-        cd R2X-NNV
+        git clone https://github.com/dassarthak18/SobolBox.git
+        cd SobolBox
         pip3 install -r requirements.txt
   ```
 For a sanity check of the tool, a run_examples.sh script has been provided that runs the test benchmarks in the ./examples/ directory. All example benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
