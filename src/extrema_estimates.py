@@ -59,11 +59,12 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
 	# cache the Sobol sequence inputs and outputs for future use
-	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
-		writer = csv.writer(cacheFile, delimiter='|')
-		if not Path(LHSCacheFile).exists():
-        		writer.writerow(["input_size", "unscaled_sample"])
-		writer.writerow([str(inputsize), str(sample.tolist())])
+	if not cacheFound:
+		with open(LHSCacheFile, mode='a', newline='') as cacheFile:
+			writer = csv.writer(cacheFile, delimiter='|')
+			if not Path(LHSCacheFile).exists():
+	        		writer.writerow(["input_size", "unscaled_sample"])
+			writer.writerow([str(inputsize), str(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
 	maxima = [max(x) for x in zip(*sample_output)]
