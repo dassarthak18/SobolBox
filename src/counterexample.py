@@ -54,7 +54,11 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       for k in range(len(input_array[i])):
         s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
       for k in range(len(variables)):
-        val = float(model.eval(Real(variables[k])).as_decimal(32))
+        val_str = model.eval(Real(variables[k])).as_decimal(32)
+        if val_str[-1] == "?":
+          val = float(val_str[:-1])
+        else:
+          val = float(val_str)
         s += variables[k] + " = " + str(val) + "\n"
       print("Safety violation detected in optima.")
       return s
@@ -85,7 +89,11 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       for k in range(len(input_array[i])):
         s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
       for k in range(len(variables)):
-        val = float(model.eval(Real(variables[k])).as_decimal(32))
+        val_str = model.eval(Real(variables[k])).as_decimal(32)
+        if val_str[-1] == "?":
+          val = float(val_str[:-1])
+        else:
+          val = float(val_str)
         s += variables[k] + " = " + str(val) + "\n"
       print("Safety violation detected in Sobol sequence.")
       return s
