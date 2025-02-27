@@ -105,7 +105,7 @@ try:
 	file1.write(s)
 	file1.close()
 	
-except ValueError as error:
+except TypeError as error:
 	print(str(error))
 	file1 = open(resultFile, 'w')
 	file1.write("unknown")
