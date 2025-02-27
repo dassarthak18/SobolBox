@@ -12,7 +12,7 @@ if [ "$1" != v1 ]; then
 	exit 1
 fi
 
-echo "Preparing BoxRL-NNV for benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
+echo "Preparing SobolBox for benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
 
 #killing any zombie processes
 #killall -q python3
