@@ -23,7 +23,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
 	num = int(np.ceil(np.log2(20*inputsize)))
-	if 20**inputsize < 8192:
+	if 20*inputsize < 8192:
 		n_samples = np.max([2048,int(2**num)])
 	else:
 		n_samples = 8192
