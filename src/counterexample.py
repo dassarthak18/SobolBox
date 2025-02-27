@@ -66,7 +66,10 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       return s
     solver_2.pop()
 
-  input_array = np.concatenate(np.array(output_lb_inputs), np.array(output_ub_inputs))
+  input_array = []
+  for i in range(len(output_lb_inputs)):
+    input_array.append(output_lb_inputs[i])
+    input_array.append(output_ub_inputs[i])
   output_array = []
   for datapoint in input_array:
     output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
