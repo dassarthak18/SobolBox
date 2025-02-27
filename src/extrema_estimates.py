@@ -146,4 +146,4 @@ def extremum_refinement(sess, input_bounds, filename):
 			writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
 		writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
 		
-	return [updated_minima, updated_maxima]
+	return [updated_minima, updated_maxima, updated_minima_inputs, updated_maxima_inputs]
