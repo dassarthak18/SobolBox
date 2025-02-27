@@ -80,6 +80,8 @@ try:
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
 					output_lb = ast.literal_eval(row[2])
 					output_ub = ast.literal_eval(row[3])
+					output_lb_inputs = ast.literal_eval(row[4])
+					output_ub_inputs = ast.literal_eval(row[5])
 					cacheFound = True
 					print("Extracted output bounds from cache.")
 					break
@@ -88,6 +90,8 @@ try:
 		bound = extremum_refinement(sess, [input_lb, input_ub], filename)
 		output_lb = bound[0]
 		output_ub = bound[1]
+		output_lb_inputs = bound[2]
+		output_ub_inputs = bound[3]
 
 	# Adding the maxima and minima points to the SAT constraints
 	for i in range(len(output_lb)):
@@ -98,7 +102,7 @@ try:
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
 	#s = SAT_check_old(solver, sess, filename, input_lb, input_ub)
-	s = SAT_check(solver, solver_2, sess, input_lb, input_ub)
+	s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs)
 	file1.write(s)
 	file1.close()
 	
