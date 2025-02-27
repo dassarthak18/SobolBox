@@ -101,7 +101,6 @@ try:
 
 	# We check the property and write the answer into the result file
 	file1 = open(resultFile, 'w')
-	#s = SAT_check_old(solver, sess, filename, input_lb, input_ub)
 	s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs)
 	file1.write(s)
 	file1.close()
