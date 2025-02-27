@@ -23,7 +23,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
 	num = int(np.ceil(np.log2(20*inputsize)))
-	n_samples = np.max([1024,int(2**num)])
+	n_samples = np.max([2048,int(2**num)])
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 
@@ -42,7 +42,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		#sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
 		#sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
 		sampler = qmc.Sobol(inputsize, scramble=False)
-		sample = sampler.random(n_samples)
+		sample = sampler.random_base2(n_samples)
 		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
 	
 	# compute the outputs
