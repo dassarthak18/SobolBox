@@ -1,4 +1,4 @@
-import sys, copy, csv, ast
+import sys, copy, csv, ast, json
 import onnxruntime as rt
 from pathlib import Path
 from extrema_estimates import extremum_refinement
@@ -75,13 +75,13 @@ try:
 		with open(boundsCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
-				fetched_input_lb = ast.literal_eval(row[0])
-				fetched_input_ub = ast.literal_eval(row[1])
+				fetched_input_lb = json.loads(row[0])
+				fetched_input_ub = json.loads(row[1])
 				if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-					output_lb = ast.literal_eval(row[2])
-					output_ub = ast.literal_eval(row[3])
-					output_lb_inputs = ast.literal_eval(row[4])
-					output_ub_inputs = ast.literal_eval(row[5])
+					output_lb = json.loads(row[2])
+					output_ub = json.loads(row[3])
+					output_lb_inputs = json.loads(row[4])
+					output_ub_inputs = json.loads(row[5])
 					cacheFound = True
 					print("Extracted output bounds from cache.")
 					break
