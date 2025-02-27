@@ -6,7 +6,7 @@ if [ "$1" != v1 ]; then
 	exit 1
 fi
 
-echo "Installing BoxRL-NNV"
+echo "Installing SobolBox"
 
 #installing tool
 
@@ -16,6 +16,6 @@ apt-get update && apt-get install -y python3 python3-distutils python3-pip pytho
 
 #apt install -y psmisc && #for killall, used in prepare_instance.sh
 
-git clone -b BoxRL-NNV https://github.com/dassarthak18/R2X-NNV.git
-cd R2X-NNV
+git clone https://github.com/dassarthak18/SobolBox.git
+cd SobolBox
 pip3 install -r requirements.txt
