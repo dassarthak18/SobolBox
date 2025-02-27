@@ -16,7 +16,7 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 		output_array = value.tolist()
 	return output_array
 
-# We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
+# We use Sobol sequence sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	print("Computing Sobol sequence samples.")
 	# check no. of parameters, gracefully quit if necessary
@@ -56,7 +56,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	for datapoint in sample_scaled:
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
-	# cache the LHS inputs and outputs for future use
+	# cache the Sobol sequence inputs and outputs for future use
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
@@ -90,7 +90,7 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			return -1*arr[index]
 	return objective
 
-# We use L-BFGS-B to refine our LHS extremum estimates
+# We use L-BFGS-B to refine our Sobol sequence extremum estimates
 def extremum_refinement(sess, input_bounds, filename):
 	# get neural network metadata
 	input_name = sess.get_inputs()[0].name
