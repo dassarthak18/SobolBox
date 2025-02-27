@@ -37,6 +37,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		with open(LHSCacheFile, mode='r', newline='') as cacheFile:
 			reader = csv.reader(cacheFile, delimiter='|')
 			for row in reader:
+				print(row[0], inputsize)
 				if row[0] == str(inputsize):
 					sample = ast.literal_eval(row[1])
 					print("Retrieved Sobol sequence from cache.")
