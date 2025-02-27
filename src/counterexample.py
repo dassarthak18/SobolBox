@@ -32,16 +32,10 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 
-  LHSCacheFile = "../cache/lhs.csv"
-  with open(LHSCacheFile, mode='r', newline='') as cacheFile:
-    reader = csv.reader(cacheFile, delimiter='|')
-    for row in reader:
-      if row[0] == str(len(input_lb)):
-        sample = ast.literal_eval(row[1])
-        break
-  input_lb = np.array(input_lb)
-  input_ub = np.array(input_ub)
-  input_array = input_lb + sample * (input_ub - input_lb)
+  input_array = []
+  for i in range(len(output_lb_inputs)):
+    input_array.append(output_lb_inputs[i])
+    input_array.append(output_ub_inputs[i])
   output_array = []
   for datapoint in input_array:
     output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
@@ -62,14 +56,20 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       for k in range(len(variables)):
         val = float(model.eval(Real(variables[k])).as_decimal(20))
         s += variables[k] + " = " + str(val) + "\n"
-      print("Safety violation detected.")
+      print("Safety violation detected in optima.")
       return s
     solver_2.pop()
-
-  input_array = []
-  for i in range(len(output_lb_inputs)):
-    input_array.append(output_lb_inputs[i])
-    input_array.append(output_ub_inputs[i])
+  
+  LHSCacheFile = "../cache/lhs.csv"
+  with open(LHSCacheFile, mode='r', newline='') as cacheFile:
+    reader = csv.reader(cacheFile, delimiter='|')
+    for row in reader:
+      if row[0] == str(len(input_lb)):
+        sample = ast.literal_eval(row[1])
+        break
+  input_lb = np.array(input_lb)
+  input_ub = np.array(input_ub)
+  input_array = input_lb + sample * (input_ub - input_lb)
   output_array = []
   for datapoint in input_array:
     output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
@@ -86,7 +86,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       for k in range(len(variables)):
         val = float(model.eval(Real(variables[k])).as_decimal(20))
         s += variables[k] + " = " + str(val) + "\n"
-      print("Safety violation detected.")
+      print("Safety violation detected in LHS.")
       return s
     solver_2.pop()
 
