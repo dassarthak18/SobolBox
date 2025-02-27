@@ -32,17 +32,6 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 
-  '''LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
-  with open(LHSCacheFile, mode='r', newline='') as cacheFile:
-    reader = csv.reader(cacheFile, delimiter='|')
-    for row in reader:
-      fetched_input_lb = ast.literal_eval(row[0])
-      fetched_input_ub = ast.literal_eval(row[1])
-      if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-        input_array = ast.literal_eval(row[2])
-        output_array = ast.literal_eval(row[3])
-        break'''
-
   LHSCacheFile = "../cache/lhs.csv"
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
