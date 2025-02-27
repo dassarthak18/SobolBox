@@ -20,16 +20,10 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
 	print("Computing LHS samples.")
 	# check no. of parameters, gracefully quit if necessary
-	#sampler = qmc.LatinHypercube(len(lower_bounds), scramble=False, optimization="lloyd")
 	inputsize = len(lower_bounds)
 	n_samples = 20*inputsize
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
-	'''try:
-		sample = sampler.random(n_samples)
-		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
-	except ValueError:
-		raise ValueError("Degenerate input bounds for LHS.")'''
 
 	LHSCacheFile = "../cache/lhs.csv"
 	cacheFound = False
@@ -52,14 +46,6 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		sample_output.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
 	# cache the LHS inputs and outputs for future use
-	'''
-	LHSCacheFile = "../cache/" + filename[:-5] + "_lhs.csv"
-	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
-		writer = csv.writer(cacheFile, delimiter='|')
-		if not Path(LHSCacheFile).exists():
-        		writer.writerow(["input_lb", "input_ub", "input_array", "output_array"])
-		writer.writerow([str(lower_bounds.tolist()), str(upper_bounds.tolist()), str(sample_scaled.tolist()), str(sample_output)])
-  	'''
 	with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(LHSCacheFile).exists():
@@ -144,6 +130,6 @@ def extremum_refinement(sess, input_bounds, filename):
 		writer = csv.writer(cacheFile, delimiter='|')
 		if not Path(boundsCacheFile).exists():
 			writer.writerow(["input_lb", "input_ub", "output_lb", "output_ub", "minima_inputs", "maxima_inputs"])
-		writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs), str(updated_maxima_inputs)])
+		writer.writerow([str(lower_bounds), str(upper_bounds), str(updated_minima), str(updated_maxima), str(updated_minima_inputs.tolist()), str(updated_maxima_inputs.tolist())])
 		
 	return [updated_minima, updated_maxima, updated_minima_inputs, updated_maxima_inputs]
