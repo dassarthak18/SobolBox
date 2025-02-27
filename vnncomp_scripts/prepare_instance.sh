@@ -15,7 +15,7 @@ fi
 echo "Preparing SobolBox for benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
 
 #killing any zombie processes
-#killall -q python3
+killall -q python3
 
 exit 0
 #if [ "$benchmark" = "acasxu" ] || [ "$benchmark" = "test" ] || [ "$benchmark" = "others" ]; then
