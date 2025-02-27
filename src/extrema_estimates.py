@@ -43,7 +43,10 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		#sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
 		sampler = qmc.Sobol(inputsize, scramble=False)
 		sample = sampler.random(n_samples)
-		sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+		try:
+			sample_scaled = qmc.scale(sample, lower_bounds, upper_bounds)
+		except ValueError:
+			sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
 	
 	# compute the outputs
 	sample_output = []
