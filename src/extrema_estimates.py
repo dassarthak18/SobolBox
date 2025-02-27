@@ -1,7 +1,7 @@
 import numpy as np
 import csv, ast
 from pathlib import Path
-from pyDOE3 import lhs
+#from pyDOE3 import lhs
 from scipy.stats import qmc
 from scipy.optimize import minimize
 
@@ -18,16 +18,19 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
 
 # We use Latin Hypercube Sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
-	print("Computing LHS samples.")
+	print("Computing Sobol sequence samples.")
 	# check no. of parameters, gracefully quit if necessary
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
 	num = int(np.ceil(np.log2(20*inputsize)))
-	n_samples = np.max([2048,int(2**num)])
+	if 20**inputsize < 8196:
+		n_samples = np.max([2048,int(2**num)])
+	else:
+		n_samples = 8196
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 
-	LHSCacheFile = "../cache/lhs.csv"
+	LHSCacheFile = "../cache/sobol.csv"
 	cacheFound = False
 	if Path(LHSCacheFile).exists():
 		with open(LHSCacheFile, mode='r', newline='') as cacheFile:
@@ -35,7 +38,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 			for row in reader:
 				if row[0] == str(inputsize):
 					sample = ast.literal_eval(row[1])
-					print("Retrieved LHS from cache.")
+					print("Retrieved Sobol sequence from cache.")
 					break
 
 	if not cacheFound:
@@ -100,7 +103,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	# get the preliminary estimates
 	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
 	bounds = list(zip(lower_bounds, upper_bounds))
-	print("Refining the LHS samples.")
+	print("Refining the Sobol sequence samples.")
 	# refine the minima estimate
 	minima_inputs = extremum_guess[0]
 	minima = extremum_guess[2]
