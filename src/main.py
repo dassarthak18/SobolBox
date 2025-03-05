@@ -63,6 +63,8 @@ try:
 	    input_ub.append(var_bounds.get('ub'))
 
 	print("Input bounds extracted.")
+	if len(input_lb) > 21201:
+	    raise TypeError("Input dimension too high, quitting gracefully.")
 	
 	# We load the ONNX file and get the output bounds
 	print("Extracting output bounds.")
