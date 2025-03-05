@@ -55,7 +55,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
         if k == 0:
           s += "\n(("
         else:
-          s += "\n("
+          s += "\n ("
         s += "X_" + str(k) + " " + str(input_array[i][k]) + ")"
       for k in range(len(variables)):
         val_str = model.eval(Real(variables[k])).as_decimal(32)
@@ -63,7 +63,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
           val = float(val_str[:-1])
         else:
           val = float(val_str)
-        s += "\n(" + variables[k] + " " + str(val) + ")"
+        s += "\n (" + variables[k] + " " + str(val) + ")"
       s += ")"
       print("Safety violation detected in optima.")
       return s
