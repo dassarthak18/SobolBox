@@ -25,7 +25,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
         
   if str(solver.check()) == "unsat":
     print("No safety violations found.")
-    return "holds"
+    return "unsat"
     
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
@@ -50,7 +50,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Real(variables[j]) == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      s = "violated"
+      s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
           s += "\n(("
@@ -90,16 +90,21 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Real(variables[j]) == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      s = "violated\nCE: "
+      s = "sat"
       for k in range(len(input_array[i])):
-        s += "X_" + str(k) + " = " + str(input_array[i][k]) + "\n"
+        if k == 0:
+          s += "\n(("
+        else:
+          s += "\n ("
+        s += "X_" + str(k) + " " + str(input_array[i][k]) + ")"
       for k in range(len(variables)):
         val_str = model.eval(Real(variables[k])).as_decimal(32)
         if val_str[-1] == "?":
           val = float(val_str[:-1])
         else:
           val = float(val_str)
-        s += variables[k] + " = " + str(val) + "\n"
+        s += "\n (" + variables[k] + " " + str(val) + ")"
+      s += ")"
       print("Safety violation detected in Sobol sequence.")
       return s
     solver_2.pop()
