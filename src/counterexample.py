@@ -50,7 +50,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Real(variables[j]) == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      s = "violated\n("
+      s = "violated"
       for k in range(len(input_array[i])):
         if k == 0:
           s += "\n(("
