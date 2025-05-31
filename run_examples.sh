@@ -1,5 +1,4 @@
-#runs examples as a sanity check for the tool
-
+#runs all ACAS Xu benchmarks as a sanity check for the tool
 #!/bin/sh
 pip3 install -r requirements.txt
 
@@ -7,91 +6,88 @@ cd vnncomp_scripts
 chmod u+x prepare_instance.sh
 chmod u+x run_instance.sh
 
-mkdir ../results
-mkdir ../cache
+mkdir -p ../results
+runtime_log="../runtime_log.txt"
 
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_1.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_1.vnnlib ../results/result_acasxu_1.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_2.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_2.vnnlib ../results/result_acasxu_2.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_3.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_3.vnnlib ../results/result_acasxu_3.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_4.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_4.vnnlib ../results/result_acasxu_4.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_5.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_1_1_batch_2000.onnx ../examples/acasxu/vnnlib/prop_5.vnnlib ../results/result_acasxu_5.txt 3600
+# Clear previous log file
+> "$runtime_log"
 
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_6.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_6.vnnlib ../results/result_acasxu_6.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_7.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_7.vnnlib ../results/result_acasxu_7.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_8.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_8.vnnlib ../results/result_acasxu_8.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_9.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_9.vnnlib ../results/result_acasxu_9.txt 3600
-./prepare_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_10.vnnlib
-./run_instance.sh v1 acasxu ../examples/acasxu/onnx/ACASXU_run2a_5_9_batch_2000.onnx ../examples/acasxu/vnnlib/prop_10.vnnlib ../results/result_acasxu_10.txt 3600
+# Running props 1 to 4 on all models
+for i in {1..5}; do
+  for j in {1..9}; do
+    model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
+    for prop in {1..4}; do
+      echo "Running model $model with property $prop"
+      start_time=$(date +%s)
+      
+      ./run_instance.sh v1 acasxu \
+        ../examples/acasxu/onnx/$model \
+        ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
+        ../results/result_acasxu_${i}_${j}_p${prop}.txt \
+        3600
+      
+      end_time=$(date +%s)
+      elapsed=$((end_time - start_time))
+      
+      echo "$elapsed" >> "$runtime_log"
+    done
+  done
+done
 
-./prepare_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_1.00000.vnnlib
-./run_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_1.00000.vnnlib ../results/result_traffic_1.txt 3600
-./prepare_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_10.00000.vnnlib
-./run_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_10.00000.vnnlib ../results/result_traffic_2.txt 3600
-./prepare_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_15.00000.vnnlib
-./run_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_15.00000.vnnlib ../results/result_traffic_3.txt 3600
-./prepare_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_3.00000.vnnlib
-./run_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_3.00000.vnnlib ../results/result_traffic_4.txt 3600
-./prepare_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_5.00000.vnnlib
-./run_instance.sh v1 traffic ../examples/traffic_signs_recognition/onnx/3_30_30_QConv_16_3_QConv_32_2_Dense_43_ep_30.onnx ../examples/traffic_signs_recognition/vnnlib/model_30_idx_11985_eps_5.00000.vnnlib ../results/result_traffic_5.txt 3600
+# Running specific models with props 5 to 10
+for run_info in \
+  "1 1 5" \
+  "1 1 6" \
+  "1 9 7" \
+  "2 9 8" \
+  "3 3 9" \
+  "4 5 10"
+do
+  set -- $run_info
+  i=$1
+  j=$2
+  prop=$3
+  model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
 
-clear
+  echo "Running model $model with property $prop"
+  start_time=$(date +%s)
+  
+  ./run_instance.sh v1 acasxu \
+    ../examples/acasxu/onnx/$model \
+    ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
+    ../results/result_acasxu_${i}_${j}_p${prop}.txt \
+    3600
+  
+  end_time=$(date +%s)
+  elapsed=$((end_time - start_time))
+  
+  echo "$elapsed" >> "$runtime_log"
+done
 
-echo -n "prop_1 of acasxu run2a_1_1_batch_2000: "
-cat ../results/result_acasxu_1.txt
-echo " "
-echo -n "prop_2 of acasxu run2a_1_1_batch_2000: "
-cat ../results/result_acasxu_2.txt
-echo " "
-echo -n "prop_3 of acasxu run2a_1_1_batch_2000: "
-cat ../results/result_acasxu_3.txt
-echo " "
-echo -n "prop_4 of acasxu run2a_1_1_batch_2000: "
-cat ../results/result_acasxu_4.txt
-echo " "
-echo -n "prop_5 of acasxu run2a_1_1_batch_2000: "
-cat ../results/result_acasxu_5.txt
-echo " "
+# Count sat/unsat/unknown
+unsat=0
+sat=0
+unknown=0
 
-echo -n "prop_6 of acasxu run2a_5_9_batch_2000: "
-cat ../results/result_acasxu_6.txt
-echo " "
-echo -n "prop_7 of acasxu run2a_5_9_batch_2000: "
-cat ../results/result_acasxu_7.txt
-echo " "
-echo -n "prop_8 of acasxu run2a_5_9_batch_2000: "
-cat ../results/result_acasxu_8.txt
-echo " "
-echo -n "prop_9 of acasxu run2a_5_9_batch_2000: "
-cat ../results/result_acasxu_9.txt
-echo " "
-echo -n "prop_10 of acasxu run2a_5_9_batch_2000: "
-cat ../results/result_acasxu_10.txt
-echo " "
+for file in ../results/result_acasxu_*.txt; do
+  if [ -f "$file" ]; then
+    status=$(head -n 1 "$file")
+    case "$status" in
+      unsat)   ((unsat++)) ;;
+      sat)     ((sat++)) ;;
+      unknown) ((unknown++)) ;;
+    esac
+  fi
+done
 
-echo -n "prop_1 of traffic: "
-cat ../results/result_traffic_1.txt
-echo " "
-echo -n "prop_2 of traffic: "
-cat ../results/result_traffic_2.txt
-echo " "
-echo -n "prop_3 of traffic: "
-cat ../results/result_traffic_3.txt
-echo " "
-echo -n "prop_4 of traffic: "
-cat ../results/result_traffic_4.txt
-echo " "
-echo -n "prop_5 of traffic: "
-cat ../results/result_traffic_5.txt
-echo " "
+sum=$(awk '{sum += $1} END {print sum+0}' "$runtime_log")
 
+echo "Total instances: $((unsat + sat + unknown))"
+echo "unsat: $unsat"
+echo "sat: $sat"
+echo "unknown: $unknown"
+echo "Total Time (seconds): $sum"
+
+# Post-run cleanup
 rm -rf ../results
 rm -rf ../cache
