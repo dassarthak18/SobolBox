@@ -11,6 +11,7 @@ runtime_log="../runtime_log.txt"
 
 # Clear previous log file
 > "$runtime_log"
+total_time=0
 
 # Running props 1 to 4 on all models
 for i in {1..5}; do
@@ -28,8 +29,15 @@ for i in {1..5}; do
       
       end_time=$(date +%s.%N)
       elapsed=$(echo "$end_time - $start_time" | bc)
+      total_time=$(echo "$total_time + $elapsed" | bc)
       
-      echo "$elapsed" >> "$runtime_log"
+      result_file="../results/result_acasxu_${i}_${j}_p${prop}.txt"
+      if [ -f "$result_file" ]; then
+        status=$(head -n 1 "$result_file")
+        if [ "$status" != "unknown" ]; then
+          echo "$elapsed" >> "$runtime_log"
+        fi
+      fi
     done
   done
 done
@@ -60,8 +68,15 @@ do
   
   end_time=$(date +%s.%N)
   elapsed=$(echo "$end_time - $start_time" | bc)
+  total_time=$(echo "$total_time + $elapsed" | bc)
   
-  echo "$elapsed" >> "$runtime_log"
+  result_file="../results/result_acasxu_${i}_${j}_p${prop}.txt"
+  if [ -f "$result_file" ]; then
+    status=$(head -n 1 "$result_file")
+    if [ "$status" != "unknown" ]; then
+      echo "$elapsed" >> "$runtime_log"
+    fi
+  fi
 done
 
 # Count sat/unsat/unknown
@@ -80,13 +95,11 @@ for file in ../results/result_acasxu_*.txt; do
   fi
 done
 
-sum=$(awk '{sum += $1} END {print sum+0}' "$runtime_log")
-
 echo "Total instances: $((unsat + sat + unknown))"
 echo "unsat: $unsat"
 echo "sat: $sat"
 echo "unknown: $unknown"
-echo "Total Time (seconds): $sum"
+echo "Total Time (seconds): $total_time"
 
 # Post-run cleanup
 rm -rf ../results
