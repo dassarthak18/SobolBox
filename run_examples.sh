@@ -18,7 +18,7 @@ for i in {1..5}; do
     model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
     for prop in {1..4}; do
       echo "Running model $model with property $prop"
-      start_time=$(date +%s)
+      start_time=$(date +%s.%N)
       
       ./run_instance.sh v1 acasxu \
         ../examples/acasxu/onnx/$model \
@@ -26,8 +26,8 @@ for i in {1..5}; do
         ../results/result_acasxu_${i}_${j}_p${prop}.txt \
         3600
       
-      end_time=$(date +%s)
-      elapsed=$((end_time - start_time))
+      end_time=$(date +%s.%N)
+      elapsed=$(echo "$end_time - $start_time" | bc)
       
       echo "$elapsed" >> "$runtime_log"
     done
@@ -50,7 +50,7 @@ do
   model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
 
   echo "Running model $model with property $prop"
-  start_time=$(date +%s)
+  start_time=$(date +%s.%N)
   
   ./run_instance.sh v1 acasxu \
     ../examples/acasxu/onnx/$model \
@@ -58,8 +58,8 @@ do
     ../results/result_acasxu_${i}_${j}_p${prop}.txt \
     3600
   
-  end_time=$(date +%s)
-  elapsed=$((end_time - start_time))
+  end_time=$(date +%s.%N)
+  elapsed=$(echo "$end_time - $start_time" | bc)
   
   echo "$elapsed" >> "$runtime_log"
 done
