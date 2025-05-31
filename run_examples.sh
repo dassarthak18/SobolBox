@@ -34,7 +34,9 @@ for i in {1..5}; do
       result_file="../results/result_acasxu_${i}_${j}_p${prop}.txt"
       if [ -f "$result_file" ]; then
         status=$(head -n 1 "$result_file")
-        if [ "$status" != "unknown" ]; then
+        if [ "$status" = "unknown" ]; then
+          echo "x$elapsed" >> "$runtime_log"
+        else
           echo "$elapsed" >> "$runtime_log"
         fi
       fi
@@ -73,7 +75,9 @@ do
   result_file="../results/result_acasxu_${i}_${j}_p${prop}.txt"
   if [ -f "$result_file" ]; then
     status=$(head -n 1 "$result_file")
-    if [ "$status" != "unknown" ]; then
+    if [ "$status" = "unknown" ]; then
+      echo "x$elapsed" >> "$runtime_log"
+    else
       echo "$elapsed" >> "$runtime_log"
     fi
   fi
