@@ -14,6 +14,10 @@ while True:
 		maxInt = int(maxInt/10)
 csv.field_size_limit(sys.maxsize)
 
+# We create a cache directory
+cache_dir = Path("..") / "cache"
+cache_dir.mkdir(parents=True, exist_ok=True)
+
 # We open the VNNLIB file and get the input bounds
 benchmark = str(sys.argv[1])
 onnxFile = str(sys.argv[2])
