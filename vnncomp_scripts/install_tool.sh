@@ -19,4 +19,3 @@ apt-get update && apt-get install -y python3 python3-distutils python3-pip pytho
 git clone https://github.com/dassarthak18/SobolBox.git
 cd SobolBox
 pip3 install -r requirements.txt
-mkdir cache
