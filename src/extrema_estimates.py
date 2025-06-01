@@ -47,7 +47,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	if not cacheFound:
 		#sample = lhs(inputsize, samples=n_samples, criterion='lhsmu')
 		#sample_scaled = lower_bounds + sample * (upper_bounds - lower_bounds)
-		sampler = qmc.Sobol(inputsize, scramble=True)
+		sampler = qmc.Sobol(inputsize, scramble=False)
 		sample = sampler.random(n_samples)
 		
 	try:
