@@ -2,34 +2,42 @@ import numpy as np
 import multiprocessing as mp
 from falsifier.extrema_estimates import black_box
 
-def directional_slope(x, delta, sess, input_name, label_name, input_shape, num_directions=8):
-    d = len(x)
-    max_slope = 0.0
-    fx = np.array(black_box(sess, x, input_name, label_name, input_shape))
-    
-    for _ in range(num_directions):
-        direction = np.random.choice([-1.0, 1.0], size=d)
-        direction /= np.linalg.norm(direction)
-        x_perturbed = np.clip(x + delta * direction, 0.0, 1.0)  # Modify bounds if needed
-        fx_perturbed = np.array(black_box(sess, x_perturbed, input_name, label_name, input_shape))
-        slope = np.linalg.norm(fx_perturbed - fx, ord=2) / delta
-        max_slope = max(max_slope, slope)
+def slope_between_points(x1, x2, sess, input_name, label_name, input_shape):
+    fx1 = np.array(black_box(sess, x1, input_name, label_name, input_shape))
+    fx2 = np.array(black_box(sess, x2, input_name, label_name, input_shape))
+    dist_input = np.linalg.norm(x2 - x1)
+    if dist_input == 0:
+        return 0.0
+    dist_output = np.linalg.norm(fx2 - fx1)
+    return dist_output / dist_input
 
-    return max_slope
-
-def estimate_lower_lipschitz(sess, input_shape, input_name, label_name, lower_bounds, upper_bounds, num_samples=256, num_directions=16, delta=1e-2):
-    d = np.prod(input_shape)
+def estimate_upper_lipschitz(sess, input_shape, input_name, label_name, lower_bounds, upper_bounds, num_samples=256, delta=1e-3, num_directions=16):
     lower_bounds = np.array(lower_bounds)
     upper_bounds = np.array(upper_bounds)
+    d = np.prod(input_shape)
 
-    def sample_input():
+    def sample_point():
         return np.random.uniform(lower_bounds, upper_bounds)
 
+    def sample_pair():
+        x = sample_point()
+        # Random direction with norm scaled by delta (smaller steps for local slope)
+        direction = np.random.randn(d)
+        direction /= np.linalg.norm(direction)
+        x_perturbed = x + delta * direction
+        x_perturbed = np.clip(x_perturbed, lower_bounds, upper_bounds)
+        return x, x_perturbed
+
     def worker(_):
-        x = sample_input()
-        return directional_slope(x, delta, sess, input_name, label_name, input_shape, num_directions=num_directions)
+        max_slope = 0.0
+        for _ in range(num_directions):
+            x1, x2 = sample_pair()
+            slope = slope_between_points(x1, x2, sess, input_name, label_name, input_shape)
+            if slope > max_slope:
+                max_slope = slope
+        return max_slope
 
     with mp.Pool(mp.cpu_count()) as pool:
-        all_slopes = pool.map(worker, range(num_samples))
+        slopes = pool.map(worker, range(num_samples))
 
-    return max(all_slopes)
+    return max(slopes)
