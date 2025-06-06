@@ -31,7 +31,7 @@ def get_bounds_from_conjunct(conjunct_formula, var_symbols, x_var_names):
     h1 = opt.minimize(var)
     if opt.check() == sat:
       model = opt.model()
-      lb = model.eval(var, model_completion=True).as_decimal(10)
+      lb = model.eval(var, model_completion=True).as_decimal(100)
       lowers.append(float(lb))
     else:
       lowers.append(None)
@@ -40,7 +40,7 @@ def get_bounds_from_conjunct(conjunct_formula, var_symbols, x_var_names):
     h2 = opt.maximize(var)
     if opt.check() == sat:
       model = opt.model()
-      ub = model.eval(var, model_completion=True).as_decimal(10)
+      ub = model.eval(var, model_completion=True).as_decimal(100)
       uppers.append(float(ub))
     else:
       uppers.append(None)
