@@ -20,8 +20,8 @@ def directional_slope(x, delta, sess, input_name, label_name, input_shape, lower
 
 def estimate_lipschitz_upper_bound(sess, input_shape, input_name, label_name, lower_bounds, upper_bounds, num_samples=2048, num_directions=32, delta=1e-2, safety_factor=1.2):
     d = np.prod(input_shape)
-    lower_bounds = np.array(lower_bounds).flatten()
-    upper_bounds = np.array(upper_bounds).flatten()
+    lower_bounds = np.array(lower_bounds)
+    upper_bounds = np.array(upper_bounds)
 
     def sample_input():
         return np.random.uniform(lower_bounds, upper_bounds)
