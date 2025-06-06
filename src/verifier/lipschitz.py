@@ -17,10 +17,11 @@ def directional_slope(x, delta, sess, input_name, label_name, input_shape, num_d
 
     return max_slope
 
-def estimate_lower_lipschitz(sess, input_shape, input_name, label_name, bounds, num_samples=256, num_directions=16, delta=1e-2):
+def estimate_lower_lipschitz(sess, input_shape, input_name, label_name, lower_bounds, upper_bounds, num_samples=256, num_directions=16, delta=1e-2):
+    
     d = np.prod(input_shape)
-    lower_bounds = np.array([b[0] for b in bounds])
-    upper_bounds = np.array([b[1] for b in bounds])
+    lower_bounds = np.array(lower_bounds)
+    upper_bounds = np.array(upper_bounds)
 
     def sample_input():
         return np.random.uniform(lower_bounds, upper_bounds)
