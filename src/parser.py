@@ -49,7 +49,8 @@ def get_bounds_from_conjunct(conjunct_formula, var_symbols, x_var_names):
 
 def parse(path):
   disjuncts, var_symbols, var_names = load_smtlib_and_parse_disjuncts(path)
-
+  bounds_dict = {}
   for i, disjunct in enumerate(disjuncts, start=1):
     lower, upper = get_bounds_from_conjunct(disjunct, var_symbols, var_names)
-    print(lower, upper)
+    bounds_dict[i] = (lower, upper)
+  return bounds_dict
