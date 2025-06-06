@@ -1,6 +1,6 @@
 import numpy as np
 import copy, csv, ast, json
-from extrema_estimates import black_box
+from falsifier.extrema_estimates import black_box
 from z3 import *
 
 def validateCE(model, sess):
