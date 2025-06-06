@@ -25,8 +25,6 @@ onnxFile = str(sys.argv[2])
 propertyFile = str(sys.argv[3])
 resultFile = str(sys.argv[4])
 
-print("Extracting input bounds.")
-
 with open(propertyFile) as f:
   smt = f.read()
 decls = {}
@@ -39,57 +37,64 @@ for a in assertions:
   if any(re.match(r'^Y_\d+$', n) for n in names):
     solver_2.add(a)
 bounds_dict = parse(propertyFile)
+
 for j in bounds_dict:
+    print("Extracting input bounds.")
     input_lb, input_ub = bounds_dict[j]
+    print("Input bounds extracted.")
 
-print("Input bounds extracted.")
+    try:
+      if len(input_lb) > 21201:
+          raise TypeError("Input dimension too high, quitting gracefully.")
+    except TypeError as error:
+      print(str(error))
+      file1 = open(resultFile, 'w')
+      file1.write("unknown")
+      file1.close()
 
-try:
-  if len(input_lb) > 21201:
-      raise TypeError("Input dimension too high, quitting gracefully.")
-except TypeError as error:
-  print(str(error))
-  file1 = open(resultFile, 'w')
-  file1.write("unknown")
-  file1.close()
+    # We load the ONNX file and get the output bounds
+    print("Extracting output bounds.")
+    sess = rt.InferenceSession(onnxFile)
+    file_path = Path(onnxFile)
+    filename = file_path.name
+    boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
+    cacheFound = False
+    if Path(boundsCacheFile).exists():
+      with open(boundsCacheFile, mode='r', newline='') as cacheFile:
+        reader = csv.reader(cacheFile, delimiter='|')
+        for row in reader:
+          fetched_input_lb = json.loads(row[0])
+          fetched_input_ub = json.loads(row[1])
+          if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
+            output_lb = json.loads(row[2])
+            output_ub = json.loads(row[3])
+            output_lb_inputs = json.loads(row[4])
+            output_ub_inputs = json.loads(row[5])
+            cacheFound = True
+            print("Extracted output bounds from cache.")
+            break
 
-# We load the ONNX file and get the output bounds
-print("Extracting output bounds.")
-sess = rt.InferenceSession(onnxFile)
-file_path = Path(onnxFile)
-filename = file_path.name
-boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
-cacheFound = False
-if Path(boundsCacheFile).exists():
-  with open(boundsCacheFile, mode='r', newline='') as cacheFile:
-    reader = csv.reader(cacheFile, delimiter='|')
-    for row in reader:
-      fetched_input_lb = json.loads(row[0])
-      fetched_input_ub = json.loads(row[1])
-      if input_lb == fetched_input_lb and input_ub == fetched_input_ub:
-        output_lb = json.loads(row[2])
-        output_ub = json.loads(row[3])
-        output_lb_inputs = json.loads(row[4])
-        output_ub_inputs = json.loads(row[5])
-        cacheFound = True
-        print("Extracted output bounds from cache.")
-        break
+    if not cacheFound:
+      bound = extremum_refinement(sess, [input_lb, input_ub], filename)
+      output_lb = bound[0]
+      output_ub = bound[1]
+      output_lb_inputs = bound[2]
+      output_ub_inputs = bound[3]
 
-if not cacheFound:
-  bound = extremum_refinement(sess, [input_lb, input_ub], filename)
-  output_lb = bound[0]
-  output_ub = bound[1]
-  output_lb_inputs = bound[2]
-  output_ub_inputs = bound[3]
+    # Adding the maxima and minima points to the SAT constraints
+    for i in range(len(output_lb)):
+        Y_i = Real("Y_" + str(i))
+        solver.add(Y_i >= output_lb[i])
+        solver.add(Y_i <= output_ub[i])
 
-# Adding the maxima and minima points to the SAT constraints
-for i in range(len(output_lb)):
-    Y_i = Real("Y_" + str(i))
-    solver.add(Y_i >= output_lb[i])
-    solver.add(Y_i <= output_ub[i])
+    # We check the property and write the answer into the result file
+    file1 = open(resultFile, 'w')
+    s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs)
+    if s[:3] == "sat": # No need to check other disjuncts if a CE is found
+      file1.write(s)
+      file1.close()
+      exit(0)
 
-# We check the property and write the answer into the result file
-file1 = open(resultFile, 'w')
-s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs)
+# Else, s is UNSAT
 file1.write(s)
 file1.close()
