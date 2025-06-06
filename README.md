@@ -1,4 +1,4 @@
-# SobolBox : Boxed Refinement of Sobol Sequence Samples for Neural Network Verification
+# SobolBox : Boxed Refinement of Sobol-Driven Coordinate Shrinking for Neural Network Falsification
 
 ## Introduction
 
