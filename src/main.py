@@ -36,13 +36,13 @@ for a in assertions:
   names = {str(v) for v in a.children()}
   if any(re.match(r'^Y_\d+$', n) for n in names):
     solver_2.add(a)
+print("Extracting input bounds.")
 bounds_dict = parse(propertyFile)
+print("Input bounds extracted.")
 
 for j in bounds_dict:
-    print("Extracting input bounds.")
+    print(f"Sub-problem {j}.")
     input_lb, input_ub = bounds_dict[j]
-    print("Input bounds extracted.")
-
     try:
       if len(input_lb) > 21201:
           raise TypeError("Input dimension too high, quitting gracefully.")
