@@ -80,7 +80,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   #return "unsat"
   return "unknown"
 
-def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs):
+def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting):
   print("Checking for violations in Sobol sequence samples.")
         
   if str(solver.check()) == "unsat":
@@ -169,7 +169,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       return s
     solver_2.pop()
 
-    #second_pass = unknown_CE_check(sess, solver_2, input_lb, input_ub, output_lb_inputs+output_ub_inputs, input_shape)
-    #return second_pass
+    if setting:
+      second_pass = unknown_CE_check(sess, solver_2, input_lb, input_ub, output_lb_inputs+output_ub_inputs, input_shape)
+      return second_pass
     print("Inconclusive analysis.")
     return "unknown"
