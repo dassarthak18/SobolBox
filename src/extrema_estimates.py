@@ -126,7 +126,7 @@ def extremum_refinement(sess, input_bounds, filename):
 					if "delta_grad == 0.0" in str(warning.message):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
-			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', lambda x: np.zeros((len(x), len(x)), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
+			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 		if result.fun > minima[index]:
 			updated_minima.append(minima[index])
 			updated_minima_inputs.append(x0)
@@ -150,7 +150,7 @@ def extremum_refinement(sess, input_bounds, filename):
 					if "delta_grad == 0.0" in str(warning.message):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
-			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', lambda x: np.zeros((len(x), len(x)), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
+			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 		if -result.fun < maxima[index]:
 			updated_maxima.append(maxima[index])
 			updated_maxima_inputs.append(x0)
