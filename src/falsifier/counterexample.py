@@ -80,6 +80,9 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   #return "unsat"
   return "unknown"
 
+def nearest_optima_distance(sample, optima_array):
+  return min(np.linalg.norm(sample - np.array(opt)) for opt in optima_array)
+
 def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting):
   print("Checking for violations in Sobol sequence samples.")
         
@@ -140,6 +143,10 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   input_lb = np.array(input_lb)
   input_ub = np.array(input_ub)
   input_array = input_lb + sample * (input_ub - input_lb)
+  optima_array = output_lb_inputs + output_ub_inputs
+  sample_dist_pairs = [(inp, nearest_optima_distance(inp, optima_array)) for inp in input_array]
+  sample_dist_pairs.sort(key=lambda x: x[1])
+  input_array = [pair[0] for pair in sample_dist_pairs]
   output_array = []
   for datapoint in input_array:
     output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
