@@ -23,14 +23,14 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
 	'''
- 	num = int(np.ceil(np.log2(20*inputsize)))
+	num = int(np.ceil(np.log2(20*inputsize)))
 	if 20*inputsize < 8192:
 		n_samples = np.max([2048,int(2**num)])
 	else:
 		n_samples = 8192
 	'''
 	n_samples = np.max([2048, int(2**np.round(np.log2(10*inputsize)))])
- 	print(f"Calculating Sobol sequence for {n_samples} samples.")
+	print(f"Calculating Sobol sequence for {n_samples} samples.")
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
 
@@ -68,7 +68,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(LHSCacheFile).exists():
-	        		writer.writerow(["input_size", "unscaled_sample"])
+				writer.writerow(["input_size", "unscaled_sample"])
 			writer.writerow([str(inputsize), json.dumps(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
