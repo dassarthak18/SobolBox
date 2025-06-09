@@ -1,4 +1,7 @@
 numpy
+numpyro
 scipy
 onnxruntime
+pymc
+pytensor
 z3-solver
