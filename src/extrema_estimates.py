@@ -3,7 +3,7 @@ import csv, ast, json
 from pathlib import Path
 #from pyDOE3 import lhs
 from scipy.stats import qmc
-from scipy.optimize import minimize
+from scipy.optimize import minimize, SR1
 
 # We treat neural networks as a general MIMO black box
 def black_box(sess, input_array, input_name, label_name, input_shape):
