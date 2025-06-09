@@ -2,8 +2,8 @@ import sys, copy, csv, ast, json, re
 import onnxruntime as rt
 from pathlib import Path
 from parser import parse
-from extrema_estimates import extremum_refinement
-from counterexample import SAT_check
+from falsifier.extrema_estimates import extremum_refinement
+from falsifier.counterexample import SAT_check
 from z3 import *
 
 maxInt = sys.maxsize
