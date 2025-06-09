@@ -169,5 +169,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       return s
     solver_2.pop()
 
-  second_pass = unknown_CE_check(sess, solver_2, input_lb, input_ub, output_lb_inputs+output_ub_inputs, input_shape)
-  return second_pass
+  #second_pass = unknown_CE_check(sess, solver_2, input_lb, input_ub, output_lb_inputs+output_ub_inputs, input_shape)
+  #return second_pass
+  print("Inconclusive analysis.")
+  return "unknown"
