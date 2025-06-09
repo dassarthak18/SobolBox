@@ -20,10 +20,14 @@ cache_dir = Path("..") / "cache"
 cache_dir.mkdir(parents=True, exist_ok=True)
 
 # We open the VNNLIB file and get the input bounds
-benchmark = str(sys.argv[1])
-onnxFile = str(sys.argv[2])
-propertyFile = str(sys.argv[3])
-resultFile = str(sys.argv[4])
+if sys.argv[1] == "--deep":
+  setting = 1
+else:
+  setting = 0
+benchmark = str(sys.argv[setting+1])
+onnxFile = str(sys.argv[setting+2])
+propertyFile = str(sys.argv[setting+3])
+resultFile = str(sys.argv[setting+4])
 
 with open(propertyFile) as f:
   smt = f.read()
@@ -89,12 +93,12 @@ for j in bounds_dict:
 
     # We check the property and write the answer into the result file
     file1 = open(resultFile, 'w')
-    s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs)
+    s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting)
     if s[:3] == "sat": # No need to check other disjuncts if a CE is found
       file1.write(s)
       file1.close()
       exit(0)
 
-# Else, s is UNSAT
+# Else, s is UNSAT or UNKNOWN
 file1.write(s)
 file1.close()
