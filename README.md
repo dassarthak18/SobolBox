@@ -22,6 +22,18 @@ A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS)
        pip3 install z3-solver
     ```
     Their [GitHub repository](https://github.com/Z3Prover/z3) can be checked for further details.
+5. **PyMC and its computational backend PyTensor.** Can be installed using the terminal command
+
+    ```shell
+       pip3 install pymc pytensor
+    ```
+    Their [official website](https://www.pymc.io/welcome.html) can be visited for further details.
+6. **NumPyro.** Can be installed using the terminal command
+
+    ```shell
+       pip3 install numpyro
+    ```
+    Their [GitHub repository](https://github.com/pyro-ppl/numpyro) can be checked for further details.
 
 ## Installation and Usage
 
