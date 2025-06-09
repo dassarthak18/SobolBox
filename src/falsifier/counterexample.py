@@ -75,9 +75,10 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       print("Safety violation detected in NUTS samples.")
       return s
     solver_2.pop()
-  #print("Inconclusive analysis.")
-  print("No safety violations found.")
-  return "unsat"
+  print("Inconclusive analysis.")
+  #print("No safety violations found.")
+  #return "unsat"
+  return "unknown"
 
 def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs):
   print("Checking for violations in Sobol sequence samples.")
