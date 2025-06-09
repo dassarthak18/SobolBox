@@ -17,8 +17,9 @@ fi
 echo "Running SobolBox on benchmark instance in category '$benchmark' with neural network '$onnxpath' and property file '$libpath'."
 echo "Storing result in plaintext file '$resultpath', given timeout in seconds is '$timeout'."
 
-#property verification
-timeout $(( $timeout ))s python3 $(dirname $(dirname $(realpath $0)))/src/main.py --deep "$benchmark" "$onnxpath" "$libpath" "$resultpath"
+#property verification - use --deep if you want a deeper CE search
+#timeout $(( $timeout ))s python3 $(dirname $(dirname $(realpath $0)))/src/main.py --deep "$benchmark" "$onnxpath" "$libpath" "$resultpath"
+timeout $(( $timeout ))s python3 $(dirname $(dirname $(realpath $0)))/src/main.py "$benchmark" "$onnxpath" "$libpath" "$resultpath"
 
 code="$?"
 
