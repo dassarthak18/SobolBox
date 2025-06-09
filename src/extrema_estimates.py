@@ -120,7 +120,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
 		try:
 			with warnings.catch_warnings(record=True) as w:
-				warnings.simplefilter("always", OptimizeWarning)
+				warnings.simplefilter("always", UserWarning)
 				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 				for warning in w:
 					if "delta_grad == 0.0" in str(warning.message):
@@ -144,7 +144,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
 		try:
 			with warnings.catch_warnings(record=True) as w:
-				warnings.simplefilter("always", OptimizeWarning)
+				warnings.simplefilter("always", UserWarning)
 				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 				for warning in w:
 					if "delta_grad == 0.0" in str(warning.message):
