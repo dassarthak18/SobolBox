@@ -17,7 +17,7 @@ def validateCE(model, sess, input_array):
   output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
   print(output_array_true)
   
-  if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
+  if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
     return True
   return False
 
