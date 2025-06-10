@@ -5,16 +5,13 @@ import pytensor.tensor as pt
 from falsifier.extrema_estimates import black_box
 from z3 import *
 
-def validateCE(model, sess):
+def validateCE(model, sess, input_array):
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
   
-  x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
-  input_array = [float(model.eval(Real(d)).as_decimal(100)) for d in x_decls]
-  
   output_array_pred = [float(model.eval(Real(d)).as_decimal(100)) for d in y_decls]
   print(output_array_pred)
   output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
@@ -65,7 +62,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       solver_2.add(Y_vars[j] == Y[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess):
+      if not validateCE(model, sess, X[i]):
         continue
       print("Candidate CE validated.")
       s = "sat"
@@ -120,7 +117,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess):
+      if not validateCE(model, sess, input_array[i]):
         continue
       print("Candidate CE validated.")
       s = "sat"
@@ -162,7 +159,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess):
+      if not validateCE(model, sess, input_array[i]):
         continue
       print("Candidate CE validated.")
       s = "sat"
