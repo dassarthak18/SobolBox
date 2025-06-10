@@ -5,11 +5,20 @@ import pytensor.tensor as pt
 from falsifier.extrema_estimates import black_box
 from z3 import *
 
-def validateCE(model, sess, input_array):
+def all_in_elementwise_range(arr, lowers, uppers):
+  arr = np.asarray(arr)
+  lowers = np.asarray(lowers)
+  uppers = np.asarray(uppers)
+  return np.all((arr >= lowers) & (arr <= uppers))
+
+def validateCE(model, sess, input_array, input_lb, input_ub):
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+
+  if not all_in_elementwise_range(input_array, input_lb, input_ub):
+    return False
   
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
   output_array_pred = [float(model.eval(Real(d)).as_decimal(100)) for d in y_decls]
@@ -17,9 +26,9 @@ def validateCE(model, sess, input_array):
   output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
   #print(output_array_true)
   
-  if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
-    return True
-  return False
+  if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
+    return False
+  return True
 
 def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     inputsize = input_shape[-1]
@@ -62,7 +71,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       solver_2.add(Y_vars[j] == Y[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess, X[i]):
+      if not validateCE(model, sess, X[i], input_lb, input_ub):
         continue
       print("Candidate CE validated.")
       s = "sat"
@@ -117,7 +126,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess, input_array[i]):
+      if not validateCE(model, sess, input_array[i], input_lb, input_ub):
         continue
       print("Candidate CE validated.")
       s = "sat"
@@ -159,7 +168,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
-      if not validateCE(model, sess, input_array[i]):
+      if not validateCE(model, sess, input_array[i], input_lb, input_ub):
         continue
       print("Candidate CE validated.")
       s = "sat"
