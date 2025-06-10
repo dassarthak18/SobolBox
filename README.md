@@ -42,7 +42,7 @@ The source code is available in the ./src/ directory.
 The prerequisites have been listed in requirements.txt. Assuming Python 3.7+ and pip3 are already installed, simply run the following command:
 
  ```shell
-        git clone https://github.com/dassarthak18/SobolBox.git
+        git clone https://github.com/dassarthak18/SobolBox.git -b VNNCOMP-2025
         cd SobolBox
         pip3 install -r requirements.txt
   ```
