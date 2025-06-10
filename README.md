@@ -52,12 +52,12 @@ For a sanity check of the tool, a run_examples.sh script has been provided that 
 
 SobolBox uses Microsoft Z3 Theorem Prover to parse the VNNLIB files and extract input bounds from them via Z3's inbuilt optimization routines. This is a deliberate choice in minimization of dependencies, driven by the fact that VNNLIB is written as a subset of the SMTLIB-2 standard which Z3 supports. Upon extracting the input bounds, it generates a sample of input points using **Sobol sequence sampling**, which is a quasi-Monte Carlo method used to generate a low-discrepancy, deterministic sample of parameter values from a multidimensional distribution. Sobol sequencing is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in sensitivity analysis.
 
-By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the argmin and argmax are chosen, and a **trust-region constrained optimization** is performed to quickly converge to a local optima around that region and refine the preliminary estimate obtained from Sobol. This ensures a tight under-approximation of the output bounds.
+By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the argmin and argmax are chosen, and a **trust-region constrained optimization** is performed to quickly converge to a local optimum around that region and refine the preliminary estimate obtained from Sobol. This ensures a tight under-approximation of the output bounds.
 
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis.
 
 * If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
-* If the analysis finds a Sobol sequence sample or an optima that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
+* If the analysis finds a Sobol sequence sample or an optimum that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
 * If the tool encounters neural networks of effective input dimension greater than 9250, or if the analysis is inconclusive, the tool quits gracefully and returns ``unknown``.
 
 SobolBox also implements caching of Sobol sequences as well as computed output bounds to reduce computational overheads over incremental runs.
