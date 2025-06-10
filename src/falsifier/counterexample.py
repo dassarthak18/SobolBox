@@ -55,8 +55,8 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     outputs = [black_box(sess, sample, input_name, label_name, input_shape) for sample in samples]
     dists = [np.min(np.linalg.norm(sample - targets, axis=1)) for sample in samples]
     sorted_indices = np.argsort(dists)
-    samples = samples[sorted_indices][:2048]
-    outputs = [outputs[i] for i in sorted_indices][:2048]
+    samples = samples[sorted_indices]
+    outputs = [outputs[i] for i in sorted_indices]
     return samples, outputs
 
 def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
