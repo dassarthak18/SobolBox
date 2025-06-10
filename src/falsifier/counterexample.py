@@ -53,6 +53,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
         else:
           s += "\n ("
         s += str(X_vars[k]) + " " + str(X[i][k]) + ")"
+      for k in range(len(Y[i])):
         s += "\n (" + str(Y_vars[k]) + " " + str(Y[i][k]) + ")"
       s += ")"
       print("Safety violation detected in NUTS samples.")
@@ -104,6 +105,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
         else:
           s += "\n ("
         s += str(X_vars[k]) + " " + str(input_array[i][k]) + ")"
+      for k in range(len(output_array[i])):
         s += "\n (" + str(Y_vars[k]) + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in optima.")
@@ -142,6 +144,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
         else:
           s += "\n ("
         s += str(X_vars[k]) + " " + str(input_array[i][k]) + ")"
+      for k in range(len(output_array[i])):
         s += "\n (" + str(Y_vars[k]) + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in Sobol sequence.")
