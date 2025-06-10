@@ -123,7 +123,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		objective = create_objective_function(sess, input_shape, input_name, label_name, index)
 		x0 = list(minima_inputs[index])
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
-  		try:
+		try:
 			with warnings.catch_warnings(record=True) as w:
 				warnings.simplefilter("always", UserWarning)
 				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
@@ -169,7 +169,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
 		'''
-  		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
+		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
 		opt.set_lower_bounds(lower_bounds)
 		opt.set_upper_bounds(upper_bounds)
 		opt.set_min_objective(objective)
