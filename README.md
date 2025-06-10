@@ -10,13 +10,12 @@
   - [Scientific Computing](#scientific-computing)
 - [Installation and Usage](#installation-and-usage)
 - [Falsification Approach](#falsification-approach)
+- [Acknowledgments](#acknowledgements)
 - [Publications](#publications)
 
 ## Introduction
 
 SobolBox is a black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
-
-It is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken by myself in collaboration with Shubhajit Roy, presently a Senior Research Fellow at IIT Gandhinagar, and Avishek Lahiri, presently a Senior Research Fellow at IACS Kolkata, for participation in the VNN-COMP 2021 competition but never submitted.
 
 ## Dependencies
 
@@ -73,6 +72,10 @@ p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \ri
 $$
 
 If NUTS is able to find a valid counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
+
+## Acknowledgements
+
+SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken by myself in collaboration with Shubhajit Roy, presently a Senior Research Fellow at IIT Gandhinagar, and Avishek Lahiri, presently a Senior Research Fellow at IACS Kolkata, for participation in the VNN-COMP 2021 competition but never submitted. The project was done under the supervision of Dr. Rajarshi Ray, presently an Associate Professor at IACS Kolkata.
 
 ## Publications
 
