@@ -54,7 +54,7 @@ SobolBox extracts input bounds for any given neural network directly from the VN
 
 By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the argmin and argmax are chosen, and a **trust-region constrained optimization** is performed to quickly converge to a local optima around that region and refine the preliminary estimate obtained from Sobol. This ensures a tight under-approximation of the output bounds.
 
-Once these extrema estimates are obtained, they are fed into Microsoft Z3 Theorem Prover along with the safety specification for analysis.
+Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis.
 
 * If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * If the analysis finds a Sobol sequence sample or an optima that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
