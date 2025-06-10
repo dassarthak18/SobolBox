@@ -69,4 +69,4 @@ p(\mathbf{x}) \propto \sum_{\mathbf{t} \in \mathbf{T}} \exp\left( -\frac{1}{2\si
 \quad \text{where } \mathbf{x} \in [\mathbf{l}, \mathbf{u}], \text{ } \sigma \in \mathbb{R}
 $$
 
-If NUTS is able to find a counterexample SobolBox returns ``sat``, ``unsat`` otherwise.
+If NUTS is able to find a counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
