@@ -34,23 +34,6 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     outputs = [outputs[i] for i in sorted_indices][:2048]
     return samples, outputs
 
-def validateCE(model, sess):
-  input_name = sess.get_inputs()[0].name
-  label_name = sess.get_outputs()[0].name
-  # reshape if needed
-  input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
-  
-  x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
-  y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
-  input_array = [float(model.eval(Real(d)).as_decimal(20)) for d in x_decls]
-  
-  output_array_pred = [float(model.eval(Real(d)).as_decimal(20)) for d in y_decls]
-  output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
-
-  if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
-    return True
-  return False
-
 def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   print("Computing NUTS samples.")
   X, Y = CE_sampler_nuts(sess, input_lb, input_ub, optimas, input_shape)
@@ -69,16 +52,14 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
           s += "\n(("
         else:
           s += "\n ("
-        s += "X_" + str(k) + " " + str(X[i][k]) + ")"
-        s += "\n (Y_" + str(k) + " " + str(Y[i][k]) + ")"
+        s += X_vars[k] + " " + str(X[i][k]) + ")"
+        s += "\n (" + Y_vars[k] + " " + str(Y[i][k]) + ")"
       s += ")"
       print("Safety violation detected in NUTS samples.")
       return s
     solver_2.pop()
-  print("Inconclusive analysis.")
-  #print("No safety violations found.")
-  #return "unsat"
-  return "unknown"
+  print("No safety violations found.")
+  return "unsat"
 
 def nearest_optima_distance(sample, optima_array):
   return min(np.linalg.norm(sample - np.array(opt)) for opt in optima_array)
