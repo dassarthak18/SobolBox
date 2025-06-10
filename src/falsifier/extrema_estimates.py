@@ -1,9 +1,10 @@
 import numpy as np
+import nlopt
 import csv, ast, json, warnings
 from pathlib import Path
 #from pyDOE3 import lhs
 from scipy.stats import qmc
-from scipy.optimize import minimize, SR1, Bounds
+#from scipy.optimize import minimize, SR1, Bounds
 
 # We treat neural networks as a general MIMO black box
 def black_box(sess, input_array, input_name, label_name, input_shape):
@@ -98,24 +99,6 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			return -1*arr[index]
 	return objective
 
-def create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds=None, upper_bounds=None, is_minima=True, penalty_coef=1e6):
-	def objective(x):
-		# Compute network output
-		arr = black_box(sess, x, input_name, label_name, input_shape)
-		val = arr[index] if is_minima else -1 * arr[index]
-		# Compute penalty if bounds are given
-		if lower_bounds is not None and upper_bounds is not None:
-			lb = np.array(lower_bounds)
-			ub = np.array(upper_bounds)
-			x = np.array(x)
-			# Penalize any violation beyond bounds
-			#penalty = np.sum(np.maximum(0, lb - x)**2 + np.maximum(0, x - ub)**2)
-			scale = 10.0
-			penalty = np.sum((np.log1p(np.exp(scale * (lb - x))) / scale) ** 2 + (np.log1p(np.exp(scale * (x - ub))) / scale) ** 2)
-			val += penalty_coef * penalty
-		return val
-	return objective
-
 # We use L-BFGS-B to refine our Sobol sequence extremum estimates
 def extremum_refinement(sess, input_bounds, filename):
 	# get neural network metadata
@@ -136,10 +119,11 @@ def extremum_refinement(sess, input_bounds, filename):
 	updated_minima = []
 	updated_minima_inputs = []
 	for index in range(len(minima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds, upper_bounds)
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index)
 		x0 = list(minima_inputs[index])
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
-		try:
+		'''
+  		try:
 			with warnings.catch_warnings(record=True) as w:
 				warnings.simplefilter("always", UserWarning)
 				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
@@ -148,8 +132,17 @@ def extremum_refinement(sess, input_bounds, filename):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
-		updated_minima_inputs.append(list(result.x))
-		result = black_box(sess, list(result.x), input_name, label_name, input_shape)[index]
+   		'''
+		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
+		opt.set_lower_bounds(lower_bounds)
+		opt.set_upper_bounds(upper_bounds)
+		opt.set_min_objective(objective)
+		opt.set_xtol_rel(1e-6)
+		opt.set_maxeval(300)
+		opt.set_ftol_rel(1e-12)
+		xopt = opt.optimize(x0)
+		updated_minima_inputs.append(list(xopt))
+		result = objective(xopt)
 		updated_minima.append(result)
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
@@ -157,9 +150,10 @@ def extremum_refinement(sess, input_bounds, filename):
 	updated_maxima = []
 	updated_maxima_inputs = []
 	for index in range(len(maxima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds, upper_bounds, is_minima=False)
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
 		x0 = list(maxima_inputs[index])
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
+		'''
 		try:
 			with warnings.catch_warnings(record=True) as w:
 				warnings.simplefilter("always", UserWarning)
@@ -169,8 +163,17 @@ def extremum_refinement(sess, input_bounds, filename):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
-		updated_maxima_inputs.append(list(result.x))
-		result = black_box(sess, list(result.x), input_name, label_name, input_shape)[index]
+		'''
+		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
+		opt.set_lower_bounds(lower_bounds)
+		opt.set_upper_bounds(upper_bounds)
+		opt.set_min_objective(objective)
+		opt.set_xtol_rel(1e-6)
+		opt.set_maxeval(300)
+		opt.set_ftol_rel(1e-12)
+		xopt = opt.optimize(x0)
+		updated_maxima_inputs.append(list(xopt))
+		result = objective(xopt)
 		updated_maxima.append(result)
 	print("Output bounds extracted.")
 	# cache the computer bounds for future use
