@@ -62,11 +62,11 @@ Once these extrema estimates are obtained, they are fed into Z3 along with the s
 
 SobolBox also implements caching of Sobol sequences as well as computed output bounds to reduce computational overheads over incremental runs.
 
-**Note.** If the ``--deep`` argument is enabled, a second pass of **No U-Turns sampling (NUTS)** is run on the inconclusive instances. NUTS is an adaptive Markov Chain Monte Carlo (MCMC) method that builds on Hamiltonian Monte Carlo (HMC), using gradient information to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The NUTS samples are drawn from a bounded posterior distribution defined over the input space, that favours regions near the computed optima points:
+**Note.** If the ``--deep`` argument is enabled, a second pass of **No U-Turns sampling (NUTS)** is run on the inconclusive instances. NUTS is an adaptive Markov Chain Monte Carlo (MCMC) method that builds on Hamiltonian Monte Carlo (HMC), using gradient information to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The NUTS samples are drawn from a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $\mathbf{T}$:
 
 $$
-p(\mathbf{x}) \propto \sum_{i=1}^k \exp\left( -\frac{1}{2\sigma^2} \| \mathbf{x} - \mathbf{t}_i \|^2 \right)
-\quad \text{where } \mathbf{x} \in [\mathbf{l}, \mathbf{u}]
+p(\mathbf{x}) \propto \sum_{\mathbf{t} \in \mathbf{T}} \exp\left( -\frac{1}{2\sigma^2} \| \mathbf{x} - \mathbf{t} \|^2 \right)
+\quad \text{where } \mathbf{x} \in [\mathbf{l}, \mathbf{u}], \text{ } \sigma \in \mathbb{R}
 $$
 
-If NUTS is able to detect counterexamples it returns ``sat``, and otherwise returns ``unsat``.
+If NUTS is able to find a counterexample SoboLBox returns ``sat``, ``unsat`` otherwise.
