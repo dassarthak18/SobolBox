@@ -142,7 +142,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_ftol_rel(1e-12)
 		xopt = opt.optimize(x0)
 		updated_minima_inputs.append(list(xopt))
-		result = objective(xopt None)
+		result = objective(xopt, None)
 		updated_minima.append(result)
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
