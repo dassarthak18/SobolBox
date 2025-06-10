@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A tool for the detection of safety violations in neural networks. Takes neural network input in ONNX format and safety specification input in VNNLIB format. SobolBox treats neural networks as non-convex, differentiable, multi-input multi-output (MIMO) black boxes. As such, its verification algorithm assumes limited resources (no GPU acceleration) and no domain-specific knowledge (no encoding of the neural network architecture) -- meaning that the algorithm could potentially be extended to other such systems as well.
+A tool for the detection of safety violations in neural networks. Takes neural network input in ONNX format and safety specification input in VNNLIB format. SobolBox treats neural networks as non-convex, differentiable, multi-input multi-output (MIMO) black boxes. As such, its falsification algorithm assumes limited resources (no GPU acceleration) and no domain-specific knowledge (no encoding of the neural network architecture) -- meaning that the algorithm could potentially be extended to other such systems as well.
 
 A spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken by myself in collaboration with Shubhajit Roy, presently a Senior Research Fellow at IIT Gandhinagar, and Avishek Lahiri, presently a Senior Research Fellow at IACS Kolkata, for participation in the VNN-COMP 2021 competition but never submitted.
 
