@@ -10,10 +10,10 @@ from scipy.stats import qmc
 def black_box(sess, input_array, input_name, label_name, input_shape):
 	reshaped_input_array = np.reshape(input_array, tuple(input_shape))
 	try:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0][0]
+		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float64)})[0][0]
 		output_array = value.tolist()
 	except TypeError:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0]
+		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float64)})[0]
 		output_array = value.tolist()
 	return output_array
 
