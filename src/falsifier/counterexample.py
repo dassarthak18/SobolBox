@@ -54,7 +54,7 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
             logps = -0.5 * sq_dists / sigma2
             return pm.math.logsumexp(logps)
         pm.Potential("target_bias", logp_fn(x))
-        trace = pm.sample(10000, tune=1000, chains=4,
+        trace = pm.sample(12500, tune=2500, chains=4,
             target_accept=0.92, compute_convergence_checks=True,
             nuts_sampler="numpyro", progressbar=False)
     samples = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
