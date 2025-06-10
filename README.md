@@ -75,7 +75,9 @@ If NUTS is able to find a valid counterexample SobolBox returns ``sat``, ``unkno
 
 ## Acknowledgements
 
-SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project which was undertaken by myself in collaboration with Shubhajit Roy, presently a Senior Research Fellow at IIT Gandhinagar, and Avishek Lahiri, presently a Senior Research Fellow at IACS Kolkata, for participation in the VNN-COMP 2021 competition but never submitted. The project was done under the supervision of Dr. Rajarshi Ray, presently an Associate Professor at IACS Kolkata.
+SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project, developed in collaboration with **Shubhajit Roy** (currently Senior Research Fellow, IIT Gandhinagar) and **Avishek Lahiri** (currently Senior Research Fellow, IACS Kolkata) for the VNN-COMP 2021 competition. Although INNVerS was never submitted, it laid important groundwork for this tool.
+
+The project was carried out under the supervision of **Dr. Rajarshi Ray**, Associate Professor at IACS Kolkata.
 
 ## Publications
 
