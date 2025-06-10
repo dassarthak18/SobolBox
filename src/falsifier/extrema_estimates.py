@@ -138,11 +138,11 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_upper_bounds(upper_bounds)
 		opt.set_min_objective(objective)
 		opt.set_xtol_rel(1e-6)
-		opt.set_maxeval(300)
+		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-12)
 		xopt = opt.optimize(x0)
 		updated_minima_inputs.append(list(xopt))
-		result = objective(xopt)
+		result = objective(xopt None)
 		updated_minima.append(result)
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
@@ -169,11 +169,11 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_upper_bounds(upper_bounds)
 		opt.set_min_objective(objective)
 		opt.set_xtol_rel(1e-6)
-		opt.set_maxeval(300)
+		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-12)
 		xopt = opt.optimize(x0)
 		updated_maxima_inputs.append(list(xopt))
-		result = objective(xopt)
+		result = objective(xopt, None)
 		updated_maxima.append(result)
 	print("Output bounds extracted.")
 	# cache the computer bounds for future use
