@@ -1,8 +1,6 @@
 import numpy as np
-#import nlopt
 import csv, ast, json, warnings
 from pathlib import Path
-#from pyDOE3 import lhs
 from scipy.stats import qmc
 from scipy.optimize import minimize, Bounds, SR1
 
@@ -22,14 +20,6 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	print("Computing Sobol sequence samples.")
 	# check no. of parameters, gracefully quit if necessary
 	inputsize = len(lower_bounds)
-	#n_samples = 20*inputsize
-	'''
-	num = int(np.ceil(np.log2(20*inputsize)))
-	if 20*inputsize < 8192:
-		n_samples = np.max([2048,int(2**num)])
-	else:
-		n_samples = 8192
-	'''
 	n_samples = np.max([2048, int(2**np.round(np.log2(10*inputsize)))])
 	print(f"Calculating Sobol sequence for {n_samples} samples.")
 	lower_bounds = np.array(lower_bounds)
@@ -132,20 +122,6 @@ def extremum_refinement(sess, input_bounds, filename):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
-   		'''
-     		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
-		opt.set_lower_bounds(lower_bounds)
-		opt.set_upper_bounds(upper_bounds)
-		opt.set_min_objective(objective)
-		opt.set_xtol_rel(1e-4)
-		opt.set_maxeval(2000)
-		opt.set_ftol_rel(1e-10)
-		opt.set_initial_step(1e-2)
-		try:
-			xopt = opt.optimize(x0)
-		except (nlopt.RoundoffLimited, nlopt.invalid_argument):
-			xopt = x0
-		'''
 		xopt = result.x
 		updated_minima_inputs.append(list(xopt))
 		result = objective(xopt)
@@ -168,20 +144,6 @@ def extremum_refinement(sess, input_bounds, filename):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
-		'''
-		opt = nlopt.opt(nlopt.LN_BOBYQA, len(x0))
-		opt.set_lower_bounds(lower_bounds)
-		opt.set_upper_bounds(upper_bounds)
-		opt.set_min_objective(objective)
-		opt.set_xtol_rel(1e-4)
-		opt.set_maxeval(2000)
-		opt.set_ftol_rel(1e-10)
-		opt.set_initial_step(1e-2)
-		try:
-			xopt = opt.optimize(x0)
-		except (nlopt.RoundoffLimited, nlopt.invalid_argument):
-			xopt = x0
-		'''
 		xopt = result.x
 		updated_maxima_inputs.append(list(xopt))
 		result = objective(xopt)
