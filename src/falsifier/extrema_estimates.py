@@ -144,7 +144,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_initial_step(1e-2)
 		try:
 			xopt = opt.optimize(x0)
-		except nlopt.RoundoffLimited:
+		except (nlopt.RoundoffLimited, nlopt.invalid_argument):
 			xopt = x0
 		updated_minima_inputs.append(list(xopt))
 		result = objective(xopt, None)
@@ -179,7 +179,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_initial_step(1e-2)
 		try:
 			xopt = opt.optimize(x0)
-		except nlopt.RoundoffLimited:
+		except (nlopt.RoundoffLimited, nlopt.invalid_argument):
 			xopt = x0
 		updated_maxima_inputs.append(list(xopt))
 		result = objective(xopt, None)
