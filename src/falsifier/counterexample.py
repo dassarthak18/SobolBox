@@ -52,8 +52,8 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
           s += "\n(("
         else:
           s += "\n ("
-        s += X_vars[k] + " " + str(X[i][k]) + ")"
-        s += "\n (" + Y_vars[k] + " " + str(Y[i][k]) + ")"
+        s += str(X_vars[k]) + " " + str(X[i][k]) + ")"
+        s += "\n (" + str(Y_vars[k]) + " " + str(Y[i][k]) + ")"
       s += ")"
       print("Safety violation detected in NUTS samples.")
       return s
@@ -94,7 +94,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   for i in range(len(input_array)):
     solver_2.push()
     for j in range(len(Y_vars)):
-      solver_2.add(Real(Y_vars[j]) == output_array[i][j])
+      solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
       s = "sat"
@@ -103,8 +103,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
           s += "\n(("
         else:
           s += "\n ("
-        s += X_vars[k] + " " + str(input_array[i][k]) + ")"
-        s += "\n (" + Y_vars[k] + " " + str(output_array[i][k]) + ")"
+        s += str(X_vars[k]) + " " + str(input_array[i][k]) + ")"
+        s += "\n (" + str(Y_vars[k]) + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in optima.")
       return s
@@ -132,7 +132,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   for i in range(len(input_array)):
     solver_2.push()
     for j in range(len(Y_vars)):
-      solver_2.add(Real(Y_vars[j]) == output_array[i][j])
+      solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
       s = "sat"
@@ -141,8 +141,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
           s += "\n(("
         else:
           s += "\n ("
-        s += X_vars[k] + " " + str(input_array[i][k]) + ")"
-        s += "\n (" + Y_vars[k] + " " + str(output_array[i][k]) + ")"
+        s += str(X_vars[k]) + " " + str(input_array[i][k]) + ")"
+        s += "\n (" + str(Y_vars[k]) + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in Sobol sequence.")
       return s
