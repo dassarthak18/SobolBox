@@ -96,12 +96,12 @@ def nearest_optima_distance(sample, optima_array):
   return min(np.linalg.norm(sample - np.array(opt)) for opt in optima_array)
 
 def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting):
-  print("Checking for violations in Sobol sequence samples.")
         
   if str(solver.check()) == "unsat":
     print("No safety violations found.")
     return "unsat"
-    
+
+  print("Checking for violations in optima.")
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
@@ -143,7 +143,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       print("Safety violation detected in optima.")
       return s
     solver_2.pop()
-  
+
+  print("Checking for violations in Sobol sequence samples.")
   LHSCacheFile = "../cache/sobol.csv"
   with open(LHSCacheFile, mode='r', newline='') as cacheFile:
     reader = csv.reader(cacheFile, delimiter='|')
