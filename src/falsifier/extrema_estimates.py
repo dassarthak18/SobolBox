@@ -141,6 +141,9 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
+		assert np.all(np.isfinite(x0))
+		assert np.all(x0 >= lower_bounds)
+		assert np.all(x0 <= upper_bounds)
 		try:
 			xopt = opt.optimize(x0)
 		except nlopt.RoundoffLimited:
@@ -176,6 +179,9 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
+		assert np.all(np.isfinite(x0))
+		assert np.all(x0 >= lower_bounds)
+		assert np.all(x0 <= upper_bounds)
 		try:
 			xopt = opt.optimize(x0)
 		except nlopt.RoundoffLimited:
