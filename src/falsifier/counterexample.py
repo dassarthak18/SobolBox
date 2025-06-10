@@ -20,7 +20,7 @@ def validateCE(model, sess):
   for datapoint in input_array:
     output_array_true.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
-  for i in len(range(output_array)):
+  for i in len(range(output_array_pred)):
     if not np.allclose(output_array_pred[i], output_array_true[i], rtol=0, atol=1e-15):
       return False
   return True
@@ -68,6 +68,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       model = solver_2.model()
       if not validateCE(model, sess):
         continue
+      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(X[i])):
         if k == 0:
@@ -122,6 +123,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       model = solver_2.model()
       if not validateCE(model, sess):
         continue
+      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
@@ -163,6 +165,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       model = solver_2.model()
       if not validateCE(model, sess):
         continue
+      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
