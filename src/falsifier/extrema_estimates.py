@@ -109,7 +109,9 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			ub = np.array(upper_bounds)
 			x = np.array(x)
 			# Penalize any violation beyond bounds
-			penalty = np.sum(np.maximum(0, lb - x)**2 + np.maximum(0, x - ub)**2)
+			#penalty = np.sum(np.maximum(0, lb - x)**2 + np.maximum(0, x - ub)**2)
+			scale = 10.0
+			penalty = np.sum((np.log1p(np.exp(scale * (lb - x))) / scale) ** 2 + (np.log1p(np.exp(scale * (x - ub))) / scale) ** 2)
 			val += penalty_coef * penalty
 		return val
 	return objective
