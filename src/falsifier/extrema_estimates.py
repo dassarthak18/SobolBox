@@ -141,7 +141,10 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
-		xopt = opt.optimize(x0)
+		try:
+			xopt = opt.optimize(x0)
+		except nlopt.RoundoffLimited:
+			xopt = x0
 		updated_minima_inputs.append(list(xopt))
 		result = objective(xopt, None)
 		updated_minima.append(result)
@@ -173,7 +176,10 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
-		xopt = opt.optimize(x0)
+		try:
+			xopt = opt.optimize(x0)
+		except nlopt.RoundoffLimited:
+			xopt = x0
 		updated_maxima_inputs.append(list(xopt))
 		result = objective(xopt, None)
 		updated_maxima.append(result)
