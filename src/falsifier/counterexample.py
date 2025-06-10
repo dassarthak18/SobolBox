@@ -9,9 +9,9 @@ def all_in_elementwise_range(arr, lowers, uppers):
   arr = np.asarray(arr)
   lowers = np.asarray(lowers)
   uppers = np.asarray(uppers)
-  print(lowers)
-  print(arr)
-  print(uppers)
+  #print(lowers)
+  #print(arr)
+  #print(uppers)
   return np.all((arr >= lowers) & (arr <= uppers))
 
 def validateCE(model, sess, input_array, input_lb, input_ub):
