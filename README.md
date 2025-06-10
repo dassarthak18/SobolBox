@@ -57,7 +57,7 @@ By computing the neural network outputs across these points, SobolBox identifies
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis.
 
 * If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
-* If the analysis finds a Sobol sequence sample or an optimum that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
+* If the analysis finds an optimum or a Sobol sequence sample that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
 * If the tool encounters neural networks of effective input dimension greater than 9250, or if the analysis is inconclusive, the tool quits gracefully and returns ``unknown``.
 
 SobolBox also implements caching of Sobol sequences as well as computed output bounds to reduce computational overheads over incremental runs.
@@ -69,4 +69,4 @@ p(\mathbf{x}) \propto \sum_{\mathbf{t} \in \mathbf{T}} \exp\left( -\frac{1}{2\si
 \quad \text{where } \mathbf{x} \in [\mathbf{l}, \mathbf{u}], \text{ } \sigma \in \mathbb{R}
 $$
 
-If NUTS is able to find a counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
+If NUTS is able to find a valid counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
