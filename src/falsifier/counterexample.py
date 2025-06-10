@@ -13,9 +13,9 @@ def validateCE(model, sess, input_array):
   
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
   output_array_pred = [float(model.eval(Real(d)).as_decimal(100)) for d in y_decls]
-  print(output_array_pred)
+  #print(output_array_pred)
   output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
-  print(output_array_true)
+  #print(output_array_true)
   
   if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
     return True
