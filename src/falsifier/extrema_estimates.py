@@ -98,6 +98,22 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
 			return -1*arr[index]
 	return objective
 
+def create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds=None, upper_bounds=None, is_minima=True, penalty_coef=1e6):
+	def objective(x):
+		# Compute network output
+		arr = black_box(sess, x, input_name, label_name, input_shape)
+		val = arr[index] if is_minima else -1 * arr[index]
+		# Compute penalty if bounds are given
+		if lower_bounds is not None and upper_bounds is not None:
+			lb = np.array(lower_bounds)
+			ub = np.array(upper_bounds)
+			x = np.array(x)
+			# Penalize any violation beyond bounds
+			penalty = np.sum(np.maximum(0, lb - x)**2 + np.maximum(0, x - ub)**2)
+			val += penalty_coef * penalty
+		return val
+	return objective
+
 # We use L-BFGS-B to refine our Sobol sequence extremum estimates
 def extremum_refinement(sess, input_bounds, filename):
 	# get neural network metadata
@@ -118,7 +134,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	updated_minima = []
 	updated_minima_inputs = []
 	for index in range(len(minima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index)
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds, upper_bounds)
 		x0 = list(minima_inputs[index])
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
 		try:
@@ -142,7 +158,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	updated_maxima = []
 	updated_maxima_inputs = []
 	for index in range(len(maxima)):
-		objective = create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=False)
+		objective = create_objective_function(sess, input_shape, input_name, label_name, index, lower_bounds, upper_bounds, is_minima=False)
 		x0 = list(maxima_inputs[index])
 		#result = minimize(objective, method = 'L-BFGS-B', bounds = bounds, x0 = x0, options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'eps': 1e-12})
 		try:
