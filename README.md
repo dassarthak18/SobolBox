@@ -56,7 +56,7 @@ By computing the neural network outputs across these points, SobolBox identifies
 
 Once these extrema estimates are obtained, they are fed into Microsoft Z3 Theorem Prover along with the safety specification for analysis.
 
-* If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not absolute guarantees.
+* If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * If the analysis finds a Sobol sequence sample or an optima that is a valid safety violation, the tool returns ``sat`` along with the counterexample.
 * If the tool encounters neural networks of effective input dimension greater than 9250, or if the analysis is inconclusive, the tool quits gracefully and returns ``unknown``.
 
