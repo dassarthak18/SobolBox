@@ -147,7 +147,9 @@ def extremum_refinement(sess, input_bounds, filename):
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
 		updated_minima_inputs.append(list(result.x))
-		updated_minima.append(black_box(sess, list(result.x), input_name, label_name, input_shape))
+		result = black_box(sess, list(result.x), input_name, label_name, input_shape)
+		print(result)
+		updated_minima.append(result)
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
 	maxima = extremum_guess[3]
@@ -167,7 +169,9 @@ def extremum_refinement(sess, input_bounds, filename):
 		except RuntimeError:
 			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
 		updated_maxima_inputs.append(list(result.x))
-		updated_maxima.append(black_box(sess, list(result.x), input_name, label_name, input_shape))
+		result = black_box(sess, list(result.x), input_name, label_name, input_shape)
+		print(result)
+		updated_maxima.append(result)
 	print("Output bounds extracted.")
 	# cache the computer bounds for future use
 	boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
