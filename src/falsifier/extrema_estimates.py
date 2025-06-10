@@ -1,5 +1,5 @@
 import numpy as np
-import nlopt
+#import nlopt
 import csv, ast, json, warnings
 from pathlib import Path
 #from pyDOE3 import lhs
@@ -91,7 +91,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 
 # Objective function generator for L-BFGS-B
 def create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=True):
-	def objective(x, grad):
+	def objective(x):
 		arr = black_box(sess, x, input_name, label_name, input_shape)
 		val = float(arr[index])
 		if is_minima:
@@ -148,7 +148,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		'''
 		xopt = result.x
 		updated_minima_inputs.append(list(xopt))
-		result = objective(xopt, None)
+		result = objective(xopt)
 		updated_minima.append(result)
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
@@ -184,7 +184,7 @@ def extremum_refinement(sess, input_bounds, filename):
 		'''
 		xopt = result.x
 		updated_maxima_inputs.append(list(xopt))
-		result = objective(xopt, None)
+		result = objective(xopt)
 		updated_maxima.append(result)
 	print("Output bounds extracted.")
 	# cache the computer bounds for future use
