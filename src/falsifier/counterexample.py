@@ -103,14 +103,17 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   for datapoint in input_array:
     output_array.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
+  X_vars = [Real(f"X_{i}") for i in range(len(input_array[0]))]
+  Y_vars = [Real(f"Y_{i}") for i in range(len(output_array[0]))]
+
   variables = []
   for i in range(len(output_array[0])):
     variables.append(f"Y_{i}")
 
   for i in range(len(input_array)):
     solver_2.push()
-    for j in range(len(variables)):
-      solver_2.add(Real(variables[j]) == output_array[i][j])
+    for j in range(len(Y_vars)):
+      solver_2.add(Real(Y_vars[j]) == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
       s = "sat"
@@ -119,14 +122,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
           s += "\n(("
         else:
           s += "\n ("
-        s += "X_" + str(k) + " " + str(input_array[i][k]) + ")"
-      for k in range(len(variables)):
-        val_str = model.eval(Real(variables[k])).as_decimal(32)
-        if val_str[-1] == "?":
-          val = float(val_str[:-1])
-        else:
-          val = float(val_str)
-        s += "\n (" + variables[k] + " " + str(val) + ")"
+        s += X_vars[k] + " " + str(input_array[i][k]) + ")"
+        s += "\n (" + Y_vars[k] + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in optima.")
       return s
@@ -153,8 +150,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
 
   for i in range(len(input_array)):
     solver_2.push()
-    for j in range(len(variables)):
-      solver_2.add(Real(variables[j]) == output_array[i][j])
+    for j in range(len(Y_vars)):
+      solver_2.add(Real(Y_vars[j]) == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
       s = "sat"
@@ -163,14 +160,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
           s += "\n(("
         else:
           s += "\n ("
-        s += "X_" + str(k) + " " + str(input_array[i][k]) + ")"
-      for k in range(len(variables)):
-        val_str = model.eval(Real(variables[k])).as_decimal(32)
-        if val_str[-1] == "?":
-          val = float(val_str[:-1])
-        else:
-          val = float(val_str)
-        s += "\n (" + variables[k] + " " + str(val) + ")"
+        s += X_vars[k] + " " + str(input_array[i][k]) + ")"
+        s += "\n (" + Y_vars[k] + " " + str(output_array[i][k]) + ")"
       s += ")"
       print("Safety violation detected in Sobol sequence.")
       return s
