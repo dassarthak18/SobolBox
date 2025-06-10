@@ -17,9 +17,7 @@ def validateCE(model, sess):
   
   output_array_pred = [float(model.eval(Real(d)).as_decimal(100)) for d in y_decls]
   print(output_array_pred)
-  output_array_true = []
-  for datapoint in input_array:
-    output_array_true.append(black_box(sess, datapoint, input_name, label_name, input_shape))
+  output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
   print(output_array_true)
   
   if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
