@@ -91,7 +91,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 
 # Objective function generator for L-BFGS-B
 def create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=True):
-	def objective(x):
+	def objective(x, grad):
 		arr = black_box(sess, x, input_name, label_name, input_shape)
 		if is_minima:
 			return arr[index]
