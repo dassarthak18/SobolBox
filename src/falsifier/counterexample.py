@@ -5,6 +5,23 @@ import pytensor.tensor as pt
 from falsifier.extrema_estimates import black_box
 from z3 import *
 
+def validateCE(model, sess):
+  input_name = sess.get_inputs()[0].name
+  label_name = sess.get_outputs()[0].name
+  # reshape if needed
+  input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+  
+  x_decls = sorted([str(d) for d in model.decls() if "X_" in d.name()])
+  y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
+  input_array = [float(model.eval(Real(d)).as_decimal(20)) for d in x_decls]
+  
+  output_array_pred = [float(model.eval(Real(d)).as_decimal(20)) for d in y_decls]
+  output_array_true = black_box(sess, input_array, input_name, label_name, input_shape)
+
+  if np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
+    return True
+  return False
+
 def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     inputsize = input_shape[-1]
     input_name = sess.get_inputs()[0].name
@@ -46,6 +63,8 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       solver_2.add(Y_vars[j] == Y[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
+      if not validateCE(model, sess):
+        continue
       s = "sat"
       for k in range(len(X[i])):
         if k == 0:
@@ -98,6 +117,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
+      if not validateCE(model, sess):
+        continue
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
@@ -137,6 +158,8 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
       model = solver_2.model()
+      if not validateCE(model, sess):
+        continue
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
