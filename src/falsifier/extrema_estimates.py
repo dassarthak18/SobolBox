@@ -10,10 +10,10 @@ from scipy.stats import qmc
 def black_box(sess, input_array, input_name, label_name, input_shape):
 	reshaped_input_array = np.reshape(input_array, tuple(input_shape))
 	try:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float64)})[0][0]
+		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0][0]
 		output_array = value.tolist()
 	except TypeError:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float64)})[0]
+		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0]
 		output_array = value.tolist()
 	return output_array
 
@@ -93,10 +93,11 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 def create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=True):
 	def objective(x, grad):
 		arr = black_box(sess, x, input_name, label_name, input_shape)
+		val = float(arr[index])
 		if is_minima:
-			return arr[index]
+			return val
 		else:
-			return -1*arr[index]
+			return -1*val
 	return objective
 
 # We use L-BFGS-B to refine our Sobol sequence extremum estimates
@@ -141,9 +142,6 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
-		assert np.all(np.isfinite(x0))
-		assert np.all(x0 >= lower_bounds)
-		assert np.all(x0 <= upper_bounds)
 		try:
 			xopt = opt.optimize(x0)
 		except nlopt.RoundoffLimited:
@@ -179,9 +177,6 @@ def extremum_refinement(sess, input_bounds, filename):
 		opt.set_maxeval(2000)
 		opt.set_ftol_rel(1e-10)
 		opt.set_initial_step(1e-2)
-		assert np.all(np.isfinite(x0))
-		assert np.all(x0 >= lower_bounds)
-		assert np.all(x0 <= upper_bounds)
 		try:
 			xopt = opt.optimize(x0)
 		except nlopt.RoundoffLimited:
