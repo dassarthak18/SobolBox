@@ -1,8 +1,9 @@
 import numpy as np
 import csv, ast, json, warnings
 from pathlib import Path
+#from pyDOE3 import lhs
 from scipy.stats import qmc
-from scipy.optimize import minimize, Bounds, SR1
+from scipy.optimize import minimize, SR1
 
 # We treat neural networks as a general MIMO black box
 def black_box(sess, input_array, input_name, label_name, input_shape):
@@ -20,7 +21,12 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	print("Computing Sobol sequence samples.")
 	# check no. of parameters, gracefully quit if necessary
 	inputsize = len(lower_bounds)
-	n_samples = np.max([2048, int(2**np.round(np.log2(10*inputsize)))])
+	#n_samples = 20*inputsize
+	num = int(np.ceil(np.log2(20*inputsize)))
+	if 20*inputsize < 8192:
+		n_samples = np.max([2048,int(2**num)])
+	else:
+		n_samples = 8192
 	print(f"Calculating Sobol sequence for {n_samples} samples.")
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
@@ -59,7 +65,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 		with open(LHSCacheFile, mode='a', newline='') as cacheFile:
 			writer = csv.writer(cacheFile, delimiter='|')
 			if not Path(LHSCacheFile).exists():
-				writer.writerow(["input_size", "unscaled_sample"])
+	        		writer.writerow(["input_size", "unscaled_sample"])
 			writer.writerow([str(inputsize), json.dumps(sample.tolist())])
 	
 	minima = [min(x) for x in zip(*sample_output)]
@@ -83,11 +89,10 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 def create_objective_function(sess, input_shape, input_name, label_name, index, is_minima=True):
 	def objective(x):
 		arr = black_box(sess, x, input_name, label_name, input_shape)
-		val = float(arr[index])
 		if is_minima:
-			return val
+			return arr[index]
 		else:
-			return -1*val
+			return -1*arr[index]
 	return objective
 
 # We use L-BFGS-B to refine our Sobol sequence extremum estimates
@@ -102,7 +107,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
 	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
-	bounds = Bounds(list(lower_bounds), list(upper_bounds))
+	bounds = list(zip(lower_bounds, upper_bounds))
 	print("Refining the Sobol sequence samples.")
 	# refine the minima estimate
 	minima_inputs = extremum_guess[0]
@@ -116,16 +121,18 @@ def extremum_refinement(sess, input_bounds, filename):
 		try:
 			with warnings.catch_warnings(record=True) as w:
 				warnings.simplefilter("always", UserWarning)
-				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14})
+				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 				for warning in w:
 					if "delta_grad == 0.0" in str(warning.message):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
-			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14})
-		xopt = result.x
-		updated_minima_inputs.append(list(xopt))
-		result = objective(xopt)
-		updated_minima.append(result)
+			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
+		if result.fun > minima[index]:
+			updated_minima.append(minima[index])
+			updated_minima_inputs.append(x0)
+		else:
+			updated_minima.append(result.fun)
+			updated_minima_inputs.append(list(result.x))
 	# refine the maxima estimate
 	maxima_inputs = extremum_guess[1]
 	maxima = extremum_guess[3]
@@ -138,16 +145,18 @@ def extremum_refinement(sess, input_bounds, filename):
 		try:
 			with warnings.catch_warnings(record=True) as w:
 				warnings.simplefilter("always", UserWarning)
-				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
+				result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess = SR1(), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
 				for warning in w:
 					if "delta_grad == 0.0" in str(warning.message):
 						raise RuntimeError("Switch to zero Hessian")
 		except RuntimeError:
-			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-14, 'barrier_tol':1e-12, 'initial_tr_radius': 1e-2})
-		xopt = result.x
-		updated_maxima_inputs.append(list(xopt))
-		result = objective(xopt)
-		updated_maxima.append(result)
+			result = minimize(objective, method = 'trust-constr', bounds = bounds, x0 = x0, jac = '2-point', hess=lambda x: np.zeros((len(x), len(x))), options = {'disp': False, 'gtol': 1e-6, 'maxiter': 300, 'xtol': 1e-12})
+		if -result.fun < maxima[index]:
+			updated_maxima.append(maxima[index])
+			updated_maxima_inputs.append(x0)
+		else:
+			updated_maxima.append(-result.fun)
+			updated_maxima_inputs.append(list(result.x))
 	print("Output bounds extracted.")
 	# cache the computer bounds for future use
 	boundsCacheFile = "../cache/" + filename[:-5] + "_bounds.csv"
