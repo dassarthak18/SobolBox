@@ -18,6 +18,7 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 
   if not all_in_elementwise_range(input_array, input_lb, input_ub):
+    print("Candidate CE invalidated.")
     return False
   
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
@@ -27,7 +28,9 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   #print(output_array_true)
   
   if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
+    print("Candidate CE invalidated.")
     return False
+  print("Candidate CE validated.")
   return True
 
 def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
@@ -73,7 +76,6 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       model = solver_2.model()
       if not validateCE(model, sess, X[i], input_lb, input_ub):
         continue
-      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(X[i])):
         if k == 0:
@@ -128,7 +130,6 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       model = solver_2.model()
       if not validateCE(model, sess, input_array[i], input_lb, input_ub):
         continue
-      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
@@ -170,7 +171,6 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
       model = solver_2.model()
       if not validateCE(model, sess, input_array[i], input_lb, input_ub):
         continue
-      print("Candidate CE validated.")
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
