@@ -18,7 +18,7 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
 
   if not all_in_elementwise_range(input_array, input_lb, input_ub):
-    print("Candidate CE invalidated.")
+    print("Candidate CE invalidated - invalid input range.")
     return False
   
   y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
@@ -28,7 +28,7 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   #print(output_array_true)
   
   if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
-    print("Candidate CE invalidated.")
+    print("Candidate CE invalidated - invalid outputs.")
     return False
   print("Candidate CE validated.")
   return True
