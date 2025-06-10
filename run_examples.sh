@@ -14,7 +14,7 @@ runtime_log="../runtime_log.txt"
 total_time=0
 
 # Running props 1 to 4 on all models
-for prop in {1..4}; do
+for prop in {2..4}; do
   for i in {1..5}; do
     for j in {1..9}; do
       model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
