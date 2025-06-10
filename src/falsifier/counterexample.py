@@ -20,10 +20,9 @@ def validateCE(model, sess):
   for datapoint in input_array:
     output_array_true.append(black_box(sess, datapoint, input_name, label_name, input_shape))
 
-  for i in range(len(output_array_pred)):
-    if not np.allclose(output_array_pred[i], output_array_true[i], rtol=0, atol=1e-15):
-      return False
-  return True
+  if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
+    return True
+  return False
 
 def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     inputsize = input_shape[-1]
