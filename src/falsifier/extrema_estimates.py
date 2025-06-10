@@ -110,7 +110,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	upper_bounds = input_bounds[1]
 	# get the preliminary estimates
 	extremum_guess = extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape)
-	bounds = list(zip(lower_bounds, upper_bounds))
+	bounds = (list(lower_bounds), list(upper_bounds))
 	print("Refining the Sobol sequence samples.")
 	# refine the minima estimate
 	minima_inputs = extremum_guess[0]
