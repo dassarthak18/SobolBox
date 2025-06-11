@@ -22,7 +22,7 @@ def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name
 	# check no. of parameters, gracefully quit if necessary
 	inputsize = len(lower_bounds)
 	#n_samples = 20*inputsize
-	n_samples = np.min([131072, np.max([4096, int(2**np.round(np.log2(500*inputsize)))])])
+	n_samples = np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*x)))])])
 	print(f"Calculating Sobol sequence for {n_samples} samples.")
 	lower_bounds = np.array(lower_bounds)
 	upper_bounds = np.array(upper_bounds)
