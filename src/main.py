@@ -40,9 +40,15 @@ for a in assertions:
   names = {str(v) for v in a.children()}
   if any(re.match(r'^Y_\d+$', n) for n in names):
     solver_2.add(a)
-print("Extracting input bounds.")
-bounds_dict = parse(propertyFile)
-print("Input bounds extracted.")
+try:
+  print("Extracting input bounds.")
+  bounds_dict = parse(propertyFile)
+  print("Input bounds extracted.")
+except TypeError as error:
+  print(str(error))
+  file1 = open(resultFile, 'w')
+  file1.write("unknown")
+  file1.close()
 
 for j in bounds_dict:
     print(f"Sub-problem {j}.")
