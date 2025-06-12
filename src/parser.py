@@ -8,6 +8,10 @@ def load_smtlib_and_parse_disjuncts(filename):
     with open(filename, 'r') as f:
         content = f.read()
     x_vars = extract_variable_names(content)
+    count_x_vars = sum(1 for x in x_vars if x.startswith("X_"))
+    if count_x_vars > 9250:
+        raise TypeError("Input dimension too high, quitting gracefully.")
+    input_vars = []
     var_symbols = {name: Real(name) for name in x_vars}
     full_solver = Solver()
     full_solver.from_string(content)
