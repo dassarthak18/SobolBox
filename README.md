@@ -78,6 +78,8 @@ If NUTS is able to find a valid counterexample SobolBox returns ``sat``, ``unsat
 
 ![image](cactusplot.png)
 
+_Google Colab Python 3 Compute Backend, 12.7GB RAM, 4 vCPUs_
+
 ## Acknowledgements
 
 SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project, developed in collaboration with **Shubhajit Roy** (currently Senior Research Fellow, IIT Gandhinagar) and **Avishek Lahiri** (currently Senior Research Fellow, IACS Kolkata) for the VNN-COMP 2021 competition. Although INNVerS was never submitted, it laid important groundwork for this tool.
