@@ -48,7 +48,7 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
             return pm.math.logsumexp(logps)
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=10000, method="advi")
-        n_samples = np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*inputsize)))])])
+        n_samples = 10*np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*inputsize)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
     samples = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
     #with concurrent.futures.ThreadPoolExecutor() as executor:
