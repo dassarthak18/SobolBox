@@ -7,14 +7,16 @@ from scipy.optimize import minimize, SR1
 
 # We treat neural networks as a general MIMO black box
 def black_box(sess, input_array, input_name, label_name, input_shape):
-	reshaped_input_array = np.reshape(input_array, tuple(input_shape))
-	try:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0][0]
-		output_array = value.tolist()
-	except TypeError:
-		value = sess.run([label_name], {input_name: reshaped_input_array.astype(np.float32)})[0]
-		output_array = value.tolist()
-	return output_array
+    fixed_shape = []
+    flat_input = np.array(input_array, dtype=np.float32)
+    for dim in input_shape:
+        fixed_shape.append(dim if isinstance(dim, int) and dim > 0 else -1)
+    reshaped_input = flat_input.reshape(fixed_shape).astype(np.float32)
+    try:
+        value = sess.run([label_name], {input_name: reshaped_input})[0][0]
+    except TypeError:
+        value = sess.run([label_name], {input_name: reshaped_input})[0]
+    return value.tolist()
 
 # We use Sobol sequence sampling to generate a near-random sample for preliminary extremum estimation
 def extremum_best_guess(sess, lower_bounds, upper_bounds, input_name, label_name, input_shape):
@@ -97,7 +99,7 @@ def extremum_refinement(sess, input_bounds, filename):
 	input_name = sess.get_inputs()[0].name
 	label_name = sess.get_outputs()[0].name
 	# reshape if needed
-	input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+	input_shape = sess.get_inputs()[0].shape
 	# get the lower and upper input bounds
 	lower_bounds = input_bounds[0]
 	upper_bounds = input_bounds[1]
