@@ -35,6 +35,7 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
     targets = np.array(targets)
     lower = np.array(lower)
     upper = np.array(upper)
+    inputsize = len(lower)
     sigma2 = sigma ** 2
     with pm.Model() as model:
         z = pm.Normal("z", mu=0, sigma=1, shape=inputsize)
@@ -47,7 +48,8 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
             return pm.math.logsumexp(logps)
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=5000, method="advi")
-        posterior_samples = approx.sample(4000, random_seed=42)
+        n_samples = np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*inputsize)))])])
+        posterior_samples = approx.sample(n_samples, random_seed=42)
     samples = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
     with concurrent.futures.ThreadPoolExecutor() as executor:
         outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
