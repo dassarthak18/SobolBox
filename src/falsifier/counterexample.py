@@ -18,7 +18,7 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
-  input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+  input_shape = sess.get_inputs()[0].shape
 
   if not all_in_elementwise_range(input_array, input_lb, input_ub):
     print("Candidate CE invalidated - invalid input range.")
@@ -108,7 +108,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   input_name = sess.get_inputs()[0].name
   label_name = sess.get_outputs()[0].name
   # reshape if needed
-  input_shape = [dim if isinstance(dim, int) else 1 for dim in sess.get_inputs()[0].shape]
+  input_shape = sess.get_inputs()[0].shape
 
   input_array = []
   for i in range(len(output_lb_inputs)):
