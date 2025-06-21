@@ -1,5 +1,5 @@
 import numpy as np
-import copy, csv, ast, json
+#import copy, csv, ast, json
 import concurrent.futures
 import pymc as pm
 import pytensor.tensor as pt
@@ -48,11 +48,12 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
             return pm.math.logsumexp(logps)
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=5000, method="advi")
-        n_samples = np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*inputsize)))])])
+        n_samples = 10*np.min([int(2**20), np.max([4096, int(2**np.floor(np.log2(500*inputsize)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
     samples = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
+    #with concurrent.futures.ThreadPoolExecutor() as executor:
+    #    outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
+    outputs = [black_box(sess, sample, input_name, label_name, input_shape) for sample in samples]
     dists = [np.min(np.linalg.norm(sample - targets, axis=1)) for sample in samples]
     sorted_indices = np.argsort(dists)
     samples = samples[sorted_indices]
@@ -81,8 +82,9 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
             target_accept=0.92, compute_convergence_checks=True,
             nuts_sampler="numpyro", progressbar=False)
     samples = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
+    #with concurrent.futures.ThreadPoolExecutor() as executor:
+    #    outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
+    outputs = [black_box(sess, sample, input_name, label_name, input_shape) for sample in samples]
     dists = [np.min(np.linalg.norm(sample - targets, axis=1)) for sample in samples]
     sorted_indices = np.argsort(dists)
     samples = samples[sorted_indices]
@@ -90,7 +92,7 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     return samples, outputs
 
 def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
-  print("Computing NUTS samples.")
+  print("Computing ADVI samples.")
   #X, Y = CE_sampler_nuts(sess, input_lb, input_ub, optimas, input_shape)
   X, Y = CE_sampler_advi(sess, input_lb, input_ub, optimas, input_shape)
   print("Checking for violations in NUTS samples.")
@@ -114,7 +116,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       for k in range(len(Y[i])):
         s += "\n (" + str(Y_vars[k]) + " " + str(Y[i][k]) + ")"
       s += ")"
-      print("Safety violation detected in NUTS samples.")
+      print("Safety violation detected in ADVI samples.")
       return s
     solver_2.pop()
   print("No safety violations found.")
@@ -135,8 +137,9 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   for i in range(len(output_lb_inputs)):
     input_array.append(output_lb_inputs[i])
     input_array.append(output_ub_inputs[i])
-  with concurrent.futures.ThreadPoolExecutor() as executor:
-    output_array = list(executor.map(lambda x: black_box(sess, x, input_name, label_name, input_shape), input_array))
+  #with concurrent.futures.ThreadPoolExecutor() as executor:
+  #  output_array = list(executor.map(lambda x: black_box(sess, x, input_name, label_name, input_shape), input_array))
+  output_array = [black_box(sess, input, input_name, label_name, input_shape) for input in input_array]
   X_vars = [Real(f"X_{i}") for i in range(len(input_array[0]))]
   Y_vars = [Real(f"Y_{i}") for i in range(len(output_array[0]))]
   variables = []
@@ -178,8 +181,9 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   sample_dist_pairs = [(inp, nearest_optima_distance(inp, optima_array)) for inp in input_array]
   sample_dist_pairs.sort(key=lambda x: x[1])
   input_array = [pair[0] for pair in sample_dist_pairs]
-  with concurrent.futures.ThreadPoolExecutor() as executor:
-    output_array = list(executor.map(lambda x: black_box(sess, x, input_name, label_name, input_shape), input_array))
+  #with concurrent.futures.ThreadPoolExecutor() as executor:
+  #  output_array = list(executor.map(lambda x: black_box(sess, x, input_name, label_name, input_shape), input_array))
+  output_array = [black_box(sess, input, input_name, label_name, input_shape) for input in input_array]
   for i in range(len(input_array)):
     solver_2.push()
     for j in range(len(Y_vars)):
