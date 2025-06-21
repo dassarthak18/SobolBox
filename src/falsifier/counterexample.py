@@ -28,6 +28,35 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   print("Candidate CE validated.")
   return True
 
+def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
+    inputsize = input_shape[-1]
+    input_name = sess.get_inputs()[0].name
+    label_name = sess.get_outputs()[0].name
+    targets = np.array(targets)
+    lower = np.array(lower)
+    upper = np.array(upper)
+    sigma2 = sigma ** 2
+    with pm.Model() as model:
+        z = pm.Normal("z", mu=0, sigma=1, shape=inputsize)
+        x = pm.Deterministic("x", lower + (upper - lower) * pm.math.sigmoid(z))
+        def logp_fn(x_val):
+            x_exp = pt.reshape(x_val, (1, -1))
+            diffs = x_exp - targets
+            sq_dists = pm.math.sum(pm.math.sqr(diffs), axis=1)
+            logps = -0.5 * sq_dists / sigma2
+            return pm.math.logsumexp(logps)
+        pm.Potential("target_bias", logp_fn(x))
+        approx = pm.fit(n=5000, method="advi")
+        posterior_samples = approx.sample(4000, random_seed=42)
+    samples = posterior_samples.posterior_predictive["x"].stack(sample=("chain", "draw")).values.T
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        outputs = list(executor.map(lambda sample: black_box(sess, sample, input_name, label_name, input_shape), samples))
+    dists = [np.min(np.linalg.norm(sample - targets, axis=1)) for sample in samples]
+    sorted_indices = np.argsort(dists)
+    samples = samples[sorted_indices]
+    outputs = [outputs[i] for i in sorted_indices]
+    return samples, outputs
+
 def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
     inputsize = input_shape[-1]
     input_name = sess.get_inputs()[0].name
@@ -60,7 +89,8 @@ def CE_sampler_nuts(sess, lower, upper, targets, input_shape, sigma=0.1):
 
 def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   print("Computing NUTS samples.")
-  X, Y = CE_sampler_nuts(sess, input_lb, input_ub, optimas, input_shape)
+  #X, Y = CE_sampler_nuts(sess, input_lb, input_ub, optimas, input_shape)
+  X, Y = CE_sampler_advi(sess, input_lb, input_ub, optimas, input_shape)
   print("Checking for violations in NUTS samples.")
   X_vars = [Real(f"X_{i}") for i in range(len(X[0]))]
   Y_vars = [Real(f"Y_{i}") for i in range(len(Y[0]))]
