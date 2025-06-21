@@ -95,7 +95,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   print("Computing ADVI samples.")
   #X, Y = CE_sampler_nuts(sess, input_lb, input_ub, optimas, input_shape)
   X, Y = CE_sampler_advi(sess, input_lb, input_ub, optimas, input_shape)
-  print("Checking for violations in NUTS samples.")
+  print("Checking for violations in ADVI samples.")
   X_vars = [Real(f"X_{i}") for i in range(len(X[0]))]
   Y_vars = [Real(f"Y_{i}") for i in range(len(Y[0]))]
   for i in range(len(Y)):
