@@ -31,7 +31,6 @@ SobolBox is a black-box falsification tool for detecting safety violations in ne
 ### Sampling and Optimization
 
 * [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html)
-* [**NumPyro.**](https://github.com/pyro-ppl/numpyro)
 
 ### Scientific Computing
 
@@ -67,14 +66,14 @@ SobolBox also implements caching of Sobol sequences as well as computed output b
 
 ### Note
 
-If the ``--deep`` argument is enabled, a second pass of **No U-Turns sampling (NUTS)** is run on the inconclusive instances. NUTS is an adaptive Markov Chain Monte Carlo (MCMC) method that builds on Hamiltonian Monte Carlo (HMC), using gradient information to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The NUTS samples are drawn from a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
+If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** (replaces the original **No U-Turns Sampling**) is run on the inconclusive instances. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
 
 $$
 p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \right)
 \quad \text{where } x \in [l,u], \text{ } \sigma \in ℝ
 $$
 
-If NUTS is able to find a valid counterexample SobolBox returns ``sat``, ``unsat`` otherwise.
+If ADVI is able to find a valid counterexample SobolBox returns ``sat``, ``unsat`` otherwise.
 
 ![image](cactusplot.png)
 
