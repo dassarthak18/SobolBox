@@ -2,9 +2,9 @@ name: SobolBox
 ami: ami-0892d3c7ee96c0bf7 
 scripts_dir: vnncomp_scripts
 manual_installation_step: False
-run_installation_script_as_root: False
-run_post_installation_script_as_root: False
-run_toolkit_as_root: False
+run_installation_script_as_root: True
+run_post_installation_script_as_root: True
+run_toolkit_as_root: True
 description: >
   SobolBox is a black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black boxes . The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
   
