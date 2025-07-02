@@ -18,4 +18,4 @@ apt install -y psmisc #for killall, used in prepare_instance.sh
 
 #git clone https://github.com/dassarthak18/SobolBox.git
 #cd SobolBox
-pip3 install -r ./requirements.txt
+pip3 install -r ../requirements.txt
