@@ -40,7 +40,7 @@ for a in assertions:
   #names = {str(v) for v in a.children()}
   #if any(re.match(r'^Y_\d+$', n) for n in names):
   #  solver_2.add(a)
-#solver_2 = copy.deepcopy(solver)
+solver_2 = copy.deepcopy(solver)
 try:
   print("Extracting input bounds.")
   bounds_dict = parse(propertyFile)
