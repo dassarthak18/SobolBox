@@ -28,7 +28,8 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
   print("Candidate CE validated.")
   return True
 
-def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
+def CE_sampler_advi(sess, lower, upper, targets, input_shape):
+    sigma = 0.1 * np.mean(upper - lower)
     inputsize = input_shape[-1]
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
