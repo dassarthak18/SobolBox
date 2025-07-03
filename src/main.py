@@ -35,12 +35,12 @@ decls = {}
 assertions = parse_smt2_string(smt, decls=decls)
 solver = Solver()
 #solver_2 = Solver()
-#for a in assertions:
-#  solver.add(a)
-#  names = {str(v) for v in a.children()}
-#  if any(re.match(r'^Y_\d+$', n) for n in names):
-#    solver_2.add(a)
-solver_2 = copy.deepcopy(solver)
+for a in assertions:
+  solver.add(a)
+  #names = {str(v) for v in a.children()}
+  #if any(re.match(r'^Y_\d+$', n) for n in names):
+  #  solver_2.add(a)
+#solver_2 = copy.deepcopy(solver)
 try:
   print("Extracting input bounds.")
   bounds_dict = parse(propertyFile)
