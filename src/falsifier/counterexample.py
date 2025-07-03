@@ -68,12 +68,14 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
   Y_vars = [Real(f"Y_{i}") for i in range(len(Y[0]))]
   for i in range(len(Y)):
     solver_2.push()
+    for j in range(len(X_vars)):
+      solver_2.add(X_vars[j] == X[i][j])
     for j in range(len(Y_vars)):
       solver_2.add(Y_vars[j] == Y[i][j])
     if str(solver_2.check()) == "sat":
-      model = solver_2.model()
-      if not validateCE(model, sess, X[i], input_lb, input_ub):
-        continue
+      #model = solver_2.model()
+      #if not validateCE(model, sess, X[i], input_lb, input_ub):
+      #  continue
       s = "sat"
       for k in range(len(X[i])):
         if k == 0:
@@ -115,12 +117,14 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
     variables.append(f"Y_{i}")
   for i in range(len(input_array)):
     solver_2.push()
+    for j in range(len(X_vars)):
+      solver_2.add(X_vars[j] == input_array[i][j])
     for j in range(len(Y_vars)):
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
-      model = solver_2.model()
-      if not validateCE(model, sess, input_array[i], input_lb, input_ub):
-        continue
+      #model = solver_2.model()
+      #if not validateCE(model, sess, input_array[i], input_lb, input_ub):
+      #  continue
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
@@ -154,12 +158,14 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
   output_array = [black_box(sess, input, input_name, label_name, input_shape) for input in input_array]
   for i in range(len(input_array)):
     solver_2.push()
+    for j in range(len(X_vars)):
+      solver_2.add(X_vars[j] == input_array[i][j])
     for j in range(len(Y_vars)):
       solver_2.add(Y_vars[j] == output_array[i][j])
     if str(solver_2.check()) == "sat":
-      model = solver_2.model()
-      if not validateCE(model, sess, input_array[i], input_lb, input_ub):
-        continue
+      #model = solver_2.model()
+      #if not validateCE(model, sess, input_array[i], input_lb, input_ub):
+      #  continue
       s = "sat"
       for k in range(len(input_array[i])):
         if k == 0:
