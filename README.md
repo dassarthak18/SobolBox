@@ -75,8 +75,6 @@ $$
 
 If ADVI is able to find a valid counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
 
-![image](cactusplot.png)
-
 _Google Colab Python 3 Compute Backend, 12.7GB RAM, 4 vCPUs_
 
 ## Acknowledgements
