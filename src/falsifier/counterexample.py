@@ -90,7 +90,7 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
       return s
     solver_2.pop()
   print("No safety violations found.")
-  return "unsat"
+  return "unknown"
 
 def nearest_optima_distance(sample, optima_array):
   return min(np.linalg.norm(sample - np.array(opt)) for opt in optima_array)
