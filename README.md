@@ -73,7 +73,7 @@ p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \ri
 \quad \text{where } x \in [l,u], \text{ } \sigma \in ℝ
 $$
 
-If ADVI is able to find a valid counterexample SobolBox returns ``sat``, ``unsat`` otherwise.
+If ADVI is able to find a valid counterexample SobolBox returns ``sat``, ``unknown`` otherwise.
 
 ![image](cactusplot.png)
 
