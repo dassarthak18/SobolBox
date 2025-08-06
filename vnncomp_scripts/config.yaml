@@ -12,7 +12,7 @@ description: >
   
   * If the analysis determines that a safety violation is not possible given the computed output bounds, the tool returns unsat. The output bounds computed by our algorithm are under-approximations. As such, unsat results are high confidence, but not sound guarantees.
   * If the analysis finds an optimum or a Sobol sequence sample that is a valid safety violation, the tool returns sat along with the counterexample.
-  * If the tool encounters neural networks of effective input dimension greater than 9250, the tool quits gracefully and returns unknown.
+  * If the tool encounters neural networks of effective input dimension greater than 15000, the tool quits gracefully and returns unknown.
 
   If the analysis is inconclusive, a second pass of Automatic Differentiation Variational Inference is run. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set. If ADVI is able to find a valid counterexample SobolBox returns sat, unknown otherwise.
   
