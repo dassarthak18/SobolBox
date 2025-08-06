@@ -55,7 +55,7 @@ for j in bounds_dict:
     print(f"Sub-problem {j}.")
     input_lb, input_ub = bounds_dict[j]
     try:
-      if len(input_lb) > 9250:
+      if len(input_lb) > 15000:
           raise TypeError("Input dimension too high, quitting gracefully.")
     except TypeError as error:
       print(str(error))
