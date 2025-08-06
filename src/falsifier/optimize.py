@@ -42,7 +42,6 @@ def optimize_1D(
     objective_fn,
     lower_bounds,
     upper_bounds,
-    top_k=10,
     num_workers=cpu_count()
 ):
     lower_bounds = np.asarray(lower_bounds)
@@ -53,6 +52,7 @@ def optimize_1D(
 
     dim = len(lower_bounds)
     budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
+    top_k = max(5, int(np.ceil(0.01 * budget)))
     if num_workers < 4:
         num_workers = 1
 
@@ -61,11 +61,12 @@ def optimize_1D(
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
 
     print("Evaluating samples by objective value")
-    objective_values = parallel_eval(objective_fn, sobol_scaled)
+    objective_values = np.array(parallel_eval(objective_fn, sobol_scaled))
     sorted_indices = np.argsort(objective_values)
     center_point = 0.5 * (lower_bounds + upper_bounds)
     topk_points = sobol_scaled[sorted_indices[:top_k]]
-    topk_points = np.vstack([topk_points, center_point])
+    if objective_fn(center_point) < objective_values[sorted_indices[top_k - 1]]:
+        topk_points = np.vstack([topk_points, center_point])
 
     best_ng_val = float('inf')
     best_ng_recommendation = None
