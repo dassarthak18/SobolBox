@@ -1,0 +1,97 @@
+import numpy as np
+import time
+from joblib import Parallel, delayed, cpu_count
+from scipy.optimize import minimize
+from scipy.stats import qmc
+
+def parallel_eval(objective_fn, samples, batch_size=None):
+    samples = np.asarray(samples, dtype=np.float32)
+    n_samples = len(samples)
+    n_jobs = cpu_count()
+
+    if batch_size is None:
+        batch_size = max(8, int(np.ceil(n_samples / n_jobs)))
+
+    batches = [samples[i:i + batch_size] for i in range(0, n_samples, batch_size)]
+
+    def evaluate_batch(batch):
+        return [objective_fn(s) for s in batch]
+
+    results_nested = Parallel(n_jobs=n_jobs, backend="loky", prefer="processes")(
+        delayed(evaluate_batch)(batch) for batch in batches
+    )
+
+    return [val for sublist in results_nested for val in sublist]
+
+def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_path = os.path.join(cache_dir, f"sobol_d{dim}_n{n_samples}.npy")
+
+    if os.path.isfile(cache_path):
+        print(f"Loading cached Sobol samples from {cache_path}")
+        unit_samples = np.load(cache_path)
+    else:
+        print(f"Generating new Sobol samples for d={dim}, n={n_samples}")
+        sampler = qmc.Sobol(dim, scramble=False)
+        unit_samples = sampler.random(n_samples)
+        np.save(cache_path, unit_samples)
+
+    return unit_samples
+
+def optimize_with_oneplusone_and_lbfgsb(
+    objective_fn,
+    lower_bounds,
+    upper_bounds,
+    top_k=10,
+    num_workers=cpu_count()
+):
+    lower_bounds = np.asarray(lower_bounds)
+    upper_bounds = np.asarray(upper_bounds)
+    
+    assert lower_bounds.shape == upper_bounds.shape, \
+        "lower_bounds and upper_bounds must have the same shape"
+
+    dim = len(lower_bounds)
+    budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
+    if num_workers < 4:
+        num_workers = 1
+
+    print("Generating Sobol samples")
+    unit_samples = sobol_samples(dim, budget)
+    sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
+
+    print("Evaluating samples by objective value")
+    objective_values = parallel_eval(objective_fn, sobol_scaled)
+    sorted_indices = np.argsort(objective_values)
+    topk_points = sobol_scaled[sorted_indices[:top_k]]
+
+    best_lbfgs_val = float('inf')
+    best_lbfgs_x = None
+    total_lbfgs_time = 0.0
+
+    print(f"Running L-BFGS-B from top-{top_k} Sobol samples")
+    for i, init_point in enumerate(topk_points):
+        print(f">> Init point {i+1}/{top_k}")
+        start_lbfgs = time.time()
+        res = minimize(
+            objective_fn,
+            init_point,
+            method='L-BFGS-B',
+            bounds=list(zip(lower_bounds, upper_bounds)),
+            options = {'gtol': 1e-6, 'maxiter': 1000, 'eps': 1e-12}
+        )
+        lbfgs_time = time.time() - start_lbfgs
+        total_lbfgs_time += lbfgs_time
+
+        val_lbfgs = res.fun
+        print(f"   L-BFGS-B result:  {val_lbfgs:.6f} (Time: {lbfgs_time:.2f} s)")
+
+        if val_lbfgs < best_lbfgs_val:
+            best_lbfgs_val = val_lbfgs
+            best_lbfgs_x = res.x
+
+    return {
+        "best_lbfgsb_val": best_lbfgs_val,
+        "best_lbfgsb_x": best_lbfgs_x,
+        "total_lbfgs_time": total_lbfgs_time,
+    }
