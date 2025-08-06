@@ -38,7 +38,7 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
 
     return unit_samples
 
-def extrema_estimation(
+def optimizer(
     objective_fn,
     lower_bounds,
     upper_bounds,
