@@ -63,7 +63,9 @@ def optimize_1D(
     print("Evaluating samples by objective value")
     objective_values = parallel_eval(objective_fn, sobol_scaled)
     sorted_indices = np.argsort(objective_values)
+    center_point = 0.5 * (lower_bounds + upper_bounds)
     topk_points = sobol_scaled[sorted_indices[:top_k]]
+    topk_points = np.vstack([topk_points, center_point])
 
     best_ng_val = float('inf')
     best_ng_recommendation = None
@@ -73,9 +75,9 @@ def optimize_1D(
     total_ng_time = 0.0
     total_lbfgs_time = 0.0
 
-    print(f"Running L-BFGS-B from top-{top_k} Sobol samples")
+    print(f"Running L-BFGS-B from top-{top_k} Sobol samples + centre of the hyperbox")
     for i, init_point in enumerate(topk_points):
-        print(f">> Init point {i+1}/{top_k}")
+        print(f">> Init point {i+1}/{len(topk_points)}")
         start_lbfgs = time.time()
         res = minimize(
             objective_fn,
