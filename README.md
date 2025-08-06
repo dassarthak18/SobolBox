@@ -37,6 +37,10 @@ SobolBox is a black-box falsification tool for detecting safety violations in ne
 * [**NumPy.**](https://numpy.org/)
 * [**SciPy.**](https://scipy.org/)
 
+### Parallelization and Caching
+
+* [**Joblib.**](https://joblib.readthedocs.io/en/stable/)
+
 ## Installation and Usage
 
 The source code is available in the ``./src/`` directory.
