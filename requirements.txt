@@ -3,4 +3,5 @@ scipy
 onnxruntime
 pymc
 pytensor
+joblib
 z3-solver
