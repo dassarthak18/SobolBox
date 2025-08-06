@@ -8,6 +8,7 @@
   - [VNNLIB Parsing and SMT Solving](#vnnlib-parsing-and-smt-solving)
   - [Sampling and Optimization](#sampling-and-optimization)
   - [Scientific Computing](#scientific-computing)
+  - [Parallelization and Caching](#parallelization-and-caching)
 - [Installation and Usage](#installation-and-usage)
 - [Falsification Approach](#falsification-approach)
   - [Note](#note)
