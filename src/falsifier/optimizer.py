@@ -72,8 +72,6 @@ def optimize_1D(
     best_ng_recommendation = None
     best_lbfgs_val = float('inf')
     best_lbfgs_x = None
-
-    total_ng_time = 0.0
     total_lbfgs_time = 0.0
 
     print(f"Running L-BFGS-B from top-{top_k} Sobol samples + centre of the hyperbox")
