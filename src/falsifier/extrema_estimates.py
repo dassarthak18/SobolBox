@@ -1,5 +1,5 @@
 import numpy as np
-from optimizer import optimize_1D
+from falsifier.optimizer import optimize_1D
 
 # Black box model runner
 def black_box(sess, input_array, input_name, label_name, input_shape):
