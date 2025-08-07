@@ -1,5 +1,8 @@
+# optimizer.py
+
 import numpy as np
-import time, os
+import os
+import time
 from joblib import Parallel, delayed, cpu_count
 from scipy.optimize import minimize
 from scipy.stats import qmc
@@ -38,23 +41,15 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
 
     return unit_samples
 
-def optimize_1D(
-    objective_fn,
-    lower_bounds,
-    upper_bounds,
-    num_workers=cpu_count()
-):
+def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count()):
     lower_bounds = np.asarray(lower_bounds)
     upper_bounds = np.asarray(upper_bounds)
-    
-    assert lower_bounds.shape == upper_bounds.shape, \
-        "lower_bounds and upper_bounds must have the same shape"
+
+    assert lower_bounds.shape == upper_bounds.shape
 
     dim = len(lower_bounds)
     budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
     top_k = max(5, int(np.ceil(0.01 * budget)))
-    if num_workers < 4:
-        num_workers = 1
 
     print("Generating Sobol samples")
     unit_samples = sobol_samples(dim, budget)
@@ -68,9 +63,7 @@ def optimize_1D(
     if objective_fn(center_point) < objective_values[sorted_indices[top_k - 1]]:
         topk_points = np.vstack([topk_points, center_point])
 
-    best_ng_val = float('inf')
-    best_ng_recommendation = None
-    best_lbfgs_val = float('inf')
+    best_lbfgs_val = float("inf")
     best_lbfgs_x = None
     total_lbfgs_time = 0.0
 
@@ -81,9 +74,9 @@ def optimize_1D(
         res = minimize(
             objective_fn,
             init_point,
-            method='L-BFGS-B',
+            method="L-BFGS-B",
             bounds=list(zip(lower_bounds, upper_bounds)),
-            options = {'gtol': 1e-6, 'maxiter': 1000, 'eps': 1e-12}
+            options={"gtol": 1e-6, "maxiter": 1000, "eps": 1e-12},
         )
         lbfgs_time = time.time() - start_lbfgs
         total_lbfgs_time += lbfgs_time
