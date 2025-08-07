@@ -48,7 +48,7 @@ for j in bounds_dict:
     # We load the ONNX file and get the output bounds
     print("Extracting output bounds.")
     sess = rt.InferenceSession(onnxFile)
-    bound = extremum_refinement(sess, [input_lb, input_ub])
+    bound = extremum_refinement(onnxFile, [input_lb, input_ub])
     output_lb = bound[0]
     output_ub = bound[1]
     output_lb_inputs = bound[2]
