@@ -22,6 +22,25 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
         return -val if negate else val
     return objective
 
+def determine_parallel_allocation(n_outputs, n_cores):
+    if n_outputs > n_cores:
+        x = n_outputs // n_cores
+    else:
+        x = n_cores
+    y = n_cores // x
+
+    n_jobs = min(x, y)
+    n_threads = max(x, y)
+
+    if n_jobs == 1 and n_cores // n_jobs >= 2:
+        n_jobs *= 2
+        n_threads //= 2
+
+    while n_jobs * n_threads > n_cores and n_threads > 1:
+        n_threads -= 1
+
+    return n_jobs, n_threads
+
 def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs):
     # Minimize
     objective_min = create_objective_function(sess, input_shape, input_name, label_name, i, negate=False)
@@ -49,8 +68,7 @@ def extremum_refinement(sess, input_bounds):
 
     n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape))
     total_cores = cpu_count()
-    outer_jobs = min(n_outputs, total_cores)
-    inner_jobs = max(1, total_cores // outer_jobs)
+    outer_jobs, inner_jobs = determine_parallel_allocation(n_outputs, total_cores)
 
     print(f"Using {outer_jobs} threads for outer parallelism")
     print(f"Using {inner_jobs} threads per inner optimization")
