@@ -22,18 +22,18 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
         return -val if negate else val
     return objective
 
-def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i):
+def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs):
     # Minimize
     objective_min = create_objective_function(sess, input_shape, input_name, label_name, i, negate=False)
-    result_min = optimize_1D(objective_min, input_bounds[0], input_bounds[1])
+    result_min = optimize_1D(objective_min, input_bounds[0], input_bounds[1], num_workers=inner_jobs)
 
     # Maximize
     objective_max = create_objective_function(sess, input_shape, input_name, label_name, i, negate=True)
-    result_max = optimize_1D(objective_max, input_bounds[0], input_bounds[1])
+    result_max = optimize_1D(objective_max, input_bounds[0], input_bounds[1], num_workers=inner_jobs)
 
     return (
         result_min["best_lbfgsb_val"],
-        result_max["best_lbfgsb_val"],  # Note: this is negative of actual max
+        result_max["best_lbfgsb_val"],
         result_min["best_lbfgsb_x"],
         result_max["best_lbfgsb_x"],
     )
@@ -48,9 +48,18 @@ def extremum_refinement(sess, input_bounds):
     input_bounds = (lower_bounds, upper_bounds)
 
     n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape))
+    total_cores = cpu_count()
+    outer_jobs = min(n_outputs, total_cores)
+    inner_jobs = max(1, total_cores // outer_jobs)
 
-    results = Parallel(n_jobs=min(cpu_count(), n_outputs), backend="threading")(
-        delayed(optimize_extrema)(sess, input_bounds, input_name, label_name, input_shape, i)
+    print(f"Using {outer_jobs} threads for outer parallelism")
+    print(f"Using {inner_jobs} threads per inner optimization")
+
+    # Capture inner_jobs for optimize_1D
+    results = Parallel(n_jobs=outer_jobs, backend="threading")(
+        delayed(optimize_extrema)(
+            sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs
+        )
         for i in range(n_outputs)
     )
 
