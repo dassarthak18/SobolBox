@@ -47,7 +47,8 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
 
     dim = len(lower_bounds)
     budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
-    top_k = max(5, int(np.ceil(0.01 * budget)))
+    #top_k = max(5, int(np.ceil(0.01 * budget)))
+    top_k = 3
 
     print("Generating Sobol samples")
     unit_samples = sobol_samples(dim, budget)
