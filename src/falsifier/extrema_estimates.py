@@ -2,6 +2,26 @@ import numpy as np
 from joblib import Parallel, delayed
 from falsifier.optimizer import optimize_1D
 
+# Black box model runner
+def black_box(sess, input_array, input_name, label_name, input_shape):
+    flat_input = np.array(input_array, dtype=np.float32)
+    reshaped_input = flat_input.reshape([
+        dim if isinstance(dim, int) and dim > 0 else -1 for dim in input_shape
+    ]).astype(np.float32)
+
+    try:
+        output = sess.run([label_name], {input_name: reshaped_input})[0][0]
+    except TypeError:
+        output = sess.run([label_name], {input_name: reshaped_input})[0]
+    return output.tolist()
+
+# Builds an objective function that extracts a specific output index
+def create_objective_function(sess, input_shape, input_name, label_name, index, negate=False):
+    def objective(x):
+        val = black_box(sess, x, input_name, label_name, input_shape)[index]
+        return -val if negate else val
+    return objective
+
 def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i):
     # Minimize
     objective_min = create_objective_function(sess, input_shape, input_name, label_name, i, negate=False)
