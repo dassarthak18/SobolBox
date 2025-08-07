@@ -51,7 +51,7 @@ def extremum_refinement(sess, input_bounds):
 
     print("Running optimization per output dimension...\n")
 
-    results = Parallel(n_jobs=min(cpu_count(), n_outputs), backend="loky")(
+    results = Parallel(n_jobs=min(cpu_count(), n_outputs), backend="threading")(
         delayed(optimize_extrema)(sess, input_bounds, input_name, label_name, input_shape, i)
         for i in range(n_outputs)
     )
