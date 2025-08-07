@@ -1,5 +1,5 @@
 import numpy as np
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, cpu_count
 from falsifier.optimizer import optimize_1D
 
 # Black box model runner
