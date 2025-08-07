@@ -18,7 +18,7 @@ def parallel_eval(objective_fn, samples, batch_size=None):
     def evaluate_batch(batch):
         return [objective_fn(s) for s in batch]
 
-    results_nested = Parallel(n_jobs=n_jobs, backend="loky", prefer="processes")(
+    results_nested = Parallel(n_jobs=n_jobs, backend="loky", prefer="threads")(
         delayed(evaluate_batch)(batch) for batch in batches
     )
 
