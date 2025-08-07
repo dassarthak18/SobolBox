@@ -78,9 +78,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
         )
         lbfgs_time = time.time() - start_lbfgs
         total_lbfgs_time += lbfgs_time
-
         val_lbfgs = res.fun
-        print(f"   L-BFGS-B result:  {val_lbfgs:.6f} (Time: {lbfgs_time:.2f} s)")
 
         if val_lbfgs < best_lbfgs_val:
             best_lbfgs_val = val_lbfgs
