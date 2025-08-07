@@ -2,8 +2,9 @@ import numpy as np
 import copy, csv, ast, json
 import pymc as pm
 import pytensor.tensor as pt
-from falsifier.extrema_estimates import batched_black_box as black_box
+import torch
 from z3 import *
+from falsifier.extrema_estimates import batched_black_box as black_box
 
 def all_in_elementwise_range(arr, lowers, uppers):
     arr = np.asarray(arr)
@@ -11,18 +12,14 @@ def all_in_elementwise_range(arr, lowers, uppers):
     uppers = np.asarray(uppers)
     return np.all((arr >= lowers) & (arr <= uppers))
 
-def validateCE(model, sess, input_array, input_lb, input_ub):
-    input_name = sess.get_inputs()[0].name
-    label_name = sess.get_outputs()[0].name
-    input_shape = sess.get_inputs()[0].shape
-
+def validateCE(model, torch_model, input_array, input_lb, input_ub):
     if not all_in_elementwise_range(input_array, input_lb, input_ub):
         print("Candidate CE invalidated - invalid input range.")
         return False
 
     y_decls = sorted([str(d) for d in model.decls() if "Y_" in d.name()])
     output_array_pred = [float(model.eval(Real(d)).as_decimal(100)) for d in y_decls]
-    output_array_true = black_box(sess, [input_array], input_name, label_name)[0]
+    output_array_true = black_box(torch_model, [input_array])[0]
 
     if not np.allclose(output_array_pred, output_array_true, rtol=0, atol=1e-15):
         print("Candidate CE invalidated - invalid outputs.")
@@ -31,15 +28,12 @@ def validateCE(model, sess, input_array, input_lb, input_ub):
     print("Candidate CE validated.")
     return True
 
-def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
+def CE_sampler_advi(torch_model, lower, upper, targets, input_shape, sigma=0.1):
     inputsize = len(lower)
     sigma2 = sigma ** 2
     targets = np.array(targets)
     lower = np.array(lower)
     upper = np.array(upper)
-
-    input_name = sess.get_inputs()[0].name
-    label_name = sess.get_outputs()[0].name
 
     with pm.Model() as model:
         z = pm.Normal("z", mu=0, sigma=1, shape=inputsize)
@@ -59,7 +53,7 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
         posterior_samples = approx.sample(n_samples, random_seed=42)
 
     samples = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
-    outputs = black_box(sess, samples, input_name, label_name)
+    outputs = black_box(torch_model, samples)
 
     dists = [np.min(np.linalg.norm(sample - targets, axis=1)) for sample in samples]
     sorted_indices = np.argsort(dists)
@@ -68,9 +62,9 @@ def CE_sampler_advi(sess, lower, upper, targets, input_shape, sigma=0.1):
 
     return samples, outputs
 
-def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
+def unknown_CE_check(torch_model, solver_2, input_lb, input_ub, optimas, input_shape):
     print("Computing ADVI samples.")
-    X, Y = CE_sampler_advi(sess, input_lb, input_ub, optimas, input_shape)
+    X, Y = CE_sampler_advi(torch_model, input_lb, input_ub, optimas, input_shape)
     print("Checking for violations in ADVI samples.")
 
     X_vars = [Real(f"X_{i}") for i in range(X.shape[1])]
@@ -99,18 +93,14 @@ def unknown_CE_check(sess, solver_2, input_lb, input_ub, optimas, input_shape):
 def nearest_optima_distance(sample, optima_array):
     return min(np.linalg.norm(sample - np.array(opt)) for opt in optima_array)
 
-def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting):
+def SAT_check(solver, solver_2, torch_model, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting):
     if str(solver.check()) == "unsat":
         print("No safety violations found.")
         return "unsat"
 
     print("Checking for violations in optima.")
-    input_name = sess.get_inputs()[0].name
-    label_name = sess.get_outputs()[0].name
-    input_shape = sess.get_inputs()[0].shape
-
     input_array = output_lb_inputs + output_ub_inputs
-    output_array = black_box(sess, input_array, input_name, label_name)
+    output_array = black_box(torch_model, input_array)
 
     X_vars = [Real(f"X_{i}") for i in range(len(input_array[0]))]
     Y_vars = [Real(f"Y_{i}") for i in range(len(output_array[0]))]
@@ -150,7 +140,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
     sample_dist_pairs.sort(key=lambda x: x[1])
     input_array = [pair[0] for pair in sample_dist_pairs]
 
-    output_array = black_box(sess, input_array, input_name, label_name)
+    output_array = black_box(torch_model, input_array)
 
     for i in range(len(input_array)):
         solver_2.push()
@@ -170,7 +160,7 @@ def SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, outp
         solver_2.pop()
 
     if setting:
-        second_pass = unknown_CE_check(sess, solver_2, input_lb, input_ub, output_lb_inputs + output_ub_inputs, input_shape)
+        second_pass = unknown_CE_check(torch_model, solver_2, input_lb, input_ub, output_lb_inputs + output_ub_inputs, (1, len(input_lb)))
         return second_pass
 
     print("Inconclusive analysis.")
