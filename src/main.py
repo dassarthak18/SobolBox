@@ -24,9 +24,7 @@ for a in assertions:
   solver.add(a)
 solver_2 = copy.deepcopy(solver)
 try:
-  print("Extracting input bounds.")
   bounds_dict = parse(propertyFile)
-  print("Input bounds extracted.")
 except TypeError as error:
   print(str(error))
   file1 = open(resultFile, 'w')
