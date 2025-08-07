@@ -29,10 +29,8 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
     cache_path = os.path.join(cache_dir, f"sobol_d{dim}_n{n_samples}.npy")
 
     if os.path.isfile(cache_path):
-        print(f"Loading cached Sobol samples from {cache_path}")
         unit_samples = np.load(cache_path)
     else:
-        print(f"Generating new Sobol samples for d={dim}, n={n_samples}")
         sampler = qmc.Sobol(dim, scramble=False)
         unit_samples = sampler.random(n_samples)
         np.save(cache_path, unit_samples)
@@ -49,11 +47,9 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
     top_k = max(5, int(np.ceil(0.01 * budget)))
 
-    print("Generating Sobol samples")
     unit_samples = sobol_samples(dim, budget)
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
 
-    print("Evaluating samples by objective value")
     objective_values = np.array(parallel_eval(objective_fn, sobol_scaled))
     sorted_indices = np.argsort(objective_values)
     center_point = 0.5 * (lower_bounds + upper_bounds)
@@ -65,7 +61,6 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     best_lbfgs_x = None
     total_lbfgs_time = 0.0
 
-    print(f"Running L-BFGS-B from top-{top_k} Sobol samples + centre of the hyperbox")
     for i, init_point in enumerate(topk_points):
         start_lbfgs = time.time()
         res = minimize(
