@@ -67,7 +67,6 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
 
     print(f"Running L-BFGS-B from top-{top_k} Sobol samples + centre of the hyperbox")
     for i, init_point in enumerate(topk_points):
-        print(f">> Init point {i+1}/{len(topk_points)}")
         start_lbfgs = time.time()
         res = minimize(
             objective_fn,
