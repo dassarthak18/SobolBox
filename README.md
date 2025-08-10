@@ -13,6 +13,7 @@
 - [Falsification Approach](#falsification-approach)
   - [Note](#note)
 - [Acknowledgments](#acknowledgements)
+- [News](#news)
 - [Publications](#publications)
 
 ## Introduction
@@ -83,6 +84,10 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, ``unkno
 ## Acknowledgements
 
 SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2020/INNVerS) project, developed in collaboration with **Shubhajit Roy** (currently Senior Research Fellow, IIT Gandhinagar) and **Avishek Lahiri** (currently Senior Research Fellow, IACS Kolkata) for the VNN-COMP 2021 competition. Although INNVerS was never submitted, it laid important groundwork for this tool. The InnVerS project was carried out under the supervision of **Dr. Rajarshi Ray**, Associate Professor at IACS Kolkata.
+
+## News
+
+* **2025-07-29.** SobolBox participated in VNNCOMP-2025, placing 7th in regular track and 6th in extended track. It participated in 9 benchmarks - placing 3rd in the ``nn4sys``, 2nd in the ``linearizenn`` and ``ml4acopf``, and 1st in the ``tllverifybench``. However it detected 55 false negatives, including 21 in ``safeNLP`` and 33 in ``sat-relu``.
 
 ## Publications
 
