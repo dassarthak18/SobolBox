@@ -87,7 +87,7 @@ SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2
 
 ## News
 
-* **2025-07-29.** SobolBox participated in VNNCOMP-2025, placing 7th in regular track and 6th in extended track. It participated in 9 benchmarks - placing 3rd in the ``nn4sys``, 2nd in the ``linearizenn`` and ``ml4acopf``, and 1st in the ``tllverifybench``. However it detected 55 false negatives, including 21 in ``safeNLP`` and 33 in ``sat-relu``.
+* **2025-07-29.** SobolBox participated in VNNCOMP-2025, placing 7th in regular track and 6th in extended track. It participated in 9 benchmarks - placing 3rd in ``nn4sys``, 2nd in ``linearizenn`` and ``ml4acopf``, and 1st in ``tllverifybench``. However it detected 55 false negatives - 1 in ``acas-xu``, 21 in ``safeNLP`` and 33 in ``sat-relu``.
 
 ## Publications
 
