@@ -134,6 +134,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if setting:
         print("Computing NUTS samples.")
         targets = np.array(optima_inputs)
+        sigma = 0.1
         sigma2 = sigma ** 2
         n_cores = cpu_count()
         n_samples = max(1000, (500*dim)//n_cores)
