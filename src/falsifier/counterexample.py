@@ -85,8 +85,8 @@ def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
     import pytensor.tensor as pt
     
     sigma2 = sigma ** 2
-    n_cores = min(8, cpu_count())
-    n_samples = max(2500, (500*dim)//n_cores)
+    n_cores = min(16, cpu_count())
+    n_samples = max(5000, (500*dim)//n_cores)
 
     with pm.Model() as model:
         z = pm.Normal("z", mu=0, sigma=1, shape=dim)
@@ -100,7 +100,7 @@ def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
             return pm.math.logsumexp(logps)
 
         pm.Potential("target_bias", logp_fn(x))
-        trace = pm.sample(draws=n_samples, tune=2000, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.95, compute_convergence_checks=True, nuts_sampler="numpyro")
+        trace = pm.sample(draws=n_samples, tune=5000, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.95, compute_convergence_checks=True, nuts_sampler="numpyro")
 
     NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
     del model
