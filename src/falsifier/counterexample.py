@@ -30,9 +30,6 @@ def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, 
 
     return [val for sublist in results_nested for val in sublist]
 
-def serialize_assertions(assertions):
-    return "\n".join([a.sexpr() for a in assertions])
-
 def build_solver(n_x, n_y, smtlib_str):
     s = Solver()
     s.add(parse_smt2_string(smtlib_str))
@@ -57,9 +54,8 @@ def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
                         key=lambda y: int(y.split('_')[1]))
         ordered_vars = x_vars + y_vars
         for var_name in ordered_vars:
-            #val = model[Real(var_name)]
-            #val = val.as_decimal(128)
-            val = model.eval(vars[var_name], model_completion=True)
+            val = model[Real(var_name)]
+            val = val.as_decimal(128)
             pairs.append(f"({var_name} {val})")
         return "sat\n(" + "\n ".join(pairs) + ")"
     return "unknown"
@@ -81,11 +77,10 @@ def SAT_check(X_points, Y_points, smtlib_str):
             return res
     return "unknown"
 
-def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
+def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
     input_shape = sess.get_inputs()[0].shape
-    smtlib_str = serialize_assertions(assertions)
 
     optima_inputs = []
     for lb, ub in zip(output_lb_inputs, output_ub_inputs):
@@ -115,7 +110,6 @@ def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output
         label_name=label_name
     )
 
-    print(smtlib_str)
     print("Checking for violations in optima.")
     result = SAT_check(optima_inputs, optimas, smtlib_str)
     if result[:3] == "sat":
