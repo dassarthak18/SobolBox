@@ -42,7 +42,7 @@ def build_solver(n_x, n_y, smtlib_str):
 
 def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
     if stop_flag.value:
-        return None
+        return "unknown"
     s, vars = build_solver(n_x, n_y, smtlib_str)
     for i, val in enumerate(X_point):
         s.add(vars[f'X_{i}'] == val)
