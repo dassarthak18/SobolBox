@@ -63,6 +63,8 @@ def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
     return "unknown"
 
 def SAT_check(X_points, Y_points, smtlib_str):
+    X_points = np.asarray(X_points)
+    Y_points = np.asarray(Y_points)
     n_x = X_points.shape[1]
     n_y = Y_points.shape[1]
     with Manager() as manager:
