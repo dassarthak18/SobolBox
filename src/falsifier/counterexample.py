@@ -130,13 +130,12 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
       print("No safety violations found.")
       return "unsat"
     
-    #ADD NUTS SAMPLER
     if setting:
         print("Computing NUTS samples.")
         targets = np.array(optima_inputs)
         sigma = 0.1
         sigma2 = sigma ** 2
-        n_cores = cpu_count()
+        n_cores = min(8, cpu_count())
         n_samples = max(1000, (500*dim)//n_cores)
 
         with pm.Model() as model:
