@@ -1,11 +1,11 @@
 import numpy as np
+import pymc as pm
+import pytensor.tensor as pt
 from joblib import Parallel, delayed, cpu_count
 from multiprocessing import Manager
 from falsifier.optimizer import sobol_samples
 from falsifier.extrema_estimates import black_box
 from z3 import *
-
-set_param('verbose', 0)
 
 def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, batch_size=None):
     samples = np.asarray(samples, dtype=np.float32)
@@ -131,6 +131,43 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
       return "unsat"
     
     #ADD NUTS SAMPLER
+    if setting:
+        print("Computing NUTS samples.")
+        targets = np.array(optima_inputs)
+        sigma2 = sigma ** 2
+        n_cores = cpu_count()
+        n_samples = max(1000, (500*dim)//n_cores)
+
+        with pm.Model() as model:
+            z = pm.Normal("z", mu=0, sigma=1, shape=dim)
+            x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
+
+            def logp_fn(x_val):
+                x_exp = pt.reshape(x_val, (1, -1))
+                diffs = x_exp - targets
+                sq_dists = pt.sum(pt.sqr(diffs), axis=1)
+                logps = -0.5 * sq_dists / sigma2
+                return pm.math.logsumexp(logps)
+
+            pm.Potential("target_bias", logp_fn(x))
+            trace = pm.sample(draws=n_samples, tune=1000, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.92, init="adapt_diag", compute_convergence_checks=True, nuts_sampler="numpyro")
+
+        NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
+        del model
+
+        NUTS_outputs = parallel_objective_eval(
+            sess, 
+            samples=NUTS_inputs, 
+            input_shape=input_shape, 
+            input_name=input_name, 
+            label_name=label_name
+        )
+        
+        print("Checking for violations in NUTS samples.")
+        result = SAT_check(sobol_inputs, sobols, smtlib_str)
+        if result[:3] == "sat":
+            print("Safety violation found in NUTS samples.")
+            return result
     
     print("Inconclusive analysis.")
     return "unknown"
