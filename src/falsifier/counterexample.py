@@ -1,8 +1,7 @@
+import importlib
 import numpy as np
-import pymc as pm
-import pytensor.tensor as pt
 from joblib import Parallel, delayed, cpu_count
-from multiprocessing import Manager
+from multiprocessing import Manager, get_context
 from falsifier.optimizer import sobol_samples
 from falsifier.extrema_estimates import black_box
 from z3 import *
@@ -65,7 +64,11 @@ def SAT_check(X_points, Y_points, smtlib_str):
     Y_points = np.asarray(Y_points)
     n_x = X_points.shape[1]
     n_y = Y_points.shape[1]
-    with Manager() as manager:
+    if "jax" in importlib.sys.modules:
+        ctx = get_context("spawn")
+    else:
+        ctx = get_context("fork")
+    with ctx.Manager() as manager:
         stop_flag = manager.Value('b', False)
         results = Parallel(n_jobs=cpu_count())(
             delayed(check_point)(X_points[i], Y_points[i], n_x, n_y, smtlib_str, stop_flag)
@@ -76,6 +79,33 @@ def SAT_check(X_points, Y_points, smtlib_str):
         if res.startswith("sat"):
             return res
     return "unknown"
+
+def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
+    import pymc as pm
+    import pytensor.tensor as pt
+    
+    sigma2 = sigma ** 2
+    n_cores = min(8, cpu_count())
+    n_samples = max(2500, (500*dim)//n_cores)
+
+    with pm.Model() as model:
+        z = pm.Normal("z", mu=0, sigma=1, shape=dim)
+        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
+
+        def logp_fn(x_val):
+            x_exp = pt.reshape(x_val, (1, -1))
+            diffs = x_exp - targets
+            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
+            logps = -0.5 * sq_dists / sigma2
+            return pm.math.logsumexp(logps)
+
+        pm.Potential("target_bias", logp_fn(x))
+        trace = pm.sample(draws=n_samples, tune=2000, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.95, compute_convergence_checks=True, nuts_sampler="numpyro")
+
+    NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
+    del model
+    
+    return NUTS_inputs
 
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
@@ -134,26 +164,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         print("Computing NUTS samples.")
         targets = np.array(optima_inputs)
         sigma = 0.1
-        sigma2 = sigma ** 2
-        n_cores = min(8, cpu_count())
-        n_samples = max(1000, (500*dim)//n_cores)
-
-        with pm.Model() as model:
-            z = pm.Normal("z", mu=0, sigma=1, shape=dim)
-            x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
-
-            def logp_fn(x_val):
-                x_exp = pt.reshape(x_val, (1, -1))
-                diffs = x_exp - targets
-                sq_dists = pt.sum(pt.sqr(diffs), axis=1)
-                logps = -0.5 * sq_dists / sigma2
-                return pm.math.logsumexp(logps)
-
-            pm.Potential("target_bias", logp_fn(x))
-            trace = pm.sample(draws=n_samples, tune=1000, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.92, init="adapt_diag", compute_convergence_checks=True, nuts_sampler="numpyro")
-
-        NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
-        del model
+        NUTS_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
 
         NUTS_outputs = parallel_objective_eval(
             sess, 
@@ -164,7 +175,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         )
         
         print("Checking for violations in NUTS samples.")
-        result = SAT_check(sobol_inputs, sobols, smtlib_str)
+        result = SAT_check(NUTS_inputs, NUTS_outputs, smtlib_str)
         if result[:3] == "sat":
             print("Safety violation found in NUTS samples.")
             return result
