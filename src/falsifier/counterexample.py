@@ -38,16 +38,16 @@ def build_solver(n_x, n_y, smtlib_str):
     vars.update({f'Y_{i}': Real(f'Y_{i}') for i in range(n_y)})
     s = Solver()
     s.add(parse_smt2_string(smtlib_str))
-    return s, vars
+    return s
 
 def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
     if stop_flag.value:
         return "unknown"
-    s, vars = build_solver(n_x, n_y, smtlib_str)
+    s = build_solver(n_x, n_y, smtlib_str)
     for i, val in enumerate(X_point):
-        s.add(vars[f'X_{i}'] == val)
+        s.add(Real(f'X_{i}') == val)
     for i, val in enumerate(Y_point):
-        s.add(vars[f'Y_{i}'] == val)
+        s.add(Real(f'Y_{i}') == val)
     if s.check() == sat:
         stop_flag.value = True
         model = s.model()
@@ -60,6 +60,7 @@ def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
         ordered_vars = x_vars + y_vars
         for var_name in ordered_vars:
             val = model[Real(var_name)]
+            val = val.as_decimal(128)
             pairs.append(f"({var_name} {val})")
         return "sat\n(" + "\n ".join(pairs) + ")"
     return "unknown"
