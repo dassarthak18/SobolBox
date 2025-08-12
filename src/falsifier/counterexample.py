@@ -112,17 +112,18 @@ def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output
         label_name=label_name
     )
 
+    print(smtlib_str)
     print("Checking for violations in optima.")
     result = SAT_check(optima_inputs, optimas, smtlib_str)
     if result[:3] == "sat":
+        print("Safety violation found in optima.")
         return result
-    print("Safety violation found in optima.")
     
     print("Checking for violations in Sobol samples.")
     result = SAT_check(sobol_inputs, sobols, smtlib_str)
     if result[:3] == "sat":
+        print("Safety violation found in Sobol samples.")
         return result
-    print("Safety violation found in Sobol samples.")
     
     solver, vars = build_solver(len(input_lb), len(output_lb), smtlib_str)
     for i in range(len(output_lb)):
