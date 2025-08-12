@@ -2,7 +2,7 @@ import sys, copy
 import onnxruntime as rt
 from parser import parse
 from falsifier.extrema_estimates import extremum_refinement
-from falsifier.counterexample import SAT_check
+from falsifier.counterexample import CE_search
 from z3 import *
 
 # We open the VNNLIB file and get the input bounds
@@ -19,10 +19,6 @@ with open(propertyFile) as f:
   smt = f.read()
 decls = {}
 assertions = parse_smt2_string(smt, decls=decls)
-solver = Solver()
-for a in assertions:
-  solver.add(a)
-solver_2 = copy.deepcopy(solver)
 try:
   bounds_dict = parse(propertyFile)
 except TypeError as error:
@@ -52,15 +48,9 @@ for j in bounds_dict:
     output_lb_inputs = bound[2]
     output_ub_inputs = bound[3]
 
-    # Adding the maxima and minima points to the SAT constraints
-    for i in range(len(output_lb)):
-        Y_i = Real("Y_" + str(i))
-        solver.add(Y_i >= output_lb[i])
-        solver.add(Y_i <= output_ub[i])
-
     # We check the property and write the answer into the result file
     file1 = open(resultFile, 'w')
-    s = SAT_check(solver, solver_2, sess, input_lb, input_ub, output_lb_inputs, output_ub_inputs, setting)
+    s = CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting)
     if s[:3] == "sat": # No need to check other disjuncts if a CE is found
       file1.write(s)
       file1.close()
