@@ -152,14 +152,6 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         print("Safety violation found in Sobol samples.")
         return result
     
-    solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
-    for i in range(len(output_lb)):
-        solver.add(Real(f'Y_{i}') >= output_lb[i])
-        solver.add(Real(f'Y_{i}') <= output_ub[i])
-    if str(solver.check()) == "unsat":
-      print("No safety violations found.")
-      return "unsat"
-    
     if setting:
         print("Computing NUTS samples.")
         targets = np.array(optima_inputs)
@@ -179,6 +171,14 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         if result[:3] == "sat":
             print("Safety violation found in NUTS samples.")
             return result
+
+    solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
+    for i in range(len(output_lb)):
+        solver.add(Real(f'Y_{i}') >= output_lb[i])
+        solver.add(Real(f'Y_{i}') <= output_ub[i])
+    if str(solver.check()) == "unsat":
+      print("No safety violations found.")
+      return "unsat"
     
     print("Inconclusive analysis.")
     return "unknown"
