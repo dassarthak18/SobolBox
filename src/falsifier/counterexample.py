@@ -34,8 +34,6 @@ def serialize_assertions(assertions):
     return "\n".join([a.sexpr() for a in assertions])
 
 def build_solver(n_x, n_y, smtlib_str):
-    vars = {f'X_{i}': Real(f'X_{i}') for i in range(n_x)}
-    vars.update({f'Y_{i}': Real(f'Y_{i}') for i in range(n_y)})
     s = Solver()
     s.add(parse_smt2_string(smtlib_str))
     return s
@@ -59,8 +57,9 @@ def check_point(X_point, Y_point, n_x, n_y, smtlib_str, stop_flag):
                         key=lambda y: int(y.split('_')[1]))
         ordered_vars = x_vars + y_vars
         for var_name in ordered_vars:
-            val = model[Real(var_name)]
-            val = val.as_decimal(128)
+            #val = model[Real(var_name)]
+            #val = val.as_decimal(128)
+            val = model.eval(vars[var_name], model_completion=True)
             pairs.append(f"({var_name} {val})")
         return "sat\n(" + "\n ".join(pairs) + ")"
     return "unknown"
@@ -77,7 +76,10 @@ def SAT_check(X_points, Y_points, smtlib_str):
             for i in range(len(X_points))
         )
     sat_results = [r for r in results]
-    return sat_results[0]
+    for res in sat_results:
+        if res.startswith("sat"):
+            return res
+    return "unknown"
 
 def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
@@ -126,7 +128,7 @@ def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output
         print("Safety violation found in Sobol samples.")
         return result
     
-    solver, vars = build_solver(len(input_lb), len(output_lb), smtlib_str)
+    solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
     for i in range(len(output_lb)):
         solver.add(Real(f'Y_{i}') >= output_lb[i])
         solver.add(Real(f'Y_{i}') <= output_ub[i])
