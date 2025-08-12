@@ -33,6 +33,7 @@ SobolBox is a black-box falsification tool for detecting safety violations in ne
 ### Sampling and Optimization
 
 * [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html)
+* [**NumPyro.**](https://num.pyro.ai/en/latest/index.html#introductory-tutorials)
 
 ### Scientific Computing
 
