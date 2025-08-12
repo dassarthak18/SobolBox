@@ -17,8 +17,7 @@ resultFile = str(sys.argv[setting+4])
 
 with open(propertyFile) as f:
   smt = f.read()
-decls = {}
-assertions = parse_smt2_string(smt, decls=decls)
+
 try:
   bounds_dict = parse(propertyFile)
 except TypeError as error:
@@ -50,7 +49,7 @@ for j in bounds_dict:
 
     # We check the property and write the answer into the result file
     file1 = open(resultFile, 'w')
-    s = CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting)
+    s = CE_search(smt, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting)
     if s[:3] == "sat": # No need to check other disjuncts if a CE is found
       file1.write(s)
       file1.close()
