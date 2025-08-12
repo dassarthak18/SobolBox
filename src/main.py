@@ -1,60 +1,61 @@
-import sys, copy
+import sys
 import onnxruntime as rt
 from parser import parse
 from falsifier.extrema_estimates import extremum_refinement
 from falsifier.counterexample import CE_search
 from z3 import *
 
-# We open the VNNLIB file and get the input bounds
-if sys.argv[1] == "--deep":
-  setting = 1
-else:
-  setting = 0
-benchmark = str(sys.argv[setting+1])
-onnxFile = str(sys.argv[setting+2])
-propertyFile = str(sys.argv[setting+3])
-resultFile = str(sys.argv[setting+4])
+def main():
+    if sys.argv[1] == "--deep":
+        setting = 1
+    else:
+        setting = 0
 
-with open(propertyFile) as f:
-  smt = f.read()
+    benchmark = str(sys.argv[setting+1])
+    onnxFile = str(sys.argv[setting+2])
+    propertyFile = str(sys.argv[setting+3])
+    resultFile = str(sys.argv[setting+4])
 
-try:
-  bounds_dict = parse(propertyFile)
-except TypeError as error:
-  print(str(error))
-  file1 = open(resultFile, 'w')
-  file1.write("unknown")
-  file1.close()
+    with open(propertyFile) as f:
+        smt = f.read()
 
-for j in bounds_dict:
-    print(f"Sub-problem {j}.")
-    input_lb, input_ub = bounds_dict[j]
     try:
-      if len(input_lb) > 15000:
-          raise TypeError("Input dimension too high, quitting gracefully.")
+        bounds_dict = parse(propertyFile)
     except TypeError as error:
-      print(str(error))
-      file1 = open(resultFile, 'w')
-      file1.write("unknown")
-      file1.close()
+        print(str(error))
+        with open(resultFile, 'w') as file1:
+            file1.write("unknown")
+        return
 
-    # We load the ONNX file and get the output bounds
-    print("Extracting output bounds.")
-    sess = rt.InferenceSession(onnxFile)
-    bound = extremum_refinement(sess, [input_lb, input_ub])
-    output_lb = bound[0]
-    output_ub = bound[1]
-    output_lb_inputs = bound[2]
-    output_ub_inputs = bound[3]
+    s = "unknown"  # default if no CE is found
 
-    # We check the property and write the answer into the result file
-    file1 = open(resultFile, 'w')
-    s = CE_search(smt, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting)
-    if s[:3] == "sat": # No need to check other disjuncts if a CE is found
-      file1.write(s)
-      file1.close()
-      exit(0)
+    for j in bounds_dict:
+        print(f"Sub-problem {j}.")
+        input_lb, input_ub = bounds_dict[j]
 
-# Else, s is UNSAT or UNKNOWN
-file1.write(s)
-file1.close()
+        if len(input_lb) > 15000:
+            print("Input dimension too high, quitting gracefully.")
+            with open(resultFile, 'w') as file1:
+                file1.write("unknown")
+            return
+
+        print("Extracting output bounds.")
+        sess = rt.InferenceSession(onnxFile)
+        output_lb, output_ub, output_lb_inputs, output_ub_inputs = extremum_refinement(sess, [input_lb, input_ub])
+
+        with open(resultFile, 'w') as file1:
+            s = CE_search(smt, sess, input_lb, input_ub,
+                          output_lb, output_ub,
+                          output_lb_inputs, output_ub_inputs, setting)
+            if s[:3] == "sat":
+                file1.write(s)
+                sys.exit(0)
+
+    # Write final result
+    with open(resultFile, 'w') as file1:
+        file1.write(s)
+
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()
+    main()
