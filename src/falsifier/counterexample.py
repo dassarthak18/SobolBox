@@ -5,6 +5,8 @@ from falsifier.optimizer import sobol_samples
 from falsifier.extrema_estimates import black_box
 from z3 import *
 
+set_param('verbose', 0)
+
 def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, batch_size=None):
     samples = np.asarray(samples, dtype=np.float32)
     n_samples = len(samples)
@@ -114,11 +116,13 @@ def CE_search(assertions, sess, input_lb, input_ub, output_lb, output_ub, output
     result = SAT_check(optima_inputs, optimas, smtlib_str)
     if result[:3] == "sat":
         return result
+    print("Safety violation found in optima.")
     
     print("Checking for violations in Sobol samples.")
     result = SAT_check(sobol_inputs, sobols, smtlib_str)
     if result[:3] == "sat":
         return result
+    print("Safety violation found in Sobol samples.")
     
     solver, vars = build_solver(len(input_lb), len(output_lb), smtlib_str)
     for i in range(len(output_lb)):
