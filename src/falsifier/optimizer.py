@@ -64,7 +64,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
     param.set_bounds(lower_bounds, upper_bounds)
-    optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=5000)
+    optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=500*dim)
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
         candidate.value = x0
