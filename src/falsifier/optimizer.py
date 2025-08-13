@@ -38,11 +38,15 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
 
     return unit_samples
 
-def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count()):
+def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(), eps=1e-12):
     lower_bounds = np.asarray(lower_bounds)
     upper_bounds = np.asarray(upper_bounds)
 
     assert lower_bounds.shape == upper_bounds.shape
+
+    mask = (lower_bounds == upper_bounds)
+    eps_lower = np.where(mask, lower_bounds - eps, lower_bounds)
+    eps_upper = np.where(mask, upper_bounds + eps, upper_bounds)
 
     dim = len(lower_bounds)
     budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
@@ -59,11 +63,11 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
         topk_points = np.vstack([topk_points, center_point])
 
     param = ng.p.Array(shape=(dim,))
-    span = np.asarray(upper_bounds) - np.asarray(lower_bounds)
+    span = np.asarray(eps_upper) - np.asarray(eps_lower)
     sigma = np.maximum(span / 6.0, 1e-12)
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
-    param.set_bounds(lower_bounds, upper_bounds)
+    param.set_bounds(eps_lower, eps_upper)
     optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=min(5000, max(500, 100 * dim)))
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
