@@ -81,11 +81,6 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
 
     while optimizer.num_tell < optimizer.budget:
         parallel_ask_tell(optimizer, objective_fn, n_workers=num_workers)
-    
-    while optimizer.num_tell < optimizer.budget:
-        candidate = optimizer.ask()
-        value = objective_fn(candidate.value)
-        optimizer.tell(candidate, value)
 
     start_lbfgs = time.time()
     recommendation = optimizer.provide_recommendation()
