@@ -65,7 +65,7 @@ By computing the neural network outputs across these points, SobolBox identifies
 
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
-* If the analysis finds an optimum or a Sobol sequence sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
+* If the analysis finds an optimum or a Sobol sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
 * If the analysis is unable to find a counterexample but determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * If the tool encounters neural networks of effective input dimension greater than 15000, or if the analysis is inconclusive, the falsifier quits gracefully and returns ``unknown``.
 
@@ -73,7 +73,7 @@ SobolBox also implements built-in parallelization and caching of Sobol sequences
 
 ### Note
 
-If the ``--deep`` argument is enabled, a second pass of **No U-Turns sampling (NUTS)** is run on the inconclusive instances. NUTS is an adaptive Markov Chain Monte Carlo (MCMC) method that builds on Hamiltonian Monte Carlo (HMC), using gradient information to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The NUTS samples are drawn from a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
+If the ``--deep`` argument is enabled, a second pass of **No U-Turns sampling (NUTS)** is run on the instances where optima or Sobol samples are unable to find a counterexample. NUTS is an adaptive Markov Chain Monte Carlo (MCMC) method that builds on Hamiltonian Monte Carlo (HMC), using gradient information to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The NUTS samples are drawn from a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
 
 $$
 p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \right)
