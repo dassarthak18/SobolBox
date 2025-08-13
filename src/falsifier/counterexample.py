@@ -108,6 +108,36 @@ def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
     
     return NUTS_inputs
 
+def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
+    import pymc as pm
+    import pytensor.tensor as pt
+    
+    sigma2 = sigma ** 2
+    n_cores = min(4, cpu_count())
+    n_tune = max(100*dim, 3000)
+    n_samples = max(100*dim, 2000)
+
+    with pm.Model() as model:
+        z = pm.Normal("z", mu=0, sigma=1, shape=dim)
+        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
+
+        def logp_fn(x_val):
+            x_exp = pt.reshape(x_val, (1, -1))
+            diffs = x_exp - targets
+            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
+            logps = -0.5 * sq_dists / sigma2
+            return pm.math.logsumexp(logps)
+
+        pm.Potential("target_bias", logp_fn(x))
+        approx = pm.fit(n=10000, method="advi")
+        n_samples = 10*np.min([int(2**15), np.max([4096, int(2**np.floor(np.log2(500*dim)))])])
+        posterior_samples = approx.sample(n_samples, random_seed=42)
+
+    ADVI_inputs = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
+    del model
+    
+    return ADVI_inputs
+
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
@@ -154,23 +184,23 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         return result
     
     if setting:
-        print("Computing NUTS samples.")
+        print("Computing ADVI samples.")
         targets = np.array(optima_inputs)
         sigma = 0.1
-        NUTS_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
+        ADVI_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
 
-        NUTS_outputs = parallel_objective_eval(
+        ADVI_outputs = parallel_objective_eval(
             sess, 
-            samples=NUTS_inputs, 
+            samples=ADVI_inputs, 
             input_shape=input_shape, 
             input_name=input_name, 
             label_name=label_name
         )
         
-        print("Checking for violations in NUTS samples.")
-        result = SAT_check(NUTS_inputs, NUTS_outputs, smtlib_str)
+        print("Checking for violations in ADVI samples.")
+        result = SAT_check(ADVI_inputs, ADVI_outputs, smtlib_str)
         if result[:3] == "sat":
-            print("Safety violation found in NUTS samples.")
+            print("Safety violation found in ADVI samples.")
             return result
 
     solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
