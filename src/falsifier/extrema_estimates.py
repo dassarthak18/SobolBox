@@ -29,15 +29,15 @@ def determine_parallel_allocation(n_outputs, n_cores):
         x = n_cores
     y = n_cores // x
 
-    n_jobs = min(x, y)
-    n_threads = max(x, y)
+    n_jobs = max(x, y)
+    n_threads = min(x, y)
 
-    if n_jobs == 1 and n_cores // n_jobs >= 2:
-        n_jobs *= 2
-        n_threads //= 2
+    if n_threads == 1 and n_cores // n_threads >= 2:
+        n_threads *= 2
+        n_jobs //= 2
 
-    while n_jobs * n_threads > n_cores and n_threads > 1:
-        n_threads -= 1
+    while n_jobs * n_threads > n_cores and n_jobs > 1:
+        n_jobs -= 1
 
     return n_jobs, n_threads
 
