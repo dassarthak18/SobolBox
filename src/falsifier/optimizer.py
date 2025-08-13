@@ -70,7 +70,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
         candidate.value = x0
         optimizer.tell(candidate, objective_fn(x0))
 
-     while optimizer.num_tell < optimizer.budget:
+    while optimizer.num_tell < optimizer.budget:
         candidate = optimizer.ask()
         value = objective_fn(candidate.value)
         optimizer.tell(candidate, value)
