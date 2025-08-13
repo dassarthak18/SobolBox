@@ -58,7 +58,9 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     if objective_fn(center_point) < objective_values[sorted_indices[top_k - 1]]:
         topk_points = np.vstack([topk_points, center_point])
 
-    param = ng.p.Array(shape=(dim,)).set_bounds(lower_bounds, upper_bounds)
+    param = ng.p.Array(shape=(dim,))
+    param.value = center_point.copy()
+    param.set_bounds(lower_bounds, upper_bounds)
     optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=5000)
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
@@ -84,7 +86,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     return {
         "best_lbfgsb_val": res.fun,
         "best_lbfgsb_x": res.x,
-        "total_lbfgs_time": end_lbfgs - start_bfgs,
+        "total_lbfgs_time": end_lbfgs - start_lbfgs,
     }
 
     '''
