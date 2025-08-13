@@ -129,7 +129,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
             return pm.math.logsumexp(logps)
 
         pm.Potential("target_bias", logp_fn(x))
-        approx = pm.fit(n=10000, method="advi")
+        approx = pm.fit(n=10000, method="advi", progressbar=True)
         n_samples = 10*np.min([int(2**15), np.max([4096, int(2**np.floor(np.log2(500*dim)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
 
