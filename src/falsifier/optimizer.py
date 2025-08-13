@@ -1,3 +1,4 @@
+import nevergrad as ng
 import numpy as np
 import os
 import time
@@ -57,6 +58,36 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     if objective_fn(center_point) < objective_values[sorted_indices[top_k - 1]]:
         topk_points = np.vstack([topk_points, center_point])
 
+    param = ng.p.Array(shape=(dim,)).set_bounds(lower_bounds, upper_bounds)
+    optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=5000)
+    for x0 in topk_points:
+        candidate = optimizer.parametrization.spawn_child()
+        candidate.value = x0
+        optimizer.tell(candidate, objective_fn(x0))
+    
+    while optimizer.num_tell < optimizer.budget:
+        candidate = optimizer.ask()
+        value = objective_fn(candidate.value)
+        optimizer.tell(candidate, value)
+
+    start_lbfgs = time.time()
+    recommendation = optimizer.provide_recommendation()
+    res = minimize(
+            objective_fn,
+            recommendation.value,
+            method="L-BFGS-B",
+            bounds=list(zip(lower_bounds, upper_bounds)),
+            options={"gtol": 1e-6, "maxiter": 1000, "eps": 1e-12},
+        )
+    end_lbfgs = time.time()
+    
+    return {
+        "best_lbfgsb_val": res.fun,
+        "best_lbfgsb_x": res.x,
+        "total_lbfgs_time": end_lbfgs - start_bfgs,
+    }
+
+    '''
     best_lbfgs_val = float("inf")
     best_lbfgs_x = None
     total_lbfgs_time = 0.0
@@ -83,3 +114,4 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
         "best_lbfgsb_x": best_lbfgs_x,
         "total_lbfgs_time": total_lbfgs_time,
     }
+    '''
