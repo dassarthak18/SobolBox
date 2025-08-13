@@ -86,8 +86,8 @@ def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
     
     sigma2 = sigma ** 2
     n_cores = min(4, cpu_count())
-    n_tune = max(50*dim, 1000)
-    n_samples = max(100*dim, 1000)
+    n_tune = max(100*dim, 3000)
+    n_samples = max(100*dim, 2000)
 
     with pm.Model() as model:
         z = pm.Normal("z", mu=0, sigma=1, shape=dim)
