@@ -70,17 +70,10 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
         candidate.value = x0
         optimizer.tell(candidate, objective_fn(x0))
 
-    def parallel_ask_tell(optimizer, objective_fn, n_workers):
-        candidates = [optimizer.ask() for _ in range(n_workers)]
-        points = [cand.value for cand in candidates]
-        values = Parallel(n_jobs=len(points), backend="threading")(
-            delayed(objective_fn)(p) for p in points
-        )
-        for cand, val in zip(candidates, values):
-            optimizer.tell(cand, float(val))
-
-    while optimizer.num_tell < optimizer.budget:
-        parallel_ask_tell(optimizer, objective_fn, n_workers=num_workers)
+     while optimizer.num_tell < optimizer.budget:
+        candidate = optimizer.ask()
+        value = objective_fn(candidate.value)
+        optimizer.tell(candidate, value)
 
     start_lbfgs = time.time()
     recommendation = optimizer.provide_recommendation()
