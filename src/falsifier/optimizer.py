@@ -31,7 +31,7 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
     if os.path.isfile(cache_path):
         unit_samples = np.load(cache_path)
     else:
-        sampler = qmc.Sobol(dim, scramble=True)
+        sampler = qmc.Sobol(dim, scramble=False)
         unit_samples = sampler.random(n_samples)
         np.save(cache_path, unit_samples)
 
