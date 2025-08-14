@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Dependencies](#dependencies)
+- [External Dependencies](#external-dependencies)
   - [Neural Network Inference](#neural-network-inference)
   - [VNNLIB Parsing and SMT Solving](#vnnlib-parsing-and-smt-solving)
   - [Sampling and Optimization](#sampling-and-optimization)
@@ -20,7 +20,7 @@
 
 SobolBox is a Python black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black-boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
 
-## Dependencies
+## External Dependencies
 
 ### Neural Network Inference
 
