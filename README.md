@@ -33,7 +33,7 @@ SobolBox is a Python black-box falsification tool for detecting safety violation
 ### Sampling and Optimization
 
 * [**SciPy.**](https://scipy.org/) For Sobol sampling and L-BFGS-B optimization.
-* [**Nevergrad.**](https://facebookresearch.github.io/nevergrad/) For OnePlusOne optimization.
+* [**Nevergrad.**](https://facebookresearch.github.io/nevergrad/) For PSO optimization.
 * [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html) For ADVI sampling.
 * [**NumPyro.**](https://num.pyro.ai/en/latest/index.html#introductory-tutorials) For speeding up NUTS sampling via Jax.
 
@@ -59,7 +59,7 @@ For a sanity check of the tool, a ``run_examples.sh`` script has been provided t
 
 SobolBox uses Microsoft Z3 Theorem Prover to parse VNNLIB files and extract input bounds via its optimization API. This is a deliberate choice in minimization of dependencies, driven by the fact that VNNLIB is written as a subset of the SMTLIB-2 standard which Z3 supports. Upon extracting the input bounds, it generates a sample of input points using **Sobol sequence sampling**, which is a quasi-Monte Carlo method used to generate a low-discrepancy, deterministic sample of parameter values from a multidimensional distribution. Sobol sequencing is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in sensitivity analysis.
 
-By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 10% argmin and argmax are chosen, and a global **Nevergrad OnePlusOne** evolutionary algorithm is run to narrow down to candidate global optima regions. Then, a **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates. This ensures a tight under-approximation of the output bounds.
+By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 10% argmin and argmax are chosen, and a global **Particle Swarm Optimization** is run to narrow down to candidate global optima regions. Then, a **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates. This ensures a tight under-approximation of the output bounds.
 
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
@@ -89,7 +89,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 *  ADVI sampling replaced No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
-*  Global optimization via ``nevergrad OnePlusOne`` added.
+*  Global optimization via ``nevergrad PSO`` added.
 *  Memoization of black-box function calls added.
 *  Input bound extraction from VNNLIB moved to ``vnncomp_scripts/prepare_instance.sh``.
 
