@@ -91,6 +91,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
 *  Global optimization via ``nevergrad OnePlusOne`` added.
 *  Memoization of black-box function calls added.
+*  Input bound extraction from VNNLIB moved to ``vnncomp_scripts/prepare_instance.sh``.
 
 ## Acknowledgements
 
