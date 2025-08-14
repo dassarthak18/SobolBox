@@ -20,7 +20,9 @@ for prop in {1..4}; do
       model="ACASXU_run2a_${i}_${j}_batch_2000.onnx"
       echo "Running model $model with property $prop"
       start_time=$(date +%s.%N)
-      
+      ./prepare_instance.sh v1 acasxu \
+        ../examples/acasxu/onnx/$model \
+        ../examples/acasxu/vnnlib/prop_${prop}.vnnlib
       ./run_instance.sh v1 acasxu \
         ../examples/acasxu/onnx/$model \
         ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
@@ -61,7 +63,9 @@ do
 
   echo "Running model $model with property $prop"
   start_time=$(date +%s.%N)
-  
+  ./prepare_instance.sh v1 acasxu \
+    ../examples/acasxu/onnx/$model \
+    ../examples/acasxu/vnnlib/prop_${prop}.vnnlib
   ./run_instance.sh v1 acasxu \
     ../examples/acasxu/onnx/$model \
     ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
@@ -107,4 +111,5 @@ echo "Total Time (seconds): $total_time"
 
 # Post-run cleanup
 rm -rf ../results
-rm -rf ../cache
+rm -rf ./.sobol_cache
+rm -rf ./.input_bounds
