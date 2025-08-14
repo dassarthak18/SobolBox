@@ -61,5 +61,5 @@ if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
     main()
-    save_memo()
-    #clear_memo()
+    #save_memo()
+    clear_memo()
