@@ -83,10 +83,10 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 
 ## Changelog
 
-*  Sobol sampling replaced the original Latin Hypercube Sampling with Multi-dimensional Uniformity (LHSMDU).
+*  Sobol sampling replaced Latin Hypercube Sampling with Multi-dimensional Uniformity (LHSMDU).
 *  VNNLIB parser improved to handle complex disjunctions without hardcoding.
 *  Caching of Sobol sequences and output bounds added.
-*  ADVI sampling replaced the original No U-Turns Sampling.
+*  ADVI sampling replaced No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
 *  Global optimization via Nevergrad OnePlusOne added.
