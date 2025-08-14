@@ -50,7 +50,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
 
     dim = len(lower_bounds)
     budget = min(2**20, max(8192, int(2**np.ceil(np.log2(500 * dim)))))
-    top_k = max(10, int(np.ceil(0.01 * budget)))
+    top_k = max(100, int(np.ceil(0.1 * budget)))
 
     unit_samples = sobol_samples(dim, budget)
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
