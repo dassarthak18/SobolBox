@@ -6,10 +6,11 @@ from joblib import Parallel, delayed, cpu_count
 from falsifier.optimizer import sobol_samples, optimize_1D
 
 # Black box model runner
-def black_box(sess, input_array, input_name, label_name, input_shape):
+def black_box(sess, input_array, input_name, label_name, input_shape, onnxFile):
     hash = hashlib.md5(input_array.tobytes()).hexdigest()
-    if hash in memo:
-        return memo[hash]
+    if onnxFile in memo:
+        if hash in memo[onnxFile]:
+            return memo[onnxFile][hash]
     flat_input = np.array(input_array, dtype=np.float32)
     reshaped_input = flat_input.reshape([
         dim if isinstance(dim, int) and dim > 0 else -1 for dim in input_shape
@@ -20,7 +21,11 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
     except TypeError:
         output = sess.run([label_name], {input_name: reshaped_input})[0]
     result = output.tolist()
-    memo[hash] = result
+    if onnxFile in memo:
+        memo[onnxFile][hash] = result
+    else:
+        memo[onnxFile] = {}
+        memo[onnxFile][hash] = result
     return result
 
 # Builds an objective function that extracts a specific output index
@@ -106,7 +111,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
         
     results = Parallel(n_jobs=cpu_count(), backend="threading")(
         delayed(optimize_extrema)(
-            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs, onnxFile
+            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
         )
         for i in range(n_outputs)
     )
