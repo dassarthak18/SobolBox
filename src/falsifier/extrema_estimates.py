@@ -1,6 +1,6 @@
 import numpy as np
 from joblib import Parallel, delayed, cpu_count
-from falsifier.optimizer import optimize_1D
+from falsifier.optimizer import sobol_sammples, optimize_1D
 
 # Black box model runner
 def black_box(sess, input_array, input_name, label_name, input_shape):
@@ -22,19 +22,31 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
         return -val if negate else val
     return objective
 
-def determine_parallel_allocation(n_cores):
-    if n_cores <= 2:
-        return 1, n_cores
-    return 2, n_cores // 2
+def parallel_eval(objective_fn, samples, batch_size=None):
+    samples = np.asarray(samples, dtype=np.float32)
+    n_samples = len(samples)
+    n_jobs = cpu_count()
 
-def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs):
+    if batch_size is None:
+        batch_size = max(8, int(np.ceil(n_samples / n_jobs)))
+
+    batches = [samples[i:i + batch_size] for i in range(0, n_samples, batch_size)]
+
+    def evaluate_batch(batch):
+        return [objective_fn(s) for s in batch]
+
+    results_nested = Parallel(n_jobs=n_jobs, backend="threading")(
+        delayed(evaluate_batch)(batch) for batch in batches
+    )
+
+    return [val for sublist in results_nested for val in sublist]
+
+def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs):
     # Minimize
-    objective_min = create_objective_function(sess, input_shape, input_name, label_name, i, negate=False)
-    result_min = optimize_1D(objective_min, input_bounds[0], input_bounds[1], num_workers=inner_jobs)
+    result_min = optimize_1D(objective_mins[i], input_bounds[0], input_bounds[1], topk_mins[i])
 
     # Maximize
-    objective_max = create_objective_function(sess, input_shape, input_name, label_name, i, negate=True)
-    result_max = optimize_1D(objective_max, input_bounds[0], input_bounds[1], num_workers=inner_jobs)
+    result_max = optimize_1D(objecive_maxs[i], input_bounds[0], input_bounds[1], topk_maxs[i])
 
     return (
         result_min["best_lbfgsb_val"],
@@ -52,17 +64,42 @@ def extremum_refinement(sess, input_bounds):
     upper_bounds = np.array(input_bounds[1])
     input_bounds = (lower_bounds, upper_bounds)
 
+    dim = len(lower_bounds)
+    budget = min(2**20, max(8192, int(2**np.ceil(np.log2(500 * dim)))))
+    top_k = max(100, int(np.ceil(0.1 * budget)))
+    unit_samples = sobol_samples(dim, budget)
+    sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
     n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape))
-    total_cores = cpu_count()
-    outer_jobs, inner_jobs = determine_parallel_allocation(total_cores)
 
-    print(f"Using {outer_jobs} threads for outer parallelism")
-    print(f"Using {inner_jobs} threads per inner optimization")
+    objective_mins = []
+    topk_mins = []
+    
+    for i in range(n_outputs):
+        objective_mins.append(create_objective_function(sess, input_shape, input_name, label_name, i, negate=False))
+        objective_values = np.array(parallel_eval(objective_mins[-1], sobol_scaled))
+        sorted_indices = np.argsort(objective_values)
+        center_point = 0.5 * (lower_bounds + upper_bounds)
+        topk_points = sobol_scaled[sorted_indices[:top_k]]
+        if objective_mins[-1](center_point) < objective_values[sorted_indices[top_k - 1]]:
+            topk_points = np.vstack([topk_points, center_point])
+        topk_mins.append(topk_points)
 
-    # Capture inner_jobs for optimize_1D
-    results = Parallel(n_jobs=outer_jobs, backend="threading")(
+    objective_maxs = []
+    topk_maxs = []
+    
+    for i in range(n_outputs):
+        objective_maxs.append(create_objective_function(sess, input_shape, input_name, label_name, i, negate=True))
+        objective_values = np.array(parallel_eval(objective_maxs[-1], sobol_scaled))
+        sorted_indices = np.argsort(objective_values)
+        center_point = 0.5 * (lower_bounds + upper_bounds)
+        topk_points = sobol_scaled[sorted_indices[:top_k]]
+        if objective_maxs[-1](center_point) < objective_values[sorted_indices[top_k - 1]]:
+            topk_points = np.vstack([topk_points, center_point])
+        topk_maxs.append(topk_points)
+        
+    results = Parallel(n_jobs=cpu_count(), backend="threading")(
         delayed(optimize_extrema)(
-            sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs
+            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
         )
         for i in range(n_outputs)
     )
@@ -77,6 +114,6 @@ def extremum_refinement(sess, input_bounds):
         updated_maxima.append(-neg_max_val)
         updated_minima_inputs.append(min_x)
         updated_maxima_inputs.append(max_x)
-        print(f"Output {i}: Min = {min_val:.6f}, Max = {-neg_max_val:.6f}")
+        print(f"Output {i}: Min = {min_val}, Max = {-neg_max_val}")
 
     return [updated_minima, updated_maxima, updated_minima_inputs, updated_maxima_inputs]
