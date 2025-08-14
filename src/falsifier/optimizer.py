@@ -88,7 +88,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
             bounds=list(zip(lower_bounds, upper_bounds)),
             options={"gtol": 1e-12, "maxiter": 10000, "eps": 1e-12},
         )
-    end_lbfgs = time.time()500
+    end_lbfgs = time.time()
     
     return {
         "best_lbfgsb_val": res.fun,
