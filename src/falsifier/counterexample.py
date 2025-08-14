@@ -6,7 +6,7 @@ from falsifier.optimizer import sobol_samples
 from falsifier.extrema_estimates import black_box
 from z3 import *
 
-def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, batch_size=None):
+def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, onnxFile, batch_size=None):
     samples = np.asarray(samples, dtype=np.float32)
     n_samples = len(samples)
     n_jobs = cpu_count()
@@ -15,7 +15,7 @@ def parallel_objective_eval(sess, samples, input_shape, input_name, label_name, 
         batch_size = max(8, int(np.ceil(n_samples / n_jobs)))
 
     def objective(x):
-        val = black_box(sess, x, input_name, label_name, input_shape)
+        val = black_box(sess, x, input_name, label_name, input_shape, onnxFile)
         return val
 
     batches = [samples[i:i + batch_size] for i in range(0, n_samples, batch_size)]
@@ -107,7 +107,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     
     return ADVI_inputs
 
-def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
+def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, onnxFile, setting):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
     input_shape = sess.get_inputs()[0].shape
@@ -122,7 +122,8 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         samples=optima_inputs, 
         input_shape=input_shape, 
         input_name=input_name, 
-        label_name=label_name
+        label_name=label_name,
+        onnxFile=onnxFile,
     )
 
     input_lb = np.array(input_lb)
@@ -137,7 +138,8 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         samples=sobol_inputs, 
         input_shape=input_shape, 
         input_name=input_name, 
-        label_name=label_name
+        label_name=label_name,
+        onnxFile=onnxFile,
     )
 
     print("Checking for violations in optima.")
@@ -163,7 +165,8 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
             samples=ADVI_inputs, 
             input_shape=input_shape, 
             input_name=input_name, 
-            label_name=label_name
+            label_name=label_name,
+            onnxFile=onnxFile,
         )
         
         print("Checking for violations in ADVI samples.")
