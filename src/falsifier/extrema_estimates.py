@@ -97,7 +97,7 @@ def extremum_refinement(sess, input_bounds):
             topk_points = np.vstack([topk_points, center_point])
         topk_maxs.append(topk_points)
         
-    results = Parallel(n_jobs=cpu_count(), backend="threading")(
+    results = Parallel(n_jobs=min(n_outputs,cpu_count()), backend="threading")(
         delayed(optimize_extrema)(
             sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
         )
