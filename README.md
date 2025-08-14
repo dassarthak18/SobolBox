@@ -18,7 +18,7 @@
 
 ## Introduction
 
-SobolBox is a Python black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
+SobolBox is a Python black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black-boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
 
 ## Dependencies
 
@@ -59,7 +59,7 @@ For a sanity check of the tool, a ``run_examples.sh`` script has been provided t
 
 SobolBox uses Microsoft Z3 Theorem Prover to parse VNNLIB files and extract input bounds via its optimization API. This is a deliberate choice in minimization of dependencies, driven by the fact that VNNLIB is written as a subset of the SMTLIB-2 standard which Z3 supports. Upon extracting the input bounds, it generates a sample of input points using **Sobol sequence sampling**, which is a quasi-Monte Carlo method used to generate a low-discrepancy, deterministic sample of parameter values from a multidimensional distribution. Sobol sequencing is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in sensitivity analysis.
 
-By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 1% argmin and argmax are chosen, and a global **Nevergrad OnePlusOne** evolutionary algorithm is run to narrow down to candidate global optima regions. Then, a **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates. This ensures a tight under-approximation of the output bounds.
+By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 10% argmin and argmax are chosen, and a global **Nevergrad OnePlusOne** evolutionary algorithm is run to narrow down to candidate global optima regions. Then, a **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates. This ensures a tight under-approximation of the output bounds.
 
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
@@ -68,7 +68,7 @@ Once these extrema estimates are obtained, they are fed into Z3 along with the s
 * **Stage 2.** If the analysis is unable to find a counterexample but determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * **Stage 3.** If the analysis is inconclusive, the falsifier returns ``unknown``.
 
-SobolBox also implements built-in parallelization and caching of both Sobol sequences and computed output bounds to reduce computational overheads over incremental runs.
+SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads over incremental runs.
 
 ### Note
 
@@ -90,6 +90,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
 *  Global optimization via Nevergrad OnePlusOne added.
+*  Memoization of black-box function calls added.
 
 ## Acknowledgements
 
