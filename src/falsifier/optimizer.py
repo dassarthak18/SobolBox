@@ -38,7 +38,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
     param.set_bounds(eps_lower, eps_upper)
-    optimizer = ng.optimizers.CMA(parametrization=param, budget=min(5000, max(1000, 100 * dim)))
+    optimizer = ng.optimizers.PSO(parametrization=param, budget=min(5000, max(1000, 100 * dim)))
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
         candidate.value = x0
