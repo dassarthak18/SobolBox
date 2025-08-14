@@ -43,12 +43,12 @@ def main():
 
         print("Extracting output bounds.")
         sess = rt.InferenceSession(onnxFile)
-        output_lb, output_ub, output_lb_inputs, output_ub_inputs = extremum_refinement(sess, [input_lb, input_ub], onnxFile)
+        output_lb, output_ub, output_lb_inputs, output_ub_inputs = extremum_refinement(sess, [input_lb, input_ub])
 
         with open(resultFile, 'w') as file1:
             s = CE_search(smt, sess, input_lb, input_ub,
                           output_lb, output_ub,
-                          output_lb_inputs, output_ub_inputs, onnxFile, setting)
+                          output_lb_inputs, output_ub_inputs, setting)
             if s[:3] == "sat":
                 file1.write(s)
                 sys.exit(0)
