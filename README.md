@@ -68,7 +68,7 @@ Once these extrema estimates are obtained, they are fed into Z3 along with the s
 * **Stage 2.** If the analysis is unable to find a counterexample but determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * **Stage 3.** If the analysis is inconclusive, the falsifier returns ``unknown``.
 
-SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads over incremental runs.
+SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads across runs.
 
 ### Note
 
