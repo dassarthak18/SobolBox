@@ -68,6 +68,7 @@ def extremum_refinement(sess, input_bounds):
     dim = len(lower_bounds)
     budget = min(2**20, max(8192, int(2**np.ceil(np.log2(500 * dim)))))
     top_k = max(100, int(np.ceil(0.1 * budget)))
+    center_point = 0.5 * (lower_bounds + upper_bounds)
     unit_samples = sobol_samples(dim, budget)
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
     n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape))
@@ -79,7 +80,6 @@ def extremum_refinement(sess, input_bounds):
         objective_mins.append(create_objective_function(sess, input_shape, input_name, label_name, i, negate=False))
         objective_values = np.array(parallel_eval(objective_mins[-1], sobol_scaled))
         sorted_indices = np.argsort(objective_values)
-        center_point = 0.5 * (lower_bounds + upper_bounds)
         topk_points = sobol_scaled[sorted_indices[:top_k]]
         if objective_mins[-1](center_point) < objective_values[sorted_indices[top_k - 1]]:
             topk_points = np.vstack([topk_points, center_point])
@@ -92,13 +92,12 @@ def extremum_refinement(sess, input_bounds):
         objective_maxs.append(create_objective_function(sess, input_shape, input_name, label_name, i, negate=True))
         objective_values = np.array(parallel_eval(objective_maxs[-1], sobol_scaled))
         sorted_indices = np.argsort(objective_values)
-        center_point = 0.5 * (lower_bounds + upper_bounds)
         topk_points = sobol_scaled[sorted_indices[:top_k]]
         if objective_maxs[-1](center_point) < objective_values[sorted_indices[top_k - 1]]:
             topk_points = np.vstack([topk_points, center_point])
         topk_maxs.append(topk_points)
         
-    results = Parallel(n_jobs=min(n_outputs,cpu_count()), backend="threading")(
+    results = Parallel(n_jobs=cpu_count()), backend="threading")(
         delayed(optimize_extrema)(
             sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
         )
