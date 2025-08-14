@@ -4,45 +4,43 @@
 
 - [Introduction](#introduction)
 - [Dependencies](#dependencies)
-  - [Neural Network Evaluation](#neural-network-evaluation)
+  - [Neural Network Inference](#neural-network-inference)
   - [VNNLIB Parsing and SMT Solving](#vnnlib-parsing-and-smt-solving)
   - [Sampling and Optimization](#sampling-and-optimization)
-  - [Scientific Computing](#scientific-computing)
   - [Parallelization and Caching](#parallelization-and-caching)
 - [Installation and Usage](#installation-and-usage)
 - [Falsification Approach](#falsification-approach)
   - [Note](#note)
+- [Changelog](#changelog)
 - [Acknowledgments](#acknowledgements)
 - [News](#news)
 - [Publications](#publications)
 
 ## Introduction
 
-SobolBox is a black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
+SobolBox is a Python black-box falsification tool for detecting safety violations in neural networks. It accepts neural network inputs in ONNX format and safety specifications in VNNLIB format. SobolBox treats neural networks as multi-input multi-output (MIMO), differential and non-convex black boxes $$N: ℝ^m \rightarrow ℝ^n$$. The falsification algorithm assumes limited resources (e.g., no GPU acceleration) and no domain-specific knowledge (e.g., no architectural assumptions). This makes it portable and extensible to other MIMO, black-box systems.
 
 ## Dependencies
 
-### Neural Network Evaluation
+### Neural Network Inference
 
-* [**Microsoft ONNX Runtime.**](https://onnxruntime.ai/)
+* [**Microsoft ONNX Runtime.**](https://onnxruntime.ai/) For ONNX inference.
 
 ### VNNLIB Parsing and SMT Solving
 
-* [**Microsoft Z3 Theorem Prover.**](https://github.com/Z3Prover/z3)
+* [**Microsoft Z3 Theorem Prover.**](https://github.com/Z3Prover/z3) For VNNLIB parsing and SMT solving.
 
 ### Sampling and Optimization
 
-* [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html)
-* [**NumPyro.**](https://num.pyro.ai/en/latest/index.html#introductory-tutorials)
-
-### Scientific Computing
-
-* [**NumPy.**](https://numpy.org/)
-* [**SciPy.**](https://scipy.org/)
+* [**SciPy.**](https://scipy.org/) For Sobol sampling and L-BFGS-B optimization.
+* [**Nevergrad.**](https://facebookresearch.github.io/nevergrad/) For OnePlusOne optimization.
+* [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html) For ADVI sampling.
+* [**NumPyro.**](https://num.pyro.ai/en/latest/index.html#introductory-tutorials) For speeding up NUTS sampling via Jax.
 
 ### Parallelization and Caching
 
-* [**Joblib.**](https://joblib.readthedocs.io/en/stable/)
+* [**NumPy.**](https://numpy.org/) For array operations, vectorization and caching.
+* [**Joblib.**](https://joblib.readthedocs.io/en/stable/) For parallelization and caching.
 
 ## Installation and Usage
 
@@ -59,9 +57,9 @@ For a sanity check of the tool, a ``run_examples.sh`` script has been provided t
 
 ## Falsification Approach
 
-SobolBox uses Microsoft Z3 Theorem Prover to parse VNNLIB files and extract input bounds via its optimization API (parser improved to handle complx disjuncions without hardcoding). This is a deliberate choice in minimization of dependencies, driven by the fact that VNNLIB is written as a subset of the SMTLIB-2 standard which Z3 supports. Upon extracting the input bounds, it generates a sample of input points using **Sobol sequence sampling** (replaces the original **Latin Hypercube Sampling with Multi-dimensional Uniformity**), which is a quasi-Monte Carlo method used to generate a low-discrepancy, deterministic sample of parameter values from a multidimensional distribution. Sobol sequencing is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in sensitivity analysis.
+SobolBox uses Microsoft Z3 Theorem Prover to parse VNNLIB files and extract input bounds via its optimization API. This is a deliberate choice in minimization of dependencies, driven by the fact that VNNLIB is written as a subset of the SMTLIB-2 standard which Z3 supports. Upon extracting the input bounds, it generates a sample of input points using **Sobol sequence sampling**, which is a quasi-Monte Carlo method used to generate a low-discrepancy, deterministic sample of parameter values from a multidimensional distribution. Sobol sequencing is scalable and requires fewer samples to achieve the same level of accuracy as uniform sampling. This makes it particularly useful in sensitivity analysis.
 
-By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 1% argmin and argmax are chosen, and **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates obtained from Sobol. This ensures a tight under-approximation of the output bounds.
+By computing the neural network outputs across these points, SobolBox identifies promising regions where global optima might be found. For each output variable, the top 1% argmin and argmax are chosen, and a global **Nevergrad OnePlusOne** evolutionary algorithm is run to narrow down to candidate global optima regions. Then, a **Limited-Memory Boxed BFGS** optimization is performed to quickly converge to local optima around those regions and refine the preliminary estimates. This ensures a tight under-approximation of the output bounds.
 
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
@@ -74,7 +72,7 @@ SobolBox also implements built-in parallelization and caching of Sobol sequences
 
 ### Note
 
-If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** (replaces the original **No U-Turns Sampling**) is run on the instances where **Stage 1** fails. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
+If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** is run on the instances where **Stage 1** fails. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
 
 $$
 p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \right)
@@ -82,6 +80,16 @@ p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \ri
 $$
 
 If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwise the control flow is delegated to **Stage 2**.
+
+## Changelog
+
+*  Sobol sampling replaced the original Latin Hypercube Sampling with Multi-dimensional Uniformity (LHSMDU).
+*  VNNLIB parser improved to handle complex disjuncions without hardcoding.
+*  Caching of Sobol sequences and output bounds added.
+*  ADVI sampling replaced the original No U-Turns Sampling.
+*  Support for parallelization added via ``joblib``.
+*  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
+*  Global optimization via Nevergrad OnePlusOne added.
 
 ## Acknowledgements
 
