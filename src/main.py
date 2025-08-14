@@ -2,7 +2,6 @@ from memo_store import memo, clear_memo
 
 import sys, os, pickle
 import onnxruntime as rt
-from parser import parse
 from falsifier.extrema_estimates import extremum_refinement
 from falsifier.counterexample import CE_search
 from z3 import *
