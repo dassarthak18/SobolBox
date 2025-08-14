@@ -80,42 +80,11 @@ def SAT_check(X_points, Y_points, smtlib_str):
             return res
     return "unknown"
 
-def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
-    import pymc as pm
-    import pytensor.tensor as pt
-    
-    sigma2 = sigma ** 2
-    n_cores = min(4, cpu_count())
-    n_tune = max(100*dim, 3000)
-    n_samples = max(100*dim, 2000)
-
-    with pm.Model() as model:
-        z = pm.Normal("z", mu=0, sigma=1, shape=dim)
-        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
-
-        def logp_fn(x_val):
-            x_exp = pt.reshape(x_val, (1, -1))
-            diffs = x_exp - targets
-            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
-            logps = -0.5 * sq_dists / sigma2
-            return pm.math.logsumexp(logps)
-
-        pm.Potential("target_bias", logp_fn(x))
-        trace = pm.sample(draws=n_samples, tune=n_tune, cores=n_cores, chains=n_cores, random_seed=42, target_accept=0.92, compute_convergence_checks=True, nuts_sampler="numpyro")
-
-    NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
-    del model
-    
-    return NUTS_inputs
-
 def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     import pymc as pm
     import pytensor.tensor as pt
     
     sigma2 = sigma ** 2
-    n_cores = min(4, cpu_count())
-    n_tune = max(100*dim, 3000)
-    n_samples = max(100*dim, 2000)
 
     with pm.Model() as model:
         z = pm.Normal("z", mu=0, sigma=1, shape=dim)
@@ -130,7 +99,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
 
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=10000, method="advi")
-        n_samples = 10*np.min([int(2**15), np.max([4096, int(2**np.floor(np.log2(500*dim)))])])
+        n_samples = 10*np.min([int(2**20), np.max([8192, int(2**np.floor(np.log2(500*dim)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
 
     ADVI_inputs = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
@@ -186,7 +155,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if setting:
         print("Computing ADVI samples.")
         targets = np.array(optima_inputs)
-        sigma = 0.1
+        sigma = 0.5
         ADVI_inputs = ADVI_sampler(dim, sigma, input_lb, input_ub, targets)
 
         ADVI_outputs = parallel_objective_eval(
