@@ -49,8 +49,8 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     eps_upper = np.where(mask, upper_bounds + eps, upper_bounds)
 
     dim = len(lower_bounds)
-    budget = min(2**15, max(4096, int(2**np.ceil(np.log2(100 * dim)))))
-    top_k = max(5, int(np.ceil(0.01 * budget)))
+    budget = min(2**20, max(8192, int(2**np.ceil(np.log2(500 * dim)))))
+    top_k = max(10, int(np.ceil(0.01 * budget)))
 
     unit_samples = sobol_samples(dim, budget)
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
@@ -68,7 +68,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
     param.set_bounds(eps_lower, eps_upper)
-    optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=min(5000, max(500, 100 * dim)))
+    optimizer = ng.optimizers.OnePlusOne(parametrization=param, budget=min(5000, max(1000, 100 * dim)))
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
         candidate.value = x0
@@ -86,9 +86,9 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
             recommendation.value,
             method="L-BFGS-B",
             bounds=list(zip(lower_bounds, upper_bounds)),
-            options={"gtol": 1e-6, "maxiter": 1000, "eps": 1e-12},
+            options={"gtol": 1e-12, "maxiter": 10000, "eps": 1e-12},
         )
-    end_lbfgs = time.time()
+    end_lbfgs = time.time()500
     
     return {
         "best_lbfgsb_val": res.fun,
