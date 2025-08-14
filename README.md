@@ -101,4 +101,4 @@ SobolBox is a spiritual successor to the [INNVerS](https://github.com/iacs-csu-2
 
 ## Publications
 
-* **Apr 2025 (Preprint.)** [Das, S. BoxRL-NNV: Boxed Refinement of Latin Hypercube Samples for Neural Network Verification 2025. arXiv: 2504.03650 [cs.LG]](https://arxiv.org/abs/2504.03650)
+* **Apr 2025 (Preprint)** [Das, S. BoxRL-NNV: Boxed Refinement of Latin Hypercube Samples for Neural Network Verification 2025. arXiv: 2504.03650 [cs.LG]](https://arxiv.org/abs/2504.03650)
