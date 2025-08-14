@@ -67,10 +67,9 @@ def parse(path):
     print("Input bounds extracted.")
     return bounds_dict
 
-print(str(sys.argv[3]))
 benchmark    = str(sys.argv[1])
 propertyFile = str(sys.argv[2])
-
+print(propertyFile)
 with open(propertyFile) as f:
     smt = f.read()
 
