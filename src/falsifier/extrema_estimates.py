@@ -46,7 +46,7 @@ def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i,
     result_min = optimize_1D(objective_mins[i], input_bounds[0], input_bounds[1], topk_mins[i])
 
     # Maximize
-    result_max = optimize_1D(objecive_maxs[i], input_bounds[0], input_bounds[1], topk_maxs[i])
+    result_max = optimize_1D(objective_maxs[i], input_bounds[0], input_bounds[1], topk_maxs[i])
 
     return (
         result_min["best_lbfgsb_val"],
