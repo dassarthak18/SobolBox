@@ -1,4 +1,4 @@
-from memo_store import save_memo, clear_memo
+from memo_store import memo, clear_memo
 
 import sys
 import onnxruntime as rt
@@ -61,5 +61,4 @@ if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
     main()
-    #save_memo()
     clear_memo()
