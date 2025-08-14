@@ -65,32 +65,3 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
         "best_lbfgsb_x": res.x,
         "total_lbfgs_time": end_lbfgs - start_lbfgs,
     }
-
-    '''
-    best_lbfgs_val = float("inf")
-    best_lbfgs_x = None
-    total_lbfgs_time = 0.0
-
-    for i, init_point in enumerate(topk_points):
-        start_lbfgs = time.time()
-        res = minimize(
-            objective_fn,
-            init_point,
-            method="L-BFGS-B",
-            bounds=list(zip(lower_bounds, upper_bounds)),
-            options={"gtol": 1e-6, "maxiter": 1000, "eps": 1e-12},
-        )
-        lbfgs_time = time.time() - start_lbfgs
-        total_lbfgs_time += lbfgs_time
-        val_lbfgs = res.fun
-
-        if val_lbfgs < best_lbfgs_val:
-            best_lbfgs_val = val_lbfgs
-            best_lbfgs_x = res.x
-
-    return {
-        "best_lbfgsb_val": best_lbfgs_val,
-        "best_lbfgsb_x": best_lbfgs_x,
-        "total_lbfgs_time": total_lbfgs_time,
-    }
-    '''
