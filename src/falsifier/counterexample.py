@@ -99,7 +99,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
 
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=10000, method="advi")
-        n_samples = 10*np.min([int(2**20), np.max([8192, int(2**np.floor(np.log2(500*dim)))])])
+        n_samples = 10*np.min([int(2**18), np.max([4096, int(2**np.floor(np.log2(100*dim)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
 
     ADVI_inputs = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
