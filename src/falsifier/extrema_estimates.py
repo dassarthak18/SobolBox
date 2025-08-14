@@ -1,6 +1,6 @@
 import numpy as np
 from joblib import Parallel, delayed, cpu_count
-from falsifier.optimizer import sobol_sammples, optimize_1D
+from falsifier.optimizer import sobol_samples, optimize_1D
 
 # Black box model runner
 def black_box(sess, input_array, input_name, label_name, input_shape):
