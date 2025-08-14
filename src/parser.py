@@ -1,5 +1,5 @@
 from z3 import *
-import re
+import re, pickle, os
 
 def extract_variable_names(smtlib_text):
     return sorted(set(re.findall(r'\bX_\d+\b', smtlib_text)), key=lambda x: int(x.split('_')[1]))
@@ -10,7 +10,7 @@ def load_smtlib_and_parse_disjuncts(filename):
     x_vars = extract_variable_names(content)
     count_x_vars = sum(1 for x in x_vars if x.startswith("X_"))
     if count_x_vars > 9250:
-        raise TypeError("Input dimension too high, quitting gracefully.")
+        raise TypeError("Input dimension too high, skipping benchmark.")
     input_vars = []
     var_symbols = {name: Real(name) for name in x_vars}
     full_solver = Solver()
@@ -58,9 +58,27 @@ def get_bounds_from_conjunct(conjunct_formula, var_symbols, x_var_names):
     return lowers, uppers
 
 def parse(path):
+    print("Extracting input bounds.")
     disjuncts, var_symbols, var_names = load_smtlib_and_parse_disjuncts(path)
     bounds_dict = {}
     for i, disjunct in enumerate(disjuncts, start=1):
         lower, upper = get_bounds_from_conjunct(disjunct, var_symbols, var_names)
         bounds_dict[i] = (lower, upper)
+    print("Input bounds extracted.")
     return bounds_dict
+
+benchmark    = str(sys.argv[1])
+propertyFile = str(sys.argv[2])
+
+with open(propertyFile) as f:
+    smt = f.read()
+
+try:
+    os.makedirs(".input_bounds", exist_ok=True)
+    bounds_dict = parse(propertyFile)
+    filename = os.path.basename(propertyFile)[:-7]
+    with open(f".input_bounds/{benchmark}_{filename}.pkl", "wb") as f:
+        pickle.dump(bounds_dict, f)
+except TypeError as error:
+    print(str(error))
+    sys.exit(42) # Becausee 42 is the answer to the universe
