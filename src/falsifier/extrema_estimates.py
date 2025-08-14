@@ -23,9 +23,9 @@ def create_objective_function(sess, input_shape, input_name, label_name, index, 
     return objective
 
 def determine_parallel_allocation(n_cores):
-    n_threads = min(n_cores, 8)
-    n_jobs = max(1, n_cores // n_threads)
-    return n_jobs, n_threads
+    if n_cores <= 2:
+        return 1, n_cores
+    return 2, n_cores // 2
 
 def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, inner_jobs):
     # Minimize
