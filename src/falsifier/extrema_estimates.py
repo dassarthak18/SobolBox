@@ -1,13 +1,9 @@
-from memo_store import memo
-
 import numpy as np
 from joblib import Parallel, delayed, cpu_count
 from falsifier.optimizer import sobol_samples, optimize_1D
 
 # Black box model runner
 def black_box(sess, input_array, input_name, label_name, input_shape):
-    if str(input_array) in memo:
-        return memo[str(input_array)]
     flat_input = np.array(input_array, dtype=np.float32)
     reshaped_input = flat_input.reshape([
         dim if isinstance(dim, int) and dim > 0 else -1 for dim in input_shape
@@ -18,7 +14,6 @@ def black_box(sess, input_array, input_name, label_name, input_shape):
     except TypeError:
         output = sess.run([label_name], {input_name: reshaped_input})[0]
     result = output.tolist()
-    memo[str(input_array)] = result
     return result
 
 # Builds an objective function that extracts a specific output index
