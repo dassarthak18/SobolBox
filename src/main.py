@@ -1,3 +1,5 @@
+from memo_store import clear_memo
+
 import sys
 import onnxruntime as rt
 from parser import parse
@@ -59,3 +61,4 @@ if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
     main()
+    clear_memo()
