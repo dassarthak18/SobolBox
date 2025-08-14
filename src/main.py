@@ -1,6 +1,6 @@
 from memo_store import memo, clear_memo
 
-import sys
+import sys, os, pickle
 import onnxruntime as rt
 from parser import parse
 from falsifier.extrema_estimates import extremum_refinement
@@ -21,13 +21,9 @@ def main():
     with open(propertyFile) as f:
         smt = f.read()
 
-    try:
-        bounds_dict = parse(propertyFile)
-    except TypeError as error:
-        print(str(error))
-        with open(resultFile, 'w') as file1:
-            file1.write("unknown")
-        return
+    filename = os.path.basename(propertyFile)[:-7]
+    with open(f".input_bounds/{benchmark}_{filename}.pkl", "rb") as f:
+        bounds_dict = pickle.load(f)
 
     s = "unknown"  # default if no CE is found
 
