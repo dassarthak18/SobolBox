@@ -6,11 +6,10 @@ from joblib import Parallel, delayed, cpu_count
 from falsifier.optimizer import sobol_samples, optimize_1D
 
 # Black box model runner
-def black_box(sess, input_array, input_name, label_name, input_shape, onnxFile):
+def black_box(sess, input_array, input_name, label_name, input_shape):
     hash = hashlib.md5(input_array.tobytes()).hexdigest()
-    if onnxFile in memo:
-        if hash in memo[onnxFile]:
-            return memo[onnxFile][hash]
+    if hash in memo:
+        return memo[hash]
     flat_input = np.array(input_array, dtype=np.float32)
     reshaped_input = flat_input.reshape([
         dim if isinstance(dim, int) and dim > 0 else -1 for dim in input_shape
@@ -21,17 +20,13 @@ def black_box(sess, input_array, input_name, label_name, input_shape, onnxFile):
     except TypeError:
         output = sess.run([label_name], {input_name: reshaped_input})[0]
     result = output.tolist()
-    if onnxFile in memo:
-        memo[onnxFile][hash] = result
-    else:
-        memo[onnxFile] = {}
-        memo[onnxFile][hash] = result
+    memo[hash] = result
     return result
 
 # Builds an objective function that extracts a specific output index
-def create_objective_function(sess, input_shape, input_name, label_name, index, onnxFile, negate=False):
+def create_objective_function(sess, input_shape, input_name, label_name, index, negate=False):
     def objective(x):
-        val = black_box(sess, x, input_name, label_name, input_shape, onnxFile)[index]
+        val = black_box(sess, x, input_name, label_name, input_shape)[index]
         return -val if negate else val
     return objective
 
@@ -54,7 +49,7 @@ def parallel_eval(objective_fn, samples, batch_size=None):
 
     return [val for sublist in results_nested for val in sublist]
 
-def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs, onnxFile):
+def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs):
     # Minimize
     result_min = optimize_1D(objective_mins[i], input_bounds[0], input_bounds[1], topk_mins[i])
 
@@ -68,7 +63,7 @@ def optimize_extrema(sess, input_bounds, input_name, label_name, input_shape, i,
         result_max["best_lbfgsb_x"],
     )
 
-def extremum_refinement(sess, input_bounds, onnxFile):
+def extremum_refinement(sess, input_bounds):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
     input_shape = sess.get_inputs()[0].shape
@@ -83,13 +78,13 @@ def extremum_refinement(sess, input_bounds, onnxFile):
     center_point = 0.5 * (lower_bounds + upper_bounds)
     unit_samples = sobol_samples(dim, budget)
     sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
-    n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape, onnxFile))
+    n_outputs = len(black_box(sess, lower_bounds, input_name, label_name, input_shape))
 
     objective_mins = []
     topk_mins = []
     
     for i in range(n_outputs):
-        objective_mins.append(create_objective_function(sess, input_shape, input_name, label_name, i, onnxFile))
+        objective_mins.append(create_objective_function(sess, input_shape, input_name, label_name, i))
         objective_values = np.array(parallel_eval(objective_mins[-1], sobol_scaled))
         sorted_indices = np.argsort(objective_values)
         topk_points = sobol_scaled[sorted_indices[:top_k]]
@@ -101,7 +96,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
     topk_maxs = []
     
     for i in range(n_outputs):
-        objective_maxs.append(create_objective_function(sess, input_shape, input_name, label_name, i, onnxFile, negate=True))
+        objective_maxs.append(create_objective_function(sess, input_shape, input_name, label_name, i, negate=True))
         objective_values = np.array(parallel_eval(objective_maxs[-1], sobol_scaled))
         sorted_indices = np.argsort(objective_values)
         topk_points = sobol_scaled[sorted_indices[:top_k]]
@@ -111,7 +106,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
         
     results = Parallel(n_jobs=cpu_count(), backend="threading")(
         delayed(optimize_extrema)(
-            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs, onnxFile
+            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
         )
         for i in range(n_outputs)
     )
