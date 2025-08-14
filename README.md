@@ -68,7 +68,7 @@ Once these extrema estimates are obtained, they are fed into Z3 along with the s
 * **Stage 2.** If the analysis is unable to find a counterexample but determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * **Stage 3.** If the analysis is inconclusive, the falsifier returns ``unknown``.
 
-SobolBox also implements built-in parallelization and caching of Sobol sequences as well as computed output bounds to reduce computational overheads over incremental runs.
+SobolBox also implements built-in parallelization and caching of both Sobol sequences and computed output bounds to reduce computational overheads over incremental runs.
 
 ### Note
 
@@ -84,7 +84,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 ## Changelog
 
 *  Sobol sampling replaced the original Latin Hypercube Sampling with Multi-dimensional Uniformity (LHSMDU).
-*  VNNLIB parser improved to handle complex disjuncions without hardcoding.
+*  VNNLIB parser improved to handle complex disjunctions without hardcoding.
 *  Caching of Sobol sequences and output bounds added.
 *  ADVI sampling replaced the original No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
