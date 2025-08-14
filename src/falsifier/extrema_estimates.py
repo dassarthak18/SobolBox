@@ -7,7 +7,7 @@ from falsifier.optimizer import sobol_samples, optimize_1D
 
 # Black box model runner
 def black_box(sess, input_array, input_name, label_name, input_shape):
-    hash = hashlib.md5(input_array.to_bytes()).hexdigest()
+    hash = hashlib.md5(input_array.tobytes()).hexdigest()
     if hash in memo:
         return memo[hash]
     flat_input = np.array(input_array, dtype=np.float32)
