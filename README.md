@@ -89,7 +89,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 *  ADVI sampling replaced No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
-*  Global optimization via Nevergrad OnePlusOne added.
+*  Global optimization via ``nevergrad OnePlusOne`` added.
 *  Memoization of black-box function calls added.
 
 ## Acknowledgements
