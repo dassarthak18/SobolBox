@@ -8,7 +8,6 @@ if os.path.exists(MEMO_FILE):
   print("Loaded memo cache.")
 else:
   memo = {}
-  print("Created memo cache.")
 
 def save_memo():
   with gzip.open(MEMO_FILE, "wb") as f:
