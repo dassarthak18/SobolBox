@@ -17,4 +17,12 @@ echo "Preparing SobolBox for benchmark instance in category '$benchmark' with ne
 #killing any zombie processes
 killall -q -9 python3
 
+python3 $(dirname $(dirname $(realpath $0)))/src/parser.py "$benchmark" "$libpath"
+code="$?"
+
+if [ $code = "42" ]
+then
+	exit 1
+fi
+
 exit 0
