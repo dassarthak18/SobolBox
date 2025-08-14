@@ -111,7 +111,7 @@ def extremum_refinement(sess, input_bounds, onnxFile):
         
     results = Parallel(n_jobs=cpu_count(), backend="threading")(
         delayed(optimize_extrema)(
-            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs
+            sess, input_bounds, input_name, label_name, input_shape, i, objective_mins, objective_maxs, topk_mins, topk_maxs, onnxFile
         )
         for i in range(n_outputs)
     )
