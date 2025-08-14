@@ -69,9 +69,6 @@ def parse(path):
 
 benchmark    = str(sys.argv[1])
 propertyFile = str(sys.argv[2])
-print(sys.argv[0])
-print(sys.argv[1])
-print(sys.argv[2])
 with open(propertyFile) as f:
     smt = f.read()
 
