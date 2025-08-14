@@ -1,5 +1,5 @@
 from z3 import *
-import re, pickle, os
+import sys, re, pickle, os
 
 def extract_variable_names(smtlib_text):
     return sorted(set(re.findall(r'\bX_\d+\b', smtlib_text)), key=lambda x: int(x.split('_')[1]))
@@ -69,7 +69,6 @@ def parse(path):
 
 benchmark    = str(sys.argv[1])
 propertyFile = str(sys.argv[2])
-print(benchmark)
 with open(propertyFile) as f:
     smt = f.read()
 
