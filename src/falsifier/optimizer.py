@@ -6,25 +6,6 @@ from joblib import Parallel, delayed, cpu_count
 from scipy.optimize import minimize
 from scipy.stats import qmc
 
-def parallel_eval(objective_fn, samples, batch_size=None):
-    samples = np.asarray(samples, dtype=np.float32)
-    n_samples = len(samples)
-    n_jobs = cpu_count()
-
-    if batch_size is None:
-        batch_size = max(8, int(np.ceil(n_samples / n_jobs)))
-
-    batches = [samples[i:i + batch_size] for i in range(0, n_samples, batch_size)]
-
-    def evaluate_batch(batch):
-        return [objective_fn(s) for s in batch]
-
-    results_nested = Parallel(n_jobs=n_jobs, backend="threading")(
-        delayed(evaluate_batch)(batch) for batch in batches
-    )
-
-    return [val for sublist in results_nested for val in sublist]
-
 def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
     os.makedirs(cache_dir, exist_ok=True)
     cache_path = os.path.join(cache_dir, f"sobol_d{dim}_n{n_samples}.npy")
@@ -38,7 +19,7 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
 
     return unit_samples
 
-def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(), eps=1e-12):
+def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12):
     lower_bounds = np.asarray(lower_bounds)
     upper_bounds = np.asarray(upper_bounds)
 
@@ -49,18 +30,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, num_workers=cpu_count(
     eps_upper = np.where(mask, upper_bounds + eps, upper_bounds)
 
     dim = len(lower_bounds)
-    budget = min(2**20, max(8192, int(2**np.ceil(np.log2(500 * dim)))))
-    top_k = max(100, int(np.ceil(0.1 * budget)))
-
-    unit_samples = sobol_samples(dim, budget)
-    sobol_scaled = lower_bounds + unit_samples * (upper_bounds - lower_bounds)
-
-    objective_values = np.array(parallel_eval(objective_fn, sobol_scaled))
-    sorted_indices = np.argsort(objective_values)
     center_point = 0.5 * (lower_bounds + upper_bounds)
-    topk_points = sobol_scaled[sorted_indices[:top_k]]
-    if objective_fn(center_point) < objective_values[sorted_indices[top_k - 1]]:
-        topk_points = np.vstack([topk_points, center_point])
 
     param = ng.p.Array(shape=(dim,))
     span = np.asarray(eps_upper) - np.asarray(eps_lower)
