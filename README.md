@@ -64,22 +64,22 @@ By computing the neural network outputs across these points, SobolBox identifies
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
 * **Stage 0.** If the tool encounters neural networks of effective input dimension greater than 15000, the falsifier quits gracefully and returns ``unknown``.
-* **Stage 1.** If the analysis finds an optimum or a Sobol sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
-* **Stage 2.** If the analysis is unable to find a counterexample but determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
+* **Stage 1.** If the analysis determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
+* **Stage 2.** If the analysis finds an optimum or a Sobol sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
 * **Stage 3.** If the analysis is inconclusive, the falsifier returns ``unknown``.
 
 SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads across runs.
 
 ### Note
 
-If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** is run on the instances where **Stage 1** fails. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
+If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** is run on the instances where **Stage 2** fails. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
 
 $$
 p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \right)
 \quad \text{where } x \in [l,u], \text{ } \sigma \in ℝ
 $$
 
-If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwise the control flow is delegated to **Stage 2**.
+If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwise the control flow is delegated to **Stage 3**.
 
 ## Changelog
 
