@@ -113,4 +113,4 @@ echo "Total Time (seconds): $total_time"
 rm -rf ../results
 rm -rf ./.sobol_cache
 rm -rf ./.input_bounds
-rm -rf ./output_bounds
+rm -rf ./.output_bounds
