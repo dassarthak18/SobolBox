@@ -70,7 +70,7 @@ def SAT_check(X_points, Y_points, smtlib_str):
         ctx = get_context("fork")
     with ctx.Manager() as manager:
         stop_flag = manager.Value('b', False)
-        results = Parallel(n_jobs=cpu_count(), backend="threading")(
+        results = Parallel(n_jobs=cpu_count())(
             delayed(check_point)(X_points[i], Y_points[i], n_x, n_y, smtlib_str, stop_flag)
             for i in range(len(X_points))
         )
