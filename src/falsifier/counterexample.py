@@ -163,7 +163,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if setting:
         print("Computing ADVI samples.")
         targets = np.array(optima_inputs)
-        sigma = 0.25
+        sigma = 0.1
         ADVI_inputs = ADVI_sampler(dim, sigma, input_lb, input_ub, targets)
 
         ADVI_outputs = parallel_objective_eval(
