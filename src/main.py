@@ -27,7 +27,8 @@ def main():
     s = "unknown"  # default if no CE is found
     sess = rt.InferenceSession(onnxFile)
     os.makedirs(".output_bounds", exist_ok=True)
-    bounds_cache_file = f".output_bounds/{benchmark}.pkl"
+    filename = os.path.basename(onnxFile)[:-5]
+    bounds_cache_file = f".output_bounds/{filename}.pkl"
     # Try to load cached output bounds
     if os.path.exists(bounds_cache_file):
         with open(bounds_cache_file, "rb") as f:
