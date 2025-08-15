@@ -87,7 +87,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     sigma2 = sigma ** 2
 
     with pm.Model() as model:
-        z = pm.Normal("z", mu=0, sigma=1, shape=dim)
+        z = pm.Normal("z", mu=0, sigma=sigma, shape=dim)
         x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
 
         def logp_fn(x_val):
