@@ -39,11 +39,11 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
     param.value = center_point.copy()
     param.set_bounds(eps_lower, eps_upper)
     if dim <= 10:
-        PSO_budget = max(5000, 1000 * dim)
+        PSO_budget = max(10000, 2000 * dim)
     elif dim <= 1000:
-        PSO_budget = min(50000, 500 * dim)
+        PSO_budget = min(100000, 1000 * dim)
     else:
-        PSO_budget = min(500000, 50 * dim + 50000)
+        PSO_budget = min(1000000, 100 * dim + 100000)
     optimizer = ng.optimizers.RealSpacePSO(parametrization=param, budget=PSO_budget, num_workers=cpu_count())
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
@@ -60,10 +60,9 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
     res = minimize(
             objective_fn,
             recommendation.value,
-            method="trust-constr",
+            method="L-BFGS-B",
             bounds=list(zip(lower_bounds, upper_bounds)),
-            options={"gtol": 1e-12, "maxiter": 10000},# "eps": 1e-12},
-            hess=lambda x: 0
+            options={"gtol": 1e-12, "maxiter": 10000, "eps": 1e-12},
         )
     end_lbfgs = time.time()
     
