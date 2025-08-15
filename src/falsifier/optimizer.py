@@ -38,7 +38,13 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
     param.set_bounds(eps_lower, eps_upper)
-    optimizer = ng.optimizers.RealSpacePSO(parametrization=param, budget=min(7500, max(3000, 500 * dim)), num_workers=cpu_count())
+    if dim <= 10:
+        PSO_budget = max(500, 200 * dim)
+    elif dim <= 1000:
+        PSO_budget = min(5000, 50 * dim)
+    else:
+        PSO_budget = min(50000, 10 * dim + 10000)
+    optimizer = ng.optimizers.RealSpacePSO(parametrization=param, budget=PSO_budget, num_workers=cpu_count())
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
         candidate.value = x0
