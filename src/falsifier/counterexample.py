@@ -108,7 +108,7 @@ def ADVI_sampler_old(dim, sigma, input_lb, input_ub, targets):
     
     return ADVI_inputs
 
-def ADVI_sampler_stan_exact(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, random_seed=42):
+def ADVI_sampler(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, random_seed=42):
     targets = np.asarray(targets)
     if targets.ndim == 1:
         targets = targets.reshape(1, -1)
