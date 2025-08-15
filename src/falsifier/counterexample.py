@@ -1,6 +1,6 @@
 import importlib
 import numpy as np
-import stan
+import cmdstanpy
 from joblib import Parallel, delayed, cpu_count
 from multiprocessing import Manager, get_context
 from falsifier.optimizer import sobol_samples
@@ -113,11 +113,6 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, rando
     if targets.ndim == 1:
         targets = targets.reshape(1, -1)
     N_targets = targets.shape[0]
-    assert targets.shape[1] == dim, "targets must have shape (N_targets, dim)"
-    
-    sigma2 = float(sigma**2)
-    input_lb = np.asarray(input_lb, dtype=float).reshape(dim)
-    input_ub = np.asarray(input_ub, dtype=float).reshape(dim)
 
     stan_code = """
     data {
@@ -139,10 +134,8 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, rando
       }
     }
     model {
-      // Prior: z ~ Normal(0, sigma)
       z ~ normal(0, sigma);
 
-      // target_bias potential
       vector[N_targets] logps;
       for (n in 1:N_targets) {
         vector[dim] diff = x - row(targets, n)';
@@ -156,31 +149,35 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, rando
     }
     """
 
+    with open("model.stan", "w") as f:
+        f.write(stan_code)
+
+    model = cmdstanpy.CmdStanModel(stan_file="model.stan")
+
+    sigma2 = float(sigma**2)
     data = {
         "dim": int(dim),
         "N_targets": int(N_targets),
-        "input_lb": input_lb,
-        "input_ub": input_ub,
+        "input_lb": np.asarray(input_lb, dtype=float),
+        "input_ub": np.asarray(input_ub, dtype=float),
         "targets": targets,
         "sigma": float(sigma),
         "sigma2": sigma2
     }
 
-    posterior = stan.build(stan_code, data=data, random_seed=random_seed)
     pow2 = int(2 ** np.floor(np.log2(max(8192, int(1000 * dim)))))
     n_samples = 10 * min(2**19, pow2)
 
-    vb_result = posterior.variational(
-        iter=advi_iter,
+    fit = model.variational(
+        data=data,
         algorithm="meanfield",
+        iter=advi_iter,
         output_samples=n_samples,
-        random_seed=random_seed
+        seed=random_seed
     )
 
-    samples = np.asarray(vb_result["samples"]["x_out"])
-    if samples.shape[0] != n_samples:
-        samples = samples.T
-    return samples.T
+    x_samples = fit.stan_variable("x_out")  # shape (n_samples, dim)
+    return x_samples.T  # match PyMC shape (dim, n_samples)
 
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
