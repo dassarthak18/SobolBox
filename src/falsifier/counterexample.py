@@ -70,7 +70,7 @@ def SAT_check(X_points, Y_points, smtlib_str):
         ctx = get_context("fork")
     with ctx.Manager() as manager:
         stop_flag = manager.Value('b', False)
-        results = Parallel(n_jobs=cpu_count())(
+        results = Parallel(n_jobs=cpu_count(), backend="threading")(
             delayed(check_point)(X_points[i], Y_points[i], n_x, n_y, smtlib_str, stop_flag)
             for i in range(len(X_points))
         )
@@ -99,7 +99,7 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
 
         pm.Potential("target_bias", logp_fn(x))
         approx = pm.fit(n=10000, method="advi")
-        n_samples = 10*np.min([int(2**18), np.max([4096, int(2**np.floor(np.log2(100*dim)))])])
+        n_samples = 10*np.min([int(2**19), np.max([8192, int(2**np.floor(np.log2(1000*dim)))])])
         posterior_samples = approx.sample(n_samples, random_seed=42)
 
     ADVI_inputs = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
