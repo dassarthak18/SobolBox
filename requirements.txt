@@ -4,6 +4,7 @@ numpyro
 scipy
 onnxruntime
 pymc
+pystan
 pytensor
 joblib
 z3-solver
