@@ -89,7 +89,7 @@ If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwi
 *  ADVI sampling replaced No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
-*  Global optimization via ``nevergrad PSO`` added with top 10% Sobol samples as initial seed.
+*  Global optimization via ``nevergrad RealSpacePSO`` added with top 10% Sobol samples as initial seed.
 *  Memoization of black-box function calls added.
 *  Input bound extraction from VNNLIB moved to ``vnncomp_scripts/prepare_instance.sh``.
 
