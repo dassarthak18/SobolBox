@@ -108,14 +108,6 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     return ADVI_inputs
 
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
-    solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
-    for i in range(len(output_lb)):
-        solver.add(Real(f'Y_{i}') >= output_lb[i])
-        solver.add(Real(f'Y_{i}') <= output_ub[i])
-    if str(solver.check()) == "unsat":
-      print("No safety violations found.")
-      return "unsat"
-    
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
     input_shape = sess.get_inputs()[0].shape
@@ -179,6 +171,14 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         if result[:3] == "sat":
             print("Safety violation found in ADVI samples.")
             return result
+
+    solver = build_solver(len(input_lb), len(output_lb), smtlib_str)
+    for i in range(len(output_lb)):
+        solver.add(Real(f'Y_{i}') >= output_lb[i])
+        solver.add(Real(f'Y_{i}') <= output_ub[i])
+    if str(solver.check()) == "unsat":
+      print("No safety violations found.")
+      return "unsat"
     
     print("Inconclusive analysis.")
     return "unknown"
