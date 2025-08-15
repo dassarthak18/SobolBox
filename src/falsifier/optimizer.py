@@ -44,7 +44,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
         PSO_budget = min(50000, 500 * dim)
     else:
         PSO_budget = min(500000, 50 * dim + 50000)
-    optimizer = ng.optimizers.RealSpacePSO(parametrization=param, budget=PSO_budget//2, num_workers=cpu_count())
+    optimizer = ng.optimizers.RealSpacePSO(parametrization=param, budget=PSO_budget//2, num_workers=cpu_count()//4)
     for x0 in topk_points:
         candidate = optimizer.parametrization.spawn_child()
         candidate.value = x0
