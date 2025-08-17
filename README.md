@@ -51,7 +51,7 @@ All dependencies are listed in ``requirements.txt``. Assuming Python 3.7+ and pi
         cd SobolBox
         pip3 install -r requirements.txt
   ```
-For a sanity check of the tool, a ``run_examples.sh`` script has been provided that runs all the 186 ACAS Xu benchmarks in the ``./examples/`` directory. These benchmarks have been sourced from the [VNN-COMP 2023 benchmarks](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) repository.
+For a sanity check of the tool, a ``run_examples.sh`` script has been provided that runs all the 186 ``acas-xu`` and 98 ``sat-relu`` benchmarks in the ``./examples/`` directory. These benchmarks have been sourced from the [VNN-COMP 2023](https://github.com/ChristopherBrix/vnncomp2023_benchmarks) and [2025](https://github.com/VNN-COMP/vnncomp2025_benchmarks) benchmark repositories.
 
 ## Falsification Approach
 
