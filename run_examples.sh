@@ -1,7 +1,6 @@
 #runs all ACAS Xu benchmarks as a sanity check for the tool
 #!/bin/sh
 pip3 install -r requirements.txt
-python3 -m cmdstanpy.install_cmdstan
 
 cd vnncomp_scripts
 chmod u+x prepare_instance.sh
