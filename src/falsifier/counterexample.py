@@ -81,7 +81,7 @@ def SAT_check(X_points, Y_points, smtlib_str):
             return res
     return "unknown"
 
-def ADVI_sampler_old(dim, sigma, input_lb, input_ub, targets):
+def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     import pymc as pm
     import pytensor.tensor as pt
     
@@ -107,47 +107,6 @@ def ADVI_sampler_old(dim, sigma, input_lb, input_ub, targets):
     del model
     
     return ADVI_inputs
-
-def ADVI_sampler(dim, sigma, input_lb, input_ub, targets, advi_iter=10000, random_seed=42):
-    targets = np.asarray(targets)
-    if targets.ndim == 1:
-        targets = targets.reshape(1, -1)
-    N_targets = targets.shape[0]
-
-    stan_code = """
-    data {
-      int<lower=1> dim;
-      int<lower=1> N_targets;
-      vector[dim] input_lb;
-      vector[dim] input_ub;
-      matrix[N_targets, dim] targets;
-      real<lower=0> sigma;
-      real<lower=0> sigma2;
-    }
-    parameters {
-      vector[dim] z;
-    }
-    transformed parameters {
-      vector[dim] x;
-      for (d in 1:dim) {
-        x[d] = input_lb[d] + (input_ub[d] - input_lb[d]) / (1 + exp(-z[d]));
-      }
-    }
-    model {
-      z ~ normal(0, sigma);
-
-      vector[N_targets] logps;
-      for (n in 1:N_targets) {
-        vector[dim] diff = x - row(targets, n)';
-        real sq_dist = dot_self(diff);
-        logps[n] = -0.5 * sq_dist / sigma2;
-      }
-      target += log_sum_exp(logps);
-    }
-    generated quantities {
-      vector[dim] x_out = x;
-    }
-    """
 
     with open("model.stan", "w") as f:
         f.write(stan_code)
@@ -231,6 +190,8 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if result[:3] == "sat":
         print("Safety violation found in Sobol samples.")
         return result
+
+    setting = 0
     
     if setting:
         print("Computing ADVI samples.")
