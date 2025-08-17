@@ -52,14 +52,17 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
 
     start_lbfgs = time.time()
     recommendation = optimizer.provide_recommendation()
+    x0 = recommendation.value.copy()
+    x0[mask] = lower_bounds[mask]
     res = minimize(
             objective_fn,
-            recommendation.value,
+            x0,
             method="L-BFGS-B",
             bounds=list(zip(lower_bounds, upper_bounds)),
             options={"gtol": 1e-12, "maxiter": 10000, "eps": 1e-12},
         )
     end_lbfgs = time.time()
+    
     
     return {
         "best_lbfgsb_val": res.fun,
