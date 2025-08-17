@@ -7,15 +7,10 @@ from falsifier.counterexample import CE_search
 from z3 import *
 
 def main():
-    if sys.argv[1] == "--deep":
-        setting = 1
-    else:
-        setting = 0
-
-    benchmark = str(sys.argv[setting+1])
-    onnxFile = str(sys.argv[setting+2])
-    propertyFile = str(sys.argv[setting+3])
-    resultFile = str(sys.argv[setting+4])
+    benchmark = str(sys.argv[1])
+    onnxFile = str(sys.argv[2])
+    propertyFile = str(sys.argv[3])
+    resultFile = str(sys.argv[4])
 
     with open(propertyFile) as f:
         smt = f.read()
@@ -59,7 +54,7 @@ def main():
         with open(resultFile, 'w') as file1:
             s = CE_search(smt, sess, input_lb, input_ub,
                           output_lb, output_ub,
-                          output_lb_inputs, output_ub_inputs, setting)
+                          output_lb_inputs, output_ub_inputs)
             if s[:3] == "sat":
                 file1.write(s)
                 with open(bounds_cache_file, "wb") as f:
