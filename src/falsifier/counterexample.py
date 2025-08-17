@@ -125,7 +125,7 @@ def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
             return pm.math.logsumexp(logps)
 
         pm.Potential("target_bias", logp_fn(x))
-        trace = pm.sample(12000, tune=1000, chains=4, cores = 4, target_accept=0.92, compute_convergence_checks=True, nuts_sampler="numpyro", progressbar=False)
+        trace = pm.sample(12000, tune=1000, chains=4, cores = 4, target_accept=0.92, compute_convergence_checks=True, nuts_sampler="numpyro", progressbar=True)
 
     NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
     del model
@@ -186,7 +186,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         return result
     
     if setting:
-        print("Computing ADVI samples.")
+        print("Computing NUTS samples.")
         targets = np.array(optima_inputs)
         sigma = 0.1
         NUTS_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
@@ -202,7 +202,7 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
         print("Checking for violations in NUTS samples.")
         result = SAT_check(NUTS_inputs, NUTS_outputs, smtlib_str)
         if result[:3] == "sat":
-            print("Safety violation found in ADVI samples.")
+            print("Safety violation found in NUTS samples.")
             return result
     
     print("Inconclusive analysis.")
