@@ -1,6 +1,5 @@
 import importlib
 import numpy as np
-import cmdstanpy
 from joblib import Parallel, delayed, cpu_count
 from multiprocessing import Manager, get_context
 from falsifier.optimizer import sobol_samples
@@ -108,35 +107,30 @@ def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
     
     return ADVI_inputs
 
-    with open("model.stan", "w") as f:
-        f.write(stan_code)
+def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
+    import pymc as pm
+    import pytensor.tensor as pt
+    
+    sigma2 = sigma ** 2
 
-    model = cmdstanpy.CmdStanModel(stan_file="model.stan")
+    with pm.Model() as model:
+        z = pm.Normal("z", mu=0, sigma=sigma, shape=dim)
+        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
 
-    sigma2 = float(sigma**2)
-    data = {
-        "dim": int(dim),
-        "N_targets": int(N_targets),
-        "input_lb": np.asarray(input_lb, dtype=float),
-        "input_ub": np.asarray(input_ub, dtype=float),
-        "targets": targets,
-        "sigma": float(sigma),
-        "sigma2": sigma2
-    }
+        def logp_fn(x_val):
+            x_exp = pt.reshape(x_val, (1, -1))
+            diffs = x_exp - targets
+            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
+            logps = -0.5 * sq_dists / sigma2
+            return pm.math.logsumexp(logps)
 
-    pow2 = int(2 ** np.floor(np.log2(max(8192, int(1000 * dim)))))
-    n_samples = 10 * min(2**19, pow2)
+        pm.Potential("target_bias", logp_fn(x))
+        trace = pm.sample(12000, tune=1000, chains=4, cores = 4, target_accept=0.92, compute_convergence_checks=True, nuts_sampler="numpyro", progressbar=False)
 
-    fit = model.variational(
-        data=data,
-        algorithm="meanfield",
-        iter=advi_iter,
-        output_samples=n_samples,
-        seed=random_seed
-    )
-
-    x_samples = fit.stan_variable("x_out")  # shape (n_samples, dim)
-    return x_samples.T  # match PyMC shape (dim, n_samples)
+    NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
+    del model
+    
+    return NUTS_inputs
 
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
@@ -190,25 +184,23 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if result[:3] == "sat":
         print("Safety violation found in Sobol samples.")
         return result
-
-    setting = 0
     
     if setting:
         print("Computing ADVI samples.")
         targets = np.array(optima_inputs)
         sigma = 0.1
-        ADVI_inputs = ADVI_sampler(dim, sigma, input_lb, input_ub, targets)
+        NUTS_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
 
-        ADVI_outputs = parallel_objective_eval(
+        NUTS_outputs = parallel_objective_eval(
             sess, 
-            samples=ADVI_inputs, 
+            samples=NUTS_inputs, 
             input_shape=input_shape, 
             input_name=input_name, 
             label_name=label_name,
         )
         
-        print("Checking for violations in ADVI samples.")
-        result = SAT_check(ADVI_inputs, ADVI_outputs, smtlib_str)
+        print("Checking for violations in NUTS samples.")
+        result = SAT_check(NUTS_inputs, NUTS_outputs, smtlib_str)
         if result[:3] == "sat":
             print("Safety violation found in ADVI samples.")
             return result
