@@ -111,6 +111,6 @@ echo "Total Time (seconds): $total_time"
 
 # Post-run cleanup
 rm -rf ../results
-#rm -rf ./.sobol_cache
-#rm -rf ./.input_bounds
-#rm -rf ./.output_bounds
+rm -rf ./.sobol_cache
+rm -rf ./.input_bounds
+rm -rf ./.output_bounds
