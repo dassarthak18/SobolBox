@@ -34,8 +34,6 @@ SobolBox is a Python black-box falsification tool for detecting safety violation
 
 * [**SciPy.**](https://scipy.org/) For Sobol sampling and L-BFGS-B optimization.
 * [**Nevergrad.**](https://facebookresearch.github.io/nevergrad/) For PSO optimization.
-* [**PyMC and its computational backend PyTensor.**](https://www.pymc.io/welcome.html) For ADVI sampling.
-* [**NumPyro.**](https://num.pyro.ai/en/latest/index.html#introductory-tutorials) For speeding up NUTS sampling via Jax.
 
 ### Parallelization and Caching
 
@@ -70,23 +68,11 @@ Once these extrema estimates are obtained, they are fed into Z3 along with the s
 
 SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads across runs.
 
-### Note
-
-If the ``--deep`` argument is enabled, a second pass of **Automatic Differentiation Variational Inference** is run on the instances where **Stage 2** fails. ADVI is a variational inference method that approximates the posterior distribution using a multivariate Gaussian, with parameters optimized via gradient-based methods to propose long-range, informed samples in high-dimensional spaces. This allows for better exploration of complex input regions that may lead to safety violations, especially in cases where Sobol-based sampling alone is insufficient. The ADVI samples approximate a bounded posterior distribution defined over the input space, that favours regions near the computed optima set $𝐓$:
-
-$$
-p(x) \propto \sum_{t \in 𝐓} \exp\left( -\frac{1}{2\sigma^2} \| x - t \|^2 \right)
-\quad \text{where } x \in [l,u], \text{ } \sigma \in ℝ
-$$
-
-If ADVI is able to find a valid counterexample SobolBox returns ``sat``, otherwise the control flow is delegated to **Stage 3**.
-
 ## Changelog
 
 *  Sobol sampling replaced Latin Hypercube Sampling with Multi-dimensional Uniformity (LHSMDU).
 *  VNNLIB parser improved to handle complex disjunctions without hardcoding.
 *  Caching of Sobol sequences and output bounds added.
-*  ADVI sampling replaced No U-Turns Sampling.
 *  Support for parallelization added via ``joblib``.
 *  Workflow of the falsifier broken down into stages; ``unsat`` checking moved to the last stage.
 *  Global optimization via ``nevergrad RealSpacePSO`` added with top 10% Sobol samples as initial seed.
