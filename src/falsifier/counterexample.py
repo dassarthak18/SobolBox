@@ -80,58 +80,6 @@ def SAT_check(X_points, Y_points, smtlib_str):
             return res
     return "unknown"
 
-def ADVI_sampler(dim, sigma, input_lb, input_ub, targets):
-    import pymc as pm
-    import pytensor.tensor as pt
-    
-    sigma2 = sigma ** 2
-
-    with pm.Model() as model:
-        z = pm.Normal("z", mu=0, sigma=sigma, shape=dim)
-        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
-
-        def logp_fn(x_val):
-            x_exp = pt.reshape(x_val, (1, -1))
-            diffs = x_exp - targets
-            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
-            logps = -0.5 * sq_dists / sigma2
-            return pm.math.logsumexp(logps)
-
-        pm.Potential("target_bias", logp_fn(x))
-        approx = pm.fit(n=10000, method="advi")
-        n_samples = 10*np.min([int(2**19), np.max([8192, int(2**np.floor(np.log2(1000*dim)))])])
-        posterior_samples = approx.sample(n_samples, random_seed=42)
-
-    ADVI_inputs = posterior_samples.posterior["x"].stack(sample=("chain", "draw")).values.T
-    del model
-    
-    return ADVI_inputs
-
-def NUTS_sampler(dim, sigma, input_lb, input_ub, targets):
-    import pymc as pm
-    import pytensor.tensor as pt
-    
-    sigma2 = sigma ** 2
-
-    with pm.Model() as model:
-        z = pm.Normal("z", mu=0, sigma=sigma, shape=dim)
-        x = pm.Deterministic("x", input_lb + (input_ub - input_lb) * pm.math.sigmoid(z))
-
-        def logp_fn(x_val):
-            x_exp = pt.reshape(x_val, (1, -1))
-            diffs = x_exp - targets
-            sq_dists = pt.sum(pt.sqr(diffs), axis=1)
-            logps = -0.5 * sq_dists / sigma2
-            return pm.math.logsumexp(logps)
-
-        pm.Potential("target_bias", logp_fn(x))
-        trace = pm.sample(12000, tune=1000, chains=4, cores = 4, target_accept=0.92, compute_convergence_checks=True, nuts_sampler="numpyro", progressbar=True)
-
-    NUTS_inputs = trace.posterior["x"].stack(sample=("chain", "draw")).values.T
-    del model
-    
-    return NUTS_inputs
-
 def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
@@ -184,26 +132,6 @@ def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output
     if result[:3] == "sat":
         print("Safety violation found in Sobol samples.")
         return result
-    
-    if setting:
-        print("Computing NUTS samples.")
-        targets = np.array(optima_inputs)
-        sigma = 0.1
-        NUTS_inputs = NUTS_sampler(dim, sigma, input_lb, input_ub, targets)
-
-        NUTS_outputs = parallel_objective_eval(
-            sess, 
-            samples=NUTS_inputs, 
-            input_shape=input_shape, 
-            input_name=input_name, 
-            label_name=label_name,
-        )
-        
-        print("Checking for violations in NUTS samples.")
-        result = SAT_check(NUTS_inputs, NUTS_outputs, smtlib_str)
-        if result[:3] == "sat":
-            print("Safety violation found in NUTS samples.")
-            return result
     
     print("Inconclusive analysis.")
     return "unknown"
