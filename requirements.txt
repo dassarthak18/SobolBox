@@ -1,4 +1,3 @@
-cmdstanpy
 nevergrad
 numpy
 numpyro
