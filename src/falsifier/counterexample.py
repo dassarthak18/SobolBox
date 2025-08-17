@@ -80,7 +80,7 @@ def SAT_check(X_points, Y_points, smtlib_str):
             return res
     return "unknown"
 
-def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs, setting):
+def CE_search(smtlib_str, sess, input_lb, input_ub, output_lb, output_ub, output_lb_inputs, output_ub_inputs):
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
     input_shape = sess.get_inputs()[0].shape
