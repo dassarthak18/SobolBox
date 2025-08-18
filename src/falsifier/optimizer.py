@@ -59,7 +59,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
             x0,
             method="L-BFGS-B",
             bounds=list(zip(lower_bounds, upper_bounds)),
-            options={"gtol": 1e-12, "maxiter": 10000, "eps": 1e-12},
+            options={"gtol": 1e-13, "maxiter": 10000, "eps": 1e-13},
         )
     end_lbfgs = time.time()
     
