@@ -30,7 +30,7 @@ for prop in {1..4}; do
         ../examples/acasxu/onnx/$model \
         ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
         ../results/result_acasxu_${i}_${j}_p${prop}.txt \
-        3600
+        116
       
       end_time=$(date +%s.%N)
       elapsed=$(echo "$end_time - $start_time" | bc)
@@ -73,7 +73,7 @@ do
     ../examples/acasxu/onnx/$model \
     ../examples/acasxu/vnnlib/prop_${prop}.vnnlib \
     ../results/result_acasxu_${i}_${j}_p${prop}.txt \
-    3600
+    116
   
   end_time=$(date +%s.%N)
   elapsed=$(echo "$end_time - $start_time" | bc)
