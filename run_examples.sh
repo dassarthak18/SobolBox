@@ -13,6 +13,9 @@ runtime_log="../runtime_log.txt"
 > "$runtime_log"
 total_time=0
 
+# Run ACASXU benchmarks
+echo "=== Running ACASXU benchmarks ==="
+
 # Running props 1 to 4 on all models
 for prop in {1..4}; do
   for i in {1..5}; do
@@ -87,12 +90,45 @@ do
   fi
 done
 
+# Run sat_relu benchmarks
+echo "=== Running sat-relu benchmarks ==="
+
+for model in ../examples/sat_relu/onnx/*.onnx; do
+  base=$(basename "$model" .onnx)
+  prop="../examples/sat_relu/vnnlib/${base}.vnnlib"
+  result_file="../results/result_satrelu_${base}.txt"
+
+  if [ ! -f "$prop" ]; then
+    echo "No matching property file for $base, skipping"
+    continue
+  fi
+
+  echo "Running model $base with property $prop"
+  start_time=$(date +%s.%N)
+
+  ./prepare_instance.sh v1 sat_relu "$model" "$prop"
+  ./run_instance.sh v1 sat_relu "$model" "$prop" "$result_file" 100
+
+  end_time=$(date +%s.%N)
+  elapsed=$(echo "$end_time - $start_time" | bc)
+  total_time=$(echo "$total_time + $elapsed" | bc)
+
+  if [ -f "$result_file" ]; then
+    status=$(head -n 1 "$result_file")
+    if [ "$status" = "unknown" ]; then
+      echo "x$elapsed (sat_relu $base)" >> "$runtime_log"
+    else
+      echo "$elapsed (sat_relu $base)" >> "$runtime_log"
+    fi
+  fi
+done
+
 # Count sat/unsat/unknown
 unsat=0
 sat=0
 unknown=0
 
-for file in ../results/result_acasxu_*.txt; do
+for file in ../results/result_*.txt; do
   if [ -f "$file" ]; then
     status=$(head -n 1 "$file")
     case "$status" in
