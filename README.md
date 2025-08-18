@@ -62,8 +62,8 @@ By computing the neural network outputs across these points, SobolBox identifies
 Once these extrema estimates are obtained, they are fed into Z3 along with the safety specification for analysis. The key insight here is that in control and optimization problems, sensitivity is higher near optima - meaning that constraint violation often occurs at or near the optimum when the unconstrained optimum is infeasible. 
 
 * **Stage 0.** If the tool encounters neural networks of effective input dimension greater than 15000, the falsifier quits gracefully and returns ``unknown``.
-* **Stage 1.** If the analysis determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
-* **Stage 2.** If the analysis finds an optimum or a Sobol sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
+* **Stage 1.** If the analysis finds an optimum or a Sobol sample that is a valid safety violation, the falsifier returns ``sat`` along with the counterexample.
+* **Stage 2.** If the analysis determines that a safety violation is not possible given the computed output bounds, the falsifier returns ``unsat``. The output bounds computed by our algorithm are under-approximations. As such, ``unsat`` results are high confidence, but not sound guarantees.
 * **Stage 3.** If the analysis is inconclusive, the falsifier returns ``unknown``.
 
 SobolBox also implements built-in memoization of black-box function calls, parallelization, and caching of both Sobol sequences and computed output bounds to reduce computational overheads across runs.
