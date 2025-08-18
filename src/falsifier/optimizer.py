@@ -19,7 +19,7 @@ def sobol_samples(dim, n_samples, cache_dir=".sobol_cache"):
 
     return unit_samples
 
-def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12):
+def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-13):
     lower_bounds = np.asarray(lower_bounds)
     upper_bounds = np.asarray(upper_bounds)
 
@@ -34,7 +34,7 @@ def optimize_1D(objective_fn, lower_bounds, upper_bounds, topk_points, eps=1e-12
 
     param = ng.p.Array(shape=(dim,))
     span = np.asarray(eps_upper) - np.asarray(eps_lower)
-    sigma = np.maximum(span / 6.0, 1e-12)
+    sigma = np.maximum(span / 6.0, 1e-14)
     param.set_mutation(sigma=sigma)
     param.value = center_point.copy()
     param.set_bounds(eps_lower, eps_upper)
