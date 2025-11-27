@@ -10,7 +10,6 @@
   - [Parallelization and Caching](#parallelization-and-caching)
 - [Installation and Usage](#installation-and-usage)
 - [Falsification Approach](#falsification-approach)
-  - [Note](#note)
 - [Changelog](#changelog)
 - [Acknowledgments](#acknowledgements)
 - [News](#news)
